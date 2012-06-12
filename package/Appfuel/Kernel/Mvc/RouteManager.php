@@ -21,16 +21,30 @@ use Exception,
 class RouteManager
 {
 	/**
-	 * List of routes stored as an associative array route key => detail
-	 * @var array
-	 */
-	static protected $routes = array();
-
-	/**
 	 * Flag used to determine if regexes will be used to find the route
 	 * @var bool
 	 */
 	static protected $isPatternMatching = true;
+
+	/**
+	 * Flag used to determine if a route can be found via its route key
+	 * @var bool
+	 */
+	static protected $isKeyLookup = true;
+
+	/**
+	 * Flag used to determine if the pattern will be searched before looking for
+	 * the route key. This is used when both pattern matching and key lookup
+	 * are both enabled.
+	 * @var bool
+	 */
+	static protected $isPatternFirst = false;
+
+	/**
+	 * List of routes stored as an associative array route key => detail
+	 * @var array
+	 */
+	static protected $routes = array();
 
 	/**
  	 * Associative array of regex to route key. Used by the router where
@@ -61,6 +75,54 @@ class RouteManager
 	static public function disablePatternMatching()
 	{
 		self::$isPatternMatching = false;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isKeyLookup()
+	{
+		return self::$isKeyLookup;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function enableKeyLookup()
+	{
+		self::$isKeyLookup = true;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function disableKeyLookup()
+	{
+		self::$isKeyLookup = false;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function usePatternMatchingBeforeKeyLookup()
+	{
+		self::$isPatternFirst = true;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function useKeyLookupBeforePatternMatching()
+	{
+		self::$isPatternFirst = false;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isPatternMatchingBeforeKeyLookup()
+	{
+		return self::$isPatternFirst;
 	}
 
 	/**
@@ -121,36 +183,91 @@ class RouteManager
 	}
 
 	/**
+	 * @return	null
+	 */
+	static public function clearRoutes()
+	{
+		self::$routes = array();
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getRoutes()
+	{
+		return self::$routes;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	static public function setRoutes(array $list)
+	{
+		self::clearRoutes();
+		self::loadRoutes($list);
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	static public function loadRoutes(array $list)
+	{
+		foreach ($list as $route) {
+			self::addRoute($route);
+		}
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	bool
+	 */
+	static public function isRoute($key)
+	{
+		if (! is_string($key) || ! isset(self::$routes[$key])) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @throws	DomainException
 	 * @param	array | MvcRouteDetailInterface
 	 * @return	null
 	 */
-	static public function addRouteDetail($detail)
+	static public function addRoute($route)
 	{
-		if (is_array($detail)) {
-			$detail = self::createRouteDetail($detail);
+		if (is_array($route)) {
+			$route = self::createRoute($route);
 		}
-		else if (! $detail instanceof RouteInterface) {
-			$interface = "Appfuel\Kernel\Mvc\MvcRouteDetailInterface";
+		else if (! $route instanceof RouteInterface) {
 			$err  = "route detail must be an array (detail spec) or an oject ";
-			$err .= "that implements -($interface)";
+			$err .= "that implements -(Appfuel\Kernel\Mvc\\RouteInterface)";
 			throw new DomainException($err);
 		}
 
-		$key = $detail->getKey();
-		self::$routes[$key] = $detail;
+		$key = $route->getKey();
+		if (self::isRoute($key)) {
+			$err = "can not add route -($key) because it has already exists";
+			throw new DomainException($err);
+		}
 
-		if (! self::isPatternMatching() || ! $detail->isPattern()) {
+		self::$routes[$key] = $route;
+
+		if (! self::isPatternMatching() || ! $route->isPattern()) {
 			return;
 		}
 
-		self::addPattern($detail->getPattern(), $key);
+		self::addPattern($route->getPattern(), $key);
 	}
 
 	/**
 	 * @param	array	$data
 	 * @return	MvcRouteDetailInterface
 	 */
-	static public function createRotueDetail(array $data)
+	static public function createRotue(array $data)
 	{
 		if (! isset($data['route-class'])) {
 			return new MvcRouteDetail($data);
@@ -164,19 +281,19 @@ class RouteManager
 		}
 		
 		try {
-			$detail = new $class($data);
+			$route = new $class($data);
 		}
 		catch (Exception $e) {
 			$err = "could not instantiate route detail -($class)";
 			throw new DomainException($err);
 		}
 	
-		if (! $detail instanceof RouteInterface) {
+		if (! $route instanceof RouteInterface) {
 			$err  = "route detail -($class) does not implement -(Appfuel";
 			$err .= "\Kernel\Mvc\\RouteInterface)";
 			throw new DomainException($err);
 		}
 
-		return $detail;
+		return $route;
 	}
 }
