@@ -54,6 +54,12 @@ class RouteManager
 	static protected $patternMap = array();
 
 	/**
+	 * Associative array of goup regexes to match top level urls
+	 * @var array
+	 */
+	static protected $groupPatternMap = array();
+
+	/**
 	 * @return	bool
 	 */
 	static public function isPatternMatching()
@@ -157,8 +163,8 @@ class RouteManager
 	 */
 	static public function loadPatternMap(array $map)
 	{
-		foreach ($map as $pattern => $key) {
-			self::addPattern($pattern, $key);
+		foreach ($map as $pattern) {
+			self::addPattern($pattern);
 		}
 	}
 
@@ -167,19 +173,30 @@ class RouteManager
 	 * @param	string	$pattern
 	 * @return	null
 	 */
-	static public function addPattern($pattern, $key)
+	static public function addPattern($pattern)
 	{	
-		if (! is_string($key)) {
-			$err = "route key must be a string";
-			throw new InvalidArgumentException($err);
+		if (is_string($pattern)) {
+			$pattern = self::createRoutePattern($pattern);
+		}
+		else if (! $pattern instanceof RoutePatternInterface) {
+			$err  = "route pattern must be an array of pattern data or an ";
+			$err .= "object that implements Appfuel\Kernel\Mvc\\RoutePattern";
+			$err .= "Interface";
+			throw new DomainException($err);
 		}
 
-		if (! is_string($pattern)) {
-			$err = "regex route pattern must be a string";
-			throw new InvalidArgumentException($err);
-		}
+		$group	 = $pattern->getGroup();
+		$key     = $pattern->getRouteKey();
+		self::$patternMap[$group][$key] = $pattern;
+	}
 
-		self::$patternMap[$pattern] = $key;
+	/**
+	 * @param	array	$data
+	 * @return	RoutePattern
+	 */
+	static public function createPattern(array $data)
+	{
+		return new RoutePattern($data);
 	}
 
 	/**
@@ -260,17 +277,17 @@ class RouteManager
 			return;
 		}
 
-		self::addPattern($route->getPattern(), $key);
+		self::addPattern($route->getPattern(), $key, $route->getPatternGroup());
 	}
 
 	/**
 	 * @param	array	$data
 	 * @return	MvcRouteDetailInterface
 	 */
-	static public function createRotue(array $data)
+	static public function createRoute(array $data)
 	{
 		if (! isset($data['route-class'])) {
-			return new MvcRouteDetail($data);
+			return new Route($data);
 		}
 			
 		$class = $data['route-class'];
