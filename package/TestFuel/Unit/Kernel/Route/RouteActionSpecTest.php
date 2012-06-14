@@ -43,7 +43,10 @@ class RouteActionTest extends BaseTestCase
 	 */
 	public function routeActionInterface()
 	{
-		$spec = array('action-name' => 'MyAction');
+		$spec = array(
+			'namespace'   => 'MyName\Space',
+			'action-name' => 'MyAction'
+		);
 		$action = $this->createRouteActionSpec($spec);
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Route\RouteActionSpecInterface',
@@ -57,10 +60,14 @@ class RouteActionTest extends BaseTestCase
 	 */
 	public function findActionActionName()
 	{
-		$spec = array('action-name' => 'MyAction');
+		$ns = "MyNamespace";
+		$spec = array(
+			'namespace'   => $ns,
+			'action-name' => 'MyAction'
+		);
 		$action = $this->createRouteActionSpec($spec);
 
-		$this->assertEquals('MyAction', $action->findAction());
+		$this->assertEquals("$ns\MyAction", $action->findAction());
 	}
 
 	/**
@@ -72,8 +79,11 @@ class RouteActionTest extends BaseTestCase
 	{
 		$msg = 'action name must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
-		
-		$spec = array('action-name' => $badName);
+	
+		$spec = array(
+			'namespace'   => 'MyName\Space',
+			'action-name' => $badName
+		);	
 		$action = $this->createRouteActionSpec($spec);
 	}
 
@@ -83,19 +93,23 @@ class RouteActionTest extends BaseTestCase
 	 */
 	public function actionMap()
 	{
+		$ns = 'MyName\Space';
 		$map = array(
 			'get'	 => 'MyGet',
 			'post'	 => 'MyPost',
 			'put'	 => 'MyPut',
 			'delete' => 'MyDelete'
 		);
-		$spec = array('map' => $map);
+		$spec = array(
+			'namespace'   => $ns,
+			'map'		  => $map
+		);
 		$action = $this->createRouteActionSpec($spec);
-		$this->assertEquals('MyGet', $action->findAction('get'));
+		$this->assertEquals("$ns\MyGet", $action->findAction('get'));
 		$this->assertFalse($action->findAction('GET'));
-		$this->assertEquals('MyPost', $action->findAction('post'));
-		$this->assertEquals('MyPut', $action->findAction('put'));
-		$this->assertEquals('MyDelete', $action->findAction('delete'));
+		$this->assertEquals("$ns\MyPost", $action->findAction('post'));
+		$this->assertEquals("$ns\MyPut", $action->findAction('put'));
+		$this->assertEquals("$ns\MyDelete", $action->findAction('delete'));
 		$this->assertFalse($action->findAction('not-found'));
 	}
 
@@ -115,7 +129,10 @@ class RouteActionTest extends BaseTestCase
 			'delete'	=> 'MyDelete',
 			$badMethod	=> 'MyBadMethod'
 		);
-		$spec = array('map' => $map);
+		$spec = array(
+			'namespace' => "MyNamespace",
+			'map'		=> $map
+		);
 		$action = $this->createRouteActionSpec($spec);
 	}
 
@@ -134,7 +151,10 @@ class RouteActionTest extends BaseTestCase
 			'delete'	=> 'MyDelete',
 			'bad'		=> $badName
 		);
-		$spec = array('map' => $map);
+		$spec = array(
+			'namespace' => "MyNamespace",
+			'map'		=> $map
+		);
 		$action = $this->createRouteActionSpec($spec);
 	}
 
@@ -145,12 +165,16 @@ class RouteActionTest extends BaseTestCase
 	public function findActionEmptyMap()
 	{
 		$name = 'MyController';
-		$spec = array('action-name' => $name);
+		$ns   = "MyNamespace";
+		$spec = array(
+			'namespace'   => $ns,
+			'action-name' => $name
+		);
 		$action = $this->createRouteActionSpec($spec);
 
 		/* method is ignored */
-		$this->assertEquals($name, $action->findAction('put'));
-		$this->assertEquals($name, $action->findAction(12345));
-		$this->assertEquals($name, $action->findAction());
+		$this->assertEquals("$ns\\$name", $action->findAction('put'));
+		$this->assertEquals("$ns\\$name", $action->findAction(12345));
+		$this->assertEquals("$ns\\$name", $action->findAction());
 	}
 }

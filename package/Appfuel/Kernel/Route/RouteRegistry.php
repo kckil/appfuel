@@ -73,7 +73,7 @@ class RouteRegistry
 		}
 
 		$strategy = ucfirst($cat);
-		$interface = "Route{$strategy}Interface";
+		$interface = "Route{$strategy}SpecInterface";
 		if (! $object instanceof $interface) {
 			$type  = gettype($object);
 			$class = get_class($object);

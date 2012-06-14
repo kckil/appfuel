@@ -35,9 +35,9 @@ class RouteFactory
 			throw new DomainException($err);
 		}
 		
-		$classKey  = 'route-' . strtolower($strategy) . '-class-override';
+		$classKey  = 'route-' . strtolower($strategy) . '-spec-override';
 		$strategy  = ucfirst($strategy);
-		$class     = "Route{$strategy}";
+		$class     = "Route{$strategy}Spec";
 		$interface = "{$class}Interface";
 
 		/*

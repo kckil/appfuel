@@ -29,11 +29,22 @@ class RouteActionSpec implements RouteActionSpecInterface
 	protected $map = array();
 
 	/**
+	 * @var string
+	 */
+	protected $namespace = array();
+
+	/**
 	 * @param	array	$spec
 	 * @return	RouteAction
 	 */
 	public function __construct(array $spec)
 	{
+		if (! isset($spec['namespace'])) {
+			$err = "mvc action namespace is required but not set";
+			throw new DomainException($err);
+		}
+		$this->setNamespace($spec['namespace']);
+
 		if (! isset($spec['action-name']) && ! isset($spec['map'])) {
 			$err  = 'the action name or map must be set in order for the ';
 			$err .= ' dispatcher to be able to create it';
@@ -57,7 +68,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 	 * @param	string	$method 
 	 * @return	string | false
 	 */
-	public function findAction($method = null)
+	public function findAction($method = null, $isQualified = true)
 	{
 		if ($this->isMapEmpty()) {
 			$name = $this->getName();
@@ -66,15 +77,19 @@ class RouteActionSpec implements RouteActionSpecInterface
 			$name = $this->getNameInMap($method);
 		}
 
+		if (true === $isQualified && ! empty($name)) {
+			$name = "{$this->getNamespace()}\\$name";
+		}
+
 		return $name;
 	}
 
 	/**
 	 * @return	string
 	 */
-	protected function getName()
-	{	
-		return $this->name;
+	public function getNamespace()
+	{
+		return $this->namespace;
 	}
 
 	/**
@@ -129,6 +144,14 @@ class RouteActionSpec implements RouteActionSpecInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	protected function getName()
+	{	
+		return $this->name;
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	RouteAction
 	 */
@@ -141,5 +164,19 @@ class RouteActionSpec implements RouteActionSpecInterface
 
 		$this->name = $name;
 		return $this;
+	}
+
+	/**
+	 * @param	string	$ns
+	 * @return	null
+	 */
+	protected function setNamespace($ns)
+	{
+		if (! is_string($ns)) {
+			$err = "mvc action namespace must be a string";
+			throw new DomainException($err);
+		}
+
+		$this->namespace = $ns;
 	}
 }
