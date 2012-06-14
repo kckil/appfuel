@@ -218,6 +218,4 @@ class FieldSpecTest extends BaseTestCase
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		$spec = $this->createFieldSpec($data);
 	}
-
-
 }

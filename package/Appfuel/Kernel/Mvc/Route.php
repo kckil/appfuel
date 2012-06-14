@@ -73,10 +73,17 @@ class Route extends Dictionary implements RouteInterface
 			$err = "route key -(key) is missing and is required";
 			throw new DomainException($err);
 		}
-		$this->setKey($data['key']);
+		$key = $data['key'];
+		$this->setKey($key);
 
-		if (isset($data['pattern']) && is_string($data['pattern'])) {
-			$this->setPattern($data['pattern']);
+		if (isset($data['pattern'])) {
+			$pattern = $data['pattern'];
+			$group   = null;
+			if (isset($data['pattern-group'])) {
+				$group = $data['pattern-group'];
+			}
+			
+			$this->setPattern(array($pattern, $key, $group));
 		}
 
 		$this->initializeStartup($data);
@@ -114,7 +121,7 @@ class Route extends Dictionary implements RouteInterface
 	 */
 	public function isPattern()
 	{
-		return is_string($this->pattern);
+		return $this->pattern instanceof RoutePatternInterface;
 	}
 
 	/**
@@ -751,6 +758,15 @@ class Route extends Dictionary implements RouteInterface
 	}
 
 	/**
+	 * @param	array	$data
+	 * @return	RoutePattern
+	 */
+	protected function createRoutePattern(array $data)
+	{
+		return new RoutePattern($data);
+	}
+
+	/**
 	 * @param	string	$key
 	 * @return	null
 	 */
@@ -770,8 +786,12 @@ class Route extends Dictionary implements RouteInterface
 	 */
 	protected function setPattern($pattern)
 	{
-		if (! is_string($pattern)) {
-			$err = "regex pattern must be a string";
+		if (is_array($pattern)) {
+			$pattern = $this->createRoutePattern($pattern);
+		}
+		else if (! $pattern instanceof RoutePatternInterface) {
+			$err  = "pattern must be an array of an object that implements ";
+			$err .= "Appfuel\Kernel\Mvc\\RoutePatternInterface";
 			throw new DomainException($err);
 		}
 

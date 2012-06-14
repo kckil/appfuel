@@ -7,39 +7,17 @@
  * For complete copywrite and license details see the LICENSE file distributed
  * with this source code.
  */
-namespace Appfuel\Kernel\Mvc;
+namespace Appfuel\Kernel\Route;
 
 use Exception,
 	DomainException,
 	InvalidArgumentException,
-	Appfuel\Filesystem\FileFinder,
-	Appfuel\Filesystem\FileReader,
 	Appfuel\ClassLoader\NamespaceParser;
 
 /**
  */
-class RouteManager
+class RouteRegistry
 {
-	/**
-	 * Flag used to determine if regexes will be used to find the route
-	 * @var bool
-	 */
-	static protected $isPatternMatching = true;
-
-	/**
-	 * Flag used to determine if a route can be found via its route key
-	 * @var bool
-	 */
-	static protected $isKeyLookup = true;
-
-	/**
-	 * Flag used to determine if the pattern will be searched before looking for
-	 * the route key. This is used when both pattern matching and key lookup
-	 * are both enabled.
-	 * @var bool
-	 */
-	static protected $isPatternFirst = false;
-
 	/**
 	 * List of routes stored as an associative array route key => detail
 	 * @var array
@@ -60,75 +38,55 @@ class RouteManager
 	static protected $groupPatternMap = array();
 
 	/**
-	 * @return	bool
+	 * @param	string	$cat
+	 * @param	string	$key
+	 * @return	object
 	 */
-	static public function isPatternMatching()
+	static public function getRouteObject($cat, $key)
 	{
-		return self::$isPatternMatching;
+		if (! is_string($cat) || 
+			! isset(self::$routes[$cat]) ||
+			! is_string($key) ||
+			! isset(self::$routes[$cat][$key])) {
+			return false;
+		}
+
+		return self::$routes[$cat][$key];
 	}
 
 	/**
+	 * @param	string	$key
+	 * @param	string	$type
+	 * @param	object	$valueObject
 	 * @return	null
 	 */
-	static public function enablePatternMatching()
+	static public function addRouteObject($key, $cat, $object)
 	{
-		self::$isPatternMatching = true;
-	}
+		if (! is_string($key) || empty($key)) {
+			$err = "route key must be a non empty string";
+			throw new DomainException($err);
+		}
 
-	/**
-	 * @return	null
-	 */
-	static public function disablePatternMatching()
-	{
-		self::$isPatternMatching = false;
-	}
+		if (! is_string($cat) || empty($cat)) {
+			$err = "route category must be a non empty string";
+			throw new DomainException($err);	
+		}
 
-	/**
-	 * @return	bool
-	 */
-	static public function isKeyLookup()
-	{
-		return self::$isKeyLookup;
-	}
+		$strategy = ucfirst($cat);
+		$interface = "Route{$strategy}Interface";
+		if (! $object instanceof $interface) {
+			$type  = gettype($object);
+			$class = get_class($object);
+			$err   = "route object given is a -($type, $class) and does not ";
+			$err  .= "implement -($interface)";
+			throw new DomainException($err);
+		}
 
-	/**
-	 * @return	null
-	 */
-	static public function enableKeyLookup()
-	{
-		self::$isKeyLookup = true;
-	}
+		if (! isset(self::$routes[$cat])) {
+			self::$routes[$cat] = array();
+		}
 
-	/**
-	 * @return	null
-	 */
-	static public function disableKeyLookup()
-	{
-		self::$isKeyLookup = false;
-	}
-
-	/**
-	 * @return	null
-	 */
-	static public function usePatternMatchingBeforeKeyLookup()
-	{
-		self::$isPatternFirst = true;
-	}
-
-	/**
-	 * @return	null
-	 */
-	static public function useKeyLookupBeforePatternMatching()
-	{
-		self::$isPatternFirst = false;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	static public function isPatternMatchingBeforeKeyLookup()
-	{
-		return self::$isPatternFirst;
+		self::$routes[$cat][$key] = $object;
 	}
 
 	/**
