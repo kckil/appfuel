@@ -14,7 +14,7 @@ use DomainException;
 /**
  * Controls which tasks are applied during startup
  */
-class RouteStartup implements RouteStartupInterface
+class RouteStartupSpec implements RouteStartupSpecInterface
 {
 	/**
 	 * The framework should prepend these tasks to the startup task list

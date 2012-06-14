@@ -11,16 +11,16 @@ namespace TestFuel\Unit\Kernel\Route;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Route\RouteStartup;
+	Appfuel\Kernel\Route\RouteStartupSpec;
 
-class RouteStartupTest extends BaseTestCase
+class RouteStartupSpecTest extends BaseTestCase
 {
 	/**
 	 * @return RouteStartup
 	 */
-	public function createRouteStartup(array $spec)
+	public function createRouteStartupSpec(array $spec)
 	{
-		return new RouteStartup($spec);
+		return new RouteStartupSpec($spec);
 	}
 
 	/**
@@ -29,7 +29,7 @@ class RouteStartupTest extends BaseTestCase
 	 */
 	public function emptySpec()
 	{
-		$startup = $this->createRouteStartup(array());
+		$startup = $this->createRouteStartupSpec(array());
 		$this->assertFalse($startup->isPrependStartupTasks());
 		$this->assertFalse($startup->isIgnoreConfigStartupTasks());
 		$this->assertFalse($startup->isStartupDisabled());
@@ -48,19 +48,19 @@ class RouteStartupTest extends BaseTestCase
 	public function prependStartupTasks()
 	{
 		$spec = array('is-prepended' => true);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertTrue($startup->isPrependStartupTasks());
 
 		$spec = array('is-prepended' => false);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isPrependStartupTasks());
 	
 		$spec = array('is-prepended' => 1);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isPrependStartupTasks());
 	
 		$spec = array('is-prepended' => 'on');
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isPrependStartupTasks());
 	}
 
@@ -73,19 +73,19 @@ class RouteStartupTest extends BaseTestCase
 	public function ignoreConfigStartupTasks()
 	{
 		$spec = array('is-config-ignored' => true);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertTrue($startup->isIgnoreConfigStartupTasks());
 
 		$spec = array('is-config-ignored' => false);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isIgnoreConfigStartupTasks());
 	
 		$spec = array('is-config-ignored' => 1);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isIgnoreConfigStartupTasks());
 	
 		$spec = array('is-config-ignored' => 'on');
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isIgnoreConfigStartupTasks());
 	}
 
@@ -98,19 +98,19 @@ class RouteStartupTest extends BaseTestCase
 	public function disableStartupTasks()
 	{
 		$spec = array('is-disabled' => true);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertTrue($startup->isStartupDisabled());
 
 		$spec = array('is-disabled' => false);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	
 		$spec = array('is-disabled' => 1);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	
 		$spec = array('is-disabled' => 'on');
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	}
 
@@ -122,13 +122,13 @@ class RouteStartupTest extends BaseTestCase
 	{
 		$tasks = array('MyTask', 'YourTask');
 		$spec  = array('tasks' => $tasks);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		
 		$this->assertEquals($tasks, $startup->getStartupTasks());
 		$this->assertTrue($startup->isStartupTasks());
 
 		$spec  = array('tasks' => array());
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertEquals(array(), $startup->getStartupTasks());
 		$this->assertFalse($startup->isStartupTasks());
 	}
@@ -144,7 +144,7 @@ class RouteStartupTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		$tasks = array('MyTask', 'YourTask', $task);
 		$spec  = array('tasks' => $tasks);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 	}
 
 	/**
@@ -155,13 +155,13 @@ class RouteStartupTest extends BaseTestCase
 	{
 		$tasks = array('MyTask', 'YourTask');
 		$spec  = array('excluded-tasks' => $tasks);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 
 		$this->assertEquals($tasks, $startup->getExcludedStartupTasks());
 		$this->assertTrue($startup->isExcludedStartupTasks());
 
 		$spec    = array('excluded-tasks' => array());
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertEquals(array(), $startup->getExcludedStartupTasks());
 		$this->assertFalse($startup->isExcludedStartupTasks());
 	}
@@ -177,6 +177,6 @@ class RouteStartupTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		$tasks = array('MyTask', 'YourTask', $task);
 		$spec  = array('excluded-tasks' => $tasks);
-		$startup = $this->createRouteStartup($spec);
+		$startup = $this->createRouteStartupSpec($spec);
 	}
 }

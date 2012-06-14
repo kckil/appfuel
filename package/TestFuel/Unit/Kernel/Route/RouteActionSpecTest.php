@@ -11,7 +11,7 @@ namespace TestFuel\Unit\Kernel\Route;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Route\RouteAction;
+	Appfuel\Kernel\Route\RouteActionSpec;
 
 class RouteActionTest extends BaseTestCase
 {
@@ -32,9 +32,9 @@ class RouteActionTest extends BaseTestCase
 	/**
 	 * @return	RouteAction
 	 */
-	public function createRouteAction(array $spec)
+	public function createRouteActionSpec(array $spec)
 	{
-		return new RouteAction($spec);
+		return new RouteActionSpec($spec);
 	}
 
 	/**
@@ -44,9 +44,9 @@ class RouteActionTest extends BaseTestCase
 	public function routeActionInterface()
 	{
 		$spec = array('action-name' => 'MyAction');
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Route\RouteActionInterface',
+			'Appfuel\Kernel\Route\RouteActionSpecInterface',
 			$action
 		);
 	}
@@ -58,7 +58,7 @@ class RouteActionTest extends BaseTestCase
 	public function findActionActionName()
 	{
 		$spec = array('action-name' => 'MyAction');
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 
 		$this->assertEquals('MyAction', $action->findAction());
 	}
@@ -74,7 +74,7 @@ class RouteActionTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		
 		$spec = array('action-name' => $badName);
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 	}
 
 	/**
@@ -90,14 +90,13 @@ class RouteActionTest extends BaseTestCase
 			'delete' => 'MyDelete'
 		);
 		$spec = array('map' => $map);
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 		$this->assertEquals('MyGet', $action->findAction('get'));
 		$this->assertFalse($action->findAction('GET'));
 		$this->assertEquals('MyPost', $action->findAction('post'));
 		$this->assertEquals('MyPut', $action->findAction('put'));
 		$this->assertEquals('MyDelete', $action->findAction('delete'));
 		$this->assertFalse($action->findAction('not-found'));
-		
 	}
 
 	/**
@@ -117,7 +116,7 @@ class RouteActionTest extends BaseTestCase
 			$badMethod	=> 'MyBadMethod'
 		);
 		$spec = array('map' => $map);
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 	}
 
 	/**
@@ -136,7 +135,7 @@ class RouteActionTest extends BaseTestCase
 			'bad'		=> $badName
 		);
 		$spec = array('map' => $map);
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 	}
 
 	/**
@@ -147,7 +146,7 @@ class RouteActionTest extends BaseTestCase
 	{
 		$name = 'MyController';
 		$spec = array('action-name' => $name);
-		$action = $this->createRouteAction($spec);
+		$action = $this->createRouteActionSpec($spec);
 
 		/* method is ignored */
 		$this->assertEquals($name, $action->findAction('put'));

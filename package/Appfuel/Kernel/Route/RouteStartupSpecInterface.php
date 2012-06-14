@@ -15,7 +15,7 @@ namespace Appfuel\Kernel\Route;
  * added or excluded. All tasks or just tasks defined in the config files
  * may be disabled.
  */
-interface RouteStartupInterface
+interface RouteStartupSpecInterface
 {
 	/**
 	 * @param	array	$spec

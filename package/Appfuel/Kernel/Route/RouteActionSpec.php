@@ -15,7 +15,7 @@ use DomainException;
  * Maps the input method (http[get,post,put,delete] or cli)
  * to a concrete MvcAction.
  */
-class RouteAction implements RouteActionInterface
+class RouteActionSpec implements RouteActionSpecInterface
 {
 	/**
 	 * Name of the mvc action class. This is not the qual

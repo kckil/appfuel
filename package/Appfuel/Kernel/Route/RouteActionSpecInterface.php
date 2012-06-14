@@ -10,7 +10,7 @@
 namespace Appfuel\Kernel\Route;
 
 
-interface RouteActionInterface
+interface RouteActionSpecInterface
 {
 	/**
 	 * @param	array	$spec
