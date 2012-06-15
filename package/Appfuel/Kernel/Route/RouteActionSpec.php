@@ -34,7 +34,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 	/**
 	 * @var string
 	 */
-	protected $namespace = array();
+	protected $namespace = null;
 
     /**                                                                          
      * Flag used to determine if this route is public and reqiures no acl check  
@@ -90,7 +90,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 		}
 
 		if (isset($spec['map'])) {
-			$this->setMap($spec['map']);
+			$this->setActionMap($spec['map']);
 		}
 		else if (isset($spec['action-name'])) {
 			$this->setName($spec['action-name']);
@@ -102,15 +102,15 @@ class RouteActionSpec implements RouteActionSpecInterface
 		}
 
 		if (isset($spec['is-public']) && true === $spec['is-public']) {
-			$this->enablePublicAccess();
+			$this->isPublic = true;
 		}
 
 		if (isset($spec['is-internal']) && true === $spec['is-internal']) {
-			$this->enableInternalOnlyAccess();
+			$this->isInternal = true;
 		}
 
 		if (isset($spec['is-ignore-acl']) && true === $spec['is-ignore-acl']) { 
-			$this->ignoreAclAccess();
+			$this->isIgnoreAcl = true;
 		}
 
 		if (isset($spec['acl-access'])) {
@@ -270,7 +270,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 	/**
 	 * @return	array
 	 */
-	protected function getMap()
+	protected function getActionMap()
 	{
 		return $this->actionMap;
 	}
@@ -279,7 +279,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 	 * @param	array	$map
 	 * @return	RouteAction
 	 */
-	protected function setMap(array $map)
+	protected function setActionMap(array $map)
 	{
 		foreach ($map as $method => $action) {
 			if (! is_string($method) || empty($method)) {
@@ -335,70 +335,6 @@ class RouteActionSpec implements RouteActionSpecInterface
 	}
 
 	/**
-	 * @return RouteActionSpec
-	 */
-	protected function enablePublicAccess()
-	{
-		$this->isPublic = true;
-	}
-
-	/**
-	 * @return RouteActionSpec
-	 */
-	protected function disablePublicAccess()
-	{
-		$this->isPublic = false;
-	}
-
-	/**
-	 * @return	RouteActionSpec
-	 */
-	protected function enableInternalOnlyAccess()
-	{
-		$this->isInternal = true;
-	}
-
-	/**
-	 * @return	RouteActionSpec
-	 */
-	protected function disableInternalOnlyAccess()
-	{
-		$this->isInternal = false;
-	}
-
-	/**
-	 * @return	RouteActionSpec
-	 */
-	protected function ignoreAclAccess()
-	{
-		$this->isIgnoreAcl = true;
-	}
-
-	/**
-	 * @return	RouteActionSpec
-	 */
-	protected function useAclAccess()
-	{
-		$this->isIgnoreAcl = false;
-	}
-
-	/**
-	 * @return	RouteActionSpec
-	 */
-	protected function useAclForAllMethods()
-	{
-		$this->isAclForEachMethod = false;
-	}
-
-	/**
-	 * @return	null
-	 */
-	protected function useAclForEachMethod()
-	{
-		$this->isAclForEachMethod = true;
-	}
-
-	/**
 	 * @param	array
 	 * @return	null
 	 */
@@ -406,11 +342,11 @@ class RouteActionSpec implements RouteActionSpecInterface
 	{
 		if ($map !== array_values($map)) {
 			$this->validateMappedAclCodes($map);
-			$this->useAclForEachMethod();
+			$this->isAclForEachMethod = true;
 		}
 		else {
 			$this->validateAclCodes($map);
-			$this->useAclForAllMethods();
+			$this->isAclForEachMethod = false;
 		}
 
 		$this->aclMap = $map;

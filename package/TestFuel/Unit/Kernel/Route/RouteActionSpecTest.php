@@ -30,6 +30,23 @@ class RouteActionTest extends BaseTestCase
 	}
 
 	/**
+	 * For any flag in this spec the only valid true value is a bool true,
+	 * everything else is considered false
+	 *
+	 * @return	array
+	 */
+	public function provideFalseBoolValues()
+	{
+		return array(
+			array(false),
+			array('on'),
+			array(1),
+			array(0),
+			array('true')
+		);
+	}
+
+	/**
 	 * @return	RouteAction
 	 */
 	public function createRouteActionSpec(array $spec)
@@ -38,20 +55,124 @@ class RouteActionTest extends BaseTestCase
 	}
 
 	/**
+	 * The minimum required fields that will allow the spec to be created
+	 * @return	array
+	 */
+	public function getDefaultSpecData()
+	{
+		return array(
+			'namespace'   => 'MyName\Space',
+			'action-name' => 'MyAction'
+		);
+	}
+
+	/**
 	 * @test
 	 * @return RouteIntercept
 	 */
 	public function routeActionInterface()
 	{
-		$spec = array(
-			'namespace'   => 'MyName\Space',
-			'action-name' => 'MyAction'
-		);
+		$spec   = $this->getDefaultSpecData();
 		$action = $this->createRouteActionSpec($spec);
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Route\RouteActionSpecInterface',
 			$action
 		);
+	}
+
+	/**
+	 * @test
+	 * @return		null
+	 */
+	public function defaultSettings()
+	{
+		$spec = array(
+			'namespace'   => 'MyNamespace',
+			'action-name' => 'MyAction',
+		);
+
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertFalse($action->isPublicAccess());
+		$this->assertFalse($action->isInternalOnlyAccess());
+		$this->assertFalse($action->isAclAccessIgnored());
+		$this->assertFalse($action->isAclForeachMethod());		
+
+		return $spec;
+	}
+
+	/**
+	 * @test
+	 * @depends		defaultSettings
+	 * @return		null
+	 */
+	public function publicAccess($spec)
+	{
+		$spec['is-public'] = true;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertTrue($action->isPublicAccess());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideFalseBoolValues
+	 * @return			null
+	 */
+	public function publicFalseValues($bool)
+	{
+		$spec = $this->getDefaultSpecData();
+		$spec['is-public'] = $bool;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertFalse($action->isPublicAccess());
+	}
+
+	/**
+	 * @test
+	 * @depends		defaultSettings
+	 * @return		null
+	 */
+	public function internalOnlyAccess($spec)
+	{
+		$spec['is-internal'] = true;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertTrue($action->isInternalOnlyAccess());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideFalseBoolValues
+	 * @return			null
+	 */
+	public function internalOnlyAccessFalseValues($bool)
+	{
+		$spec = $this->getDefaultSpecData();
+		$spec['is-internal'] = $bool;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertFalse($action->isInternalOnlyAccess());
+	}
+
+	/**
+	 * @test
+	 * @depends		defaultSettings
+	 * @return		null
+	 */
+	public function ignoreAcl($spec)
+	{
+		$spec['is-ignore-acl'] = true;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertTrue($action->isAclAccessIgnored());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideFalseBoolValues
+	 * @return			null
+	 */
+	public function ignoreAclFalseValues($bool)
+	{
+		$spec = $this->getDefaultSpecData();
+		$spec['is-ignore-acl'] = $bool;
+		$action = $this->createRouteActionSpec($spec);
+		$this->assertFalse($action->isAclAccessIgnored());
 	}
 
 	/**
@@ -177,4 +298,5 @@ class RouteActionTest extends BaseTestCase
 		$this->assertEquals("$ns\\$name", $action->findAction(12345));
 		$this->assertEquals("$ns\\$name", $action->findAction());
 	}
+
 }
