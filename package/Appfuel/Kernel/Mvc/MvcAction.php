@@ -21,53 +21,12 @@ use Appfuel\Orm\OrmManager;
 class MvcAction implements MvcActionInterface
 {
 	/**
-	 * Used to make a call to other mvc actions
-	 * @var MvcActionDispatcherInterface
-	 */
-	protected $dispatcher = null;
-
-	/**
-	 * @var MvcFactoryInterface
-	 */
-	protected $factory = null;
-
-	/**
-	 * @param	MvcFactoryInterface	$factory
-	 * @return	MvcAction
-	 */
-	public function __construct(MvcFactoryInterface $factory = null)
-	{
-		if (null === $factory) {
-			$factory = new MvcFactory();
-		}
-		$this->setMvcFactory($factory);
-		$this->setDispatcher($factory->createDispatcher());
-	}
-
-	/**
 	 * @param	string	$key
 	 * @return	OrmRepositoryInterface
 	 */
 	public function getRepository($key, $source = 'db')
 	{
 		return OrmManager::getRepository($key, $source);
-	}
-
-	/**
-	 * @param	MvcActionDispatcher
-	 * @return	null
-	 */
-	public function getDispatcher()
-	{
-		return $this->dispatcher;
-	}
-
-	/**
-	 * @return 	MvcContextBuilder
-	 */
-	public function getMvcFactory()
-	{
-		return $this->factory;
 	}
 
 	/**
@@ -86,47 +45,9 @@ class MvcAction implements MvcActionInterface
 	 * @param	MvcContextInterface $context
 	 * @return	MvcContextInterface
 	 */
-	public function callWithContext($routeKey, MvcContextInterface $context)
+	public function call($key, MvcContextInterface $context)
 	{
-		$tmp = $this->getMvcFactory()
-					->createContext($routeKey, $context->getInput());
-
-		if ($context->isContextView()) {
-			$tmp->setView($context->getView());
-		}
-
-		$tmp->load($context->getAll());
-		if ('' !== trim($context->getViewFormat())) {
-		    $tmp->setViewFormat($context->getViewFormat());
-		}
-		$this->dispatch($tmp);
-
-		/* transfer all assignments made by mvc action */
-		$context->load($tmp->getAll());
-		$view = $tmp->getView();
-		if (! empty($view)) {
-			$context->setView($view);
-		}
-
-		return $context;
-	}
-
-	/**
-	 * @param	MvcActionDispatcherInterface $dispatcher
-	 * @return	null
-	 */
-	protected function setDispatcher(MvcDispatcherInterface $dispatcher)
-	{
-		$this->dispatcher = $dispatcher;
-	}
-
-	/**
-	 * @param	MvcActionDispatcherInterface $dispatcher
-	 * @return	null
-	 */
-	protected function setMvcFactory(MvcFactoryInterface $factory)
-	{
-		$this->factory = $factory;
+		return $context->merge($this->dispatch($context->clone($key)));
 	}
 
 	/**
@@ -135,7 +56,7 @@ class MvcAction implements MvcActionInterface
 	 */
 	protected function dispatch(MvcContextInterface $context)
 	{
-		return $this->getDispatcher()
-					->dispatch($context);
+		Dispatcher::dispatch($context);
+		return $context;
 	}
 }

@@ -13,7 +13,7 @@ namespace Appfuel\Kernel\Mvc;
  * Dispatcher is expected to create the mvc action, validate acl access, 
  * optionally validate input parameters and process the mvc action  
  */
-interface MvcDispatcherInterface
+interface DispatcherInterface
 {
 	/**
 	 * Dispatch a request a context using the fluent interface
@@ -21,5 +21,5 @@ interface MvcDispatcherInterface
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function dispatch(MvcContextInterface $context);
+	static public function dispatch(MvcContextInterface $context);
 }
