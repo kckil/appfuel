@@ -12,9 +12,15 @@ namespace Appfuel\Kernel\Route;
 interface RouteViewSpecInterface
 {
 	/**
+	 * @param	array	$spec
+	 * @return	RouteViewSpec
+	 */
+	public function __construct(array $spec);
+
+	/**
 	 * @return string
 	 */
-	public function getFormat();
+	public function getDefaultFormat();
 
 	/**
 	 * @return	bool

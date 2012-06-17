@@ -304,7 +304,6 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 	}
 
-
 	/**
 	 * @test
 	 * @depends	setPostFilters

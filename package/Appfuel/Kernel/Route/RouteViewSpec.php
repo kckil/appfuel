@@ -9,8 +9,7 @@
  */
 namespace Appfuel\Kernel\Route;
 
-use InvalidArgumentException;
-
+use DomainException;
 /**
  * Controls view settings like disabling the view or telling the framework
  * you will handle the view manually, what the default format for the view is
@@ -22,7 +21,7 @@ class RouteViewSpec implements RouteViewSpecInterface
 	 * Used to determine what view format will be used with this route
 	 * @var string
 	 */
-	protected $format = 'html';
+	protected $defaultFormat = 'html';
 
 	/**
 	 * @var	bool
@@ -44,34 +43,33 @@ class RouteViewSpec implements RouteViewSpecInterface
 
 	/**
 	 * @param	array	$spec
-	 * @return	ActionViewSpec
+	 * @return	RouteViewSpec
 	 */
 	public function __construct(array $spec)
 	{
-		if (isset($spec['is-view']) && false === $spec['is-view']) {
-			$this->isViewDisabled = false;
+		if (isset($spec['default-format'])) {
+			$this->setDefaultFormat($spec['default-format']);
 		}
 
-		if (isset($spec['is-manual-view']) && 
-			true === $spec['is-manual-view']) {
+		if (isset($spec['disable-view']) && true === $spec['disable-view']) {
+			$this->isViewDisabled = true;
+		}
+
+		if (isset($spec['manual-view']) && true === $spec['manual-view']) {
 			$this->isManualView = true;
 		}
 
 		if (isset($spec['view-pkg'])) {
 			$this->setViewPackage($spec['view-pkg']);
 		}
-
-		if (isset($spec['default-format'])) {
-			$this->setFormat($spec['default-format']);
-		}
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getFormat()
+	public function getDefaultFormat()
 	{
-		return $this->format;
+		return $this->defaultFormat;
 	}
 
 	/**
@@ -95,7 +93,7 @@ class RouteViewSpec implements RouteViewSpecInterface
 	 */
 	public function isViewPackage()
 	{
-		return is_string($this->viewPkg);
+		return is_string($this->viewPkg) && ! empty($this->viewPkg);
 	}
 
 	/**
@@ -112,9 +110,10 @@ class RouteViewSpec implements RouteViewSpecInterface
 	 */
 	protected function setViewPackage($name)
 	{
+
 		if (! is_string($name) || empty($name)) {
-			$err = "package name must be a non empty string";
-			throw new InvalidArgumentException($err);
+			$err = "view package name must be a non empty string";
+			throw new DomainException($err);
 		}
 
 		$this->viewPkg = $name;
@@ -124,13 +123,13 @@ class RouteViewSpec implements RouteViewSpecInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setFormat($name)
+	protected function setDefaultFormat($name)
 	{
 		if (! is_string($name)) {
 			$err = 'route format must be a string';
-			throw new InvalidArgumentException($err);
+			throw new DomainException($err);
 		}
 
-		$this->format = $name;
+		$this->defaultFormat = $name;
 	}
 }
