@@ -10,6 +10,7 @@
 namespace Appfuel\Kernel\Mvc;
 
 use Appfuel\Orm\OrmManager;
+
 /**
  * The mvc action is the controller in mvc. The front controller always 
  * dispatches a context to be processed by the mvc action based on a 

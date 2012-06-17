@@ -9,7 +9,7 @@
  */
 namespace Appfuel\Kernel\Route;
 
-interface RouteActionSpecInterface
+interface RouteAccessSpecInterface
 {
 	/**
 	 * @param	array	$spec
@@ -18,20 +18,28 @@ interface RouteActionSpecInterface
 	public function __construct(array $spec);
 
 	/**
-	 * @param	string	$method 
-	 * @param	bool	$isQualified 
-	 * @return	string | false
+	 * @return	bool
 	 */
-	public function findAction($method = null, $isQualified = true);
+	public function isPublicAccess();
 
 	/**
-	 * @return	string
+	 * @return	bool
 	 */
-	public function getNamespace();
+	public function isInternalOnlyAccess();
 
 	/**
-	 * @param	string	$method
-	 * @return	MvcActionInterface
+	 * @return bool
 	 */
-	public function createAction($method = null);
+	public function isAclAccessIgnored();
+
+	/**
+	 * @return	bool
+	 */
+	public function isAclForEachMethod();
+
+	/**
+	 * @param	string	$code
+	 * @return	bool
+	 */
+	public function isAccessAllowed($codes, $method = null);
 }
