@@ -43,7 +43,7 @@ class RouteActionSpec implements RouteActionSpecInterface
 	public function __construct(array $spec)
 	{
 		if (! isset($spec['namespace'])) {
-			$err = "mvc action namespace is required but not set";
+			$err = "mvc action namespace -(namespace) is required but not set";
 			throw new DomainException($err);
 		}
 		$this->setNamespace($spec['namespace']);
