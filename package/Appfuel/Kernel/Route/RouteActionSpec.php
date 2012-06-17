@@ -49,8 +49,8 @@ class RouteActionSpec implements RouteActionSpecInterface
 		$this->setNamespace($spec['namespace']);
 
 		if (! isset($spec['action-name']) && ! isset($spec['map'])) {
-			$err  = 'the action name or map must be set in order for the ';
-			$err .= ' dispatcher to be able to create it';
+			$err  = 'one of the following keys must be set -(action-name, ';
+			$err .= 'map)';
 			throw new DomainException($err);
 		}
 

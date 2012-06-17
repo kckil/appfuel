@@ -83,6 +83,34 @@ class RouteActionTest extends BaseTestCase
 
 	/**
 	 * @test
+	 * @depends		defaultSettings
+	 * @return		null
+	 */
+	public function noNamespaceSet($spec)
+	{
+		$msg = 'mvc action namespace -(namespace) is required but not set';
+		$this->setExpectedException('DomainException', $msg);
+		
+		unset($spec['namespace']);
+		$action = $this->createRouteActionSpec($spec);
+	}
+
+	/**
+	 * @test
+	 * @depends		defaultSettings
+	 * @return		null
+	 */
+	public function noActionSet($spec)
+	{
+		$msg = 'one of the following keys must be set -(action-name, map)';
+		$this->setExpectedException('DomainException', $msg);
+		
+		unset($spec['action-name']);
+		$action = $this->createRouteActionSpec($spec);
+	}
+
+	/**
+	 * @test
 	 * @return	null
 	 */
 	public function findActionActionName()
