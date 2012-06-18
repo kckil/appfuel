@@ -7,11 +7,11 @@
  * For complete copywrite and license details see the LICENSE file distributed
  * with this source code.
  */
-namespace TestFuel\Unit\Kernel\Mvc;
+namespace TestFuel\Unit\Kernel\Route;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Mvc\RoutePattern;
+	Appfuel\Kernel\Route\RoutePatternSpec;
 
 class RoutePatternTest extends BaseTestCase
 {
@@ -21,7 +21,15 @@ class RoutePatternTest extends BaseTestCase
 	 */
 	public function createRoutePattern(array $data)
 	{
-		return new RoutePattern($data);
+		return new RoutePatternSpec($data);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRoutePatternSpecInterface()
+	{
+		return 'Appfuel\Kernel\Route\RoutePatternSpecInterface';
 	}
 
 	/**
@@ -32,20 +40,15 @@ class RoutePatternTest extends BaseTestCase
 	{
 		$data = array('/^users$/', 'my-route', 'my-group');
 		$pattern = $this->createRoutePattern($data);
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\RoutePatternInterface',
-			$pattern
-		);
+		$interface = $this->getRoutePatternSpecInterface();
+		$this->assertInstanceOf($interface, $pattern);
 		$this->assertEquals($data[0], $pattern->getRegEx());
 		$this->assertEquals($data[1], $pattern->getRouteKey());
 		$this->assertEquals($data[2], $pattern->getGroup());
 
 		$data = array('/^users$/', 'my-route');
 		$pattern = $this->createRoutePattern($data);
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\RoutePatternInterface',
-			$pattern
-		);
+		$this->assertInstanceOf($interface, $pattern);
 		$this->assertEquals($data[0],   $pattern->getRegEx());
 		$this->assertEquals($data[1],   $pattern->getRouteKey());
 		$this->assertEquals('no-group', $pattern->getGroup());
@@ -63,10 +66,8 @@ class RoutePatternTest extends BaseTestCase
 			'group'		=> 'my-group'
 		);
 		$pattern = $this->createRoutePattern($data);
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\RoutePatternInterface',
-			$pattern
-		);
+		$interface = $this->getRoutePatternSpecInterface();
+		$this->assertInstanceOf($interface, $pattern);
 		$this->assertEquals($data['pattern'],	$pattern->getRegEx());
 		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
 		$this->assertEquals($data['group'],		$pattern->getGroup());
@@ -76,10 +77,7 @@ class RoutePatternTest extends BaseTestCase
 			'route-key'     => 'my-route'
 		);
 		$pattern = $this->createRoutePattern($data);
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\RoutePatternInterface',
-			$pattern
-		);
+		$this->assertInstanceOf($interface, $pattern);
 		$this->assertEquals($data['pattern'],	$pattern->getRegEx());
 		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
 		$this->assertEquals('no-group',			$pattern->getGroup());
