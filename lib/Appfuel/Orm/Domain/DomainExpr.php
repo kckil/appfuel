@@ -89,7 +89,7 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 		$pattern  = "/(?<domain>([-_a-zA-Z0-9]+))\.";
 		$pattern .= "(?<member>([-_a-zA-Z0-9]+))\s*";
 		$pattern .= "(?<operator>";
-		$pattern .= "((not )?(=|<>|<|<=|>|>=|is|in|between)( not)?))\s*";
+		$pattern .= "((not )?(<>|<=|>=|<|>|=|is|in|between)( not)?))\s*";
 		$pattern .= "(?<value>([.-_,a-zA-Z0-9 ]+))/i";
 
 		$match  = array();
