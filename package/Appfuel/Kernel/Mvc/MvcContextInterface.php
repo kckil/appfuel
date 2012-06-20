@@ -20,63 +20,63 @@ use Appfuel\DataStructure\DictionaryInterface;
  */
 interface MvcContextInterface extends DictionaryInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getRouteKey();
+    /**
+     * @return  string
+     */
+    public function getRouteKey();
 
-	/**
-	 * @return	ViewTemplateInterface
-	 */
-	public function getView();
+    /**
+     * @return  ViewTemplateInterface
+     */
+    public function getView();
 
-	/**
-	 * @param	mixed	$view
-	 * @return	bool
-	 */
-	public function isValidView($view);
+    /**
+     * @param   mixed   $view
+     * @return  bool
+     */
+    public function isValidView($view);
 
-	/**
-	 * @return	bool
-	 */
-	public function isContextView();
+    /**
+     * @return  bool
+     */
+    public function isContextView();
 
-	/**
-	 * @param	ViewTemplateInterface $template
-	 * @return	AppContext
-	 */
-	public function setView($view);
+    /**
+     * @param   ViewTemplateInterface $template
+     * @return  AppContext
+     */
+    public function setView($view);
 
-	/**
-	 * @return	array
-	 */
-	public function getAclCodes();
+    /**
+     * @return  array
+     */
+    public function getAclCodes();
 
-	/**
-	 * @param	string	$code
-	 * @return	AppContext
-	 */
-	public function addAclCode($code);
+    /**
+     * @param   string  $code
+     * @return  AppContext
+     */
+    public function addAclCode($code);
 
-	/**
-	 * @param	string	$code
-	 * @return	bool
-	 */
-	public function isAclCode($code);
+    /**
+     * @param   string  $code
+     * @return  bool
+     */
+    public function isAclCode($code);
 
-	/**
-	 * @return	int
-	 */
-	public function getExitCode();
-	
-	/**
-	 * @param	int	$code
-	 * @return	AppContext
-	 */
-	public function setExitCode($code);
+    /**
+     * @return  int
+     */
+    public function getExitCode();
+    
+    /**
+     * @param   int $code
+     * @return  AppContext
+     */
+    public function setExitCode($code);
 
-	/**
-	 * @return	ContextInputInterface
-	 */
-	public function getInput();
+    /**
+     * @return  ContextInputInterface
+     */
+    public function getInput();
 }

@@ -15,11 +15,11 @@ namespace Appfuel\Kernel\Mvc;
  */
 interface DispatcherInterface
 {
-	/**
-	 * Dispatch a request a context using the fluent interface
-	 *
-	 * @param	AppContextInterface $context
-	 * @return	AppContextInterface
-	 */
-	static public function dispatch(MvcContextInterface $context);
+    /**
+     * Dispatch a request a context using the fluent interface
+     *
+     * @param   AppContextInterface $context
+     * @return  null 
+     */
+    static public function dispatch(MvcContextInterface $context);
 }

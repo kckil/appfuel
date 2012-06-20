@@ -17,7 +17,7 @@ namespace Appfuel\Kernel\Mvc;
 interface InterceptFilterInterface
 {
 	/**
-	 * @param	MvcContextInterface	$context
+	 * @param	MvcContextInterface	    $context
 	 * @param	ContextBuilderInterface $builder
 	 * @return	null
 	 */

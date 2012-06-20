@@ -21,43 +21,43 @@ use Appfuel\Orm\OrmManager;
  */
 class MvcAction implements MvcActionInterface
 {
-	/**
-	 * @param	string	$key
-	 * @return	OrmRepositoryInterface
-	 */
-	public function getRepository($key, $source = 'db')
-	{
-		return OrmManager::getRepository($key, $source);
-	}
+    /**
+     * @param   string  $key
+     * @return  OrmRepositoryInterface
+     */
+    public function getRepository($key, $source = 'db')
+    {
+        return OrmManager::getRepository($key, $source);
+    }
 
-	/**
-	 * Must be implemented by concrete class
-	 *
-	 * @param	AppContextInterface $context
-	 * @return	null
-	 */
-	public function process(MvcContextInterface $context)
-	{
-		throw new LogicException("must implement concrete process");
-	}
+    /**
+     * Must be implemented by concrete class
+     *
+     * @param   AppContextInterface $context
+     * @return  null
+     */
+    public function process(MvcContextInterface $context)
+    {
+        throw new LogicException("must implement concrete process");
+    }
 
-	/**
-	 * @param	string	$routeKey
-	 * @param	MvcContextInterface $context
-	 * @return	MvcContextInterface
-	 */
-	public function call($key, MvcContextInterface $context)
-	{
-		return $context->merge($this->dispatch($context->clone($key)));
-	}
+    /**
+     * @param   string              $routeKey
+     * @param   MvcContextInterface $context
+     * @return  MvcContextInterface
+     */
+    public function call($key, MvcContextInterface $context)
+    {
+        return $context->merge($this->dispatch($context->clone($key)));
+    }
 
-	/**
-	 * @param	MvcContextInterface $context
-	 * @return	null
-	 */
-	protected function dispatch(MvcContextInterface $context)
-	{
-		Dispatcher::dispatch($context);
-		return $context;
-	}
+    /**
+     * @param   MvcContextInterface $context
+     * @return  null
+     */
+    protected function dispatch(MvcContextInterface $context)
+    {
+        Dispatcher::dispatch($context);
+        return $context;
+    }
 }

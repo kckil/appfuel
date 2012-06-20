@@ -61,9 +61,9 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * @throws    DomainException
+     * @throws   DomainException
      * @param    string    $key
-     * @return    RouteActionSpecInterface
+     * @return   RouteActionSpecInterface
      */
     static protected function getActionSpec($key)
     {
@@ -123,5 +123,4 @@ class Dispatcher implements DispatcherInterface
     {
         return RouteRegistry::getSpec($key, $type);
     }
-
 }
