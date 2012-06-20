@@ -12,7 +12,7 @@ namespace Testfuel\Unit\Kernel;
 
 use StdClass,
 	Appfuel\Kernel\TaskHandler,
-	Appfuel\Kernel\Mvc\MvcContext,
+	Appfuel\App\AppContext,
 	Appfuel\Config\ConfigRegistry,
 	Testfuel\TestCase\BaseTestCase,
 	Testfuel\Functional\Kernel\Startup\TestTaskA,
@@ -59,6 +59,12 @@ class TaskHandlerTest extends BaseTestCase
 		ConfigRegistry::clear();
 		ConfigRegistry::setAll($this->configBackup);
 	}
+
+    public function createContextWithInput($key)
+    {
+    	$input = $this->getMock("Appfuel\App\AppInputInterface");
+		return new AppContext($key $input);
+    }
 
 	/**
 	 * @test
@@ -201,8 +207,7 @@ class TaskHandlerTest extends BaseTestCase
 
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
-		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = $this->createContextWithInput('my-route');
 
 		$this->assertNull($handler->kernelRunTasks($route, $context));
 	
@@ -235,7 +240,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$msg = 'tasks defined in the config registry must be in an array';
 		$this->setExpectedException('RunTimeException', $msg);
@@ -262,7 +267,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$msg  = 'startup task class name must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
@@ -289,7 +294,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$ns  = 'Appfuel\Kernel\StartupTaskInterface'; 
 		$msg = "-(StdClass) must implement $ns";

@@ -79,4 +79,18 @@ interface MvcContextInterface extends DictionaryInterface
      * @return  ContextInputInterface
      */
     public function getInput();
+
+    /**
+     * @param   string  $key
+     * @param   MvcContextInterface $context
+     * @return  MvcContextInterface
+     */
+    public function cloneContext($key, MvcContextInterface $context);
+
+    /**
+     * @param   MvcContextInterface $context
+     * @param   bool    $isReplaceInput
+     * @return  MvcContextInterface
+     */
+    public function merge(MvcContextInterface $context, $isReplaceInput=false);
 }

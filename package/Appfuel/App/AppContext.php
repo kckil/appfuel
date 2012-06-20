@@ -212,7 +212,7 @@ class AppContext extends Dictionary implements MvcContextInterface
     }
 
     /**
-     * @return    ContextInputInterface
+     * @return  ContextInputInterface
      */
     public function getInput()
     {
@@ -222,17 +222,17 @@ class AppContext extends Dictionary implements MvcContextInterface
     /**
      * @param    string    $key
      * @param    AppInputInterface $input
-     * @return    AppContext
+     * @return   AppContext
      */
-    public function clone($key, AppInputInterface $input = null)
+    public function cloneContext($key, MvcContextInterface $input = null)
     {
         if (null === $input) {
             $input = $this->getInput();
         }
 
         $context = new self($key, $input);
-        if ($this->isContextView()) {                                         
-            $context->setView($this->getView());                                  
+        if ($this->isContextView()) {                              
+            $context->setView($this->getView());
         }
 
         $context->load($this->getAll());
@@ -245,8 +245,8 @@ class AppContext extends Dictionary implements MvcContextInterface
     }
 
     /**
-     * @param    MvcContextInterface
-     * @return    MvcContextInterface
+     * @param   MvcContextInterface
+     * @return  MvcContextInterface
      */
     public function merge(MvcContextInterface $context, $isReplaceInput = false)
     {
