@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details.
  */
 namespace Appfuel\App;
 
@@ -31,45 +30,45 @@ interface AppFactoryInterface
     public function createUriFromServerSuperGlobal();
 
     /**
-     * @return    RequestUri
+     * @return  RequestUri
      */
     public function createUri($str);
 
     /**
-     * @param    string    $method
-     * @param    array    $params
-     * @return    AppInput
+     * @param   string  $method
+     * @param   array   $params
+     * @return  AppInput
      */
     public function createInput($method, array $params = array());
 
     /**
-     * @param    RequestUriInterface $uri 
-     * @return    AppInput
+     * @param   RequestUriInterface $uri 
+     * @return  AppInput
      */
     public function createRestInputFromBrowser(RequestUriInterface $uri=null);
     
     /**
-     * @return    AppInput
+     * @return  AppInput
      */
     public function createEmptyInput();
 
     /**
-     * @param    string    $key
-     * @return    MvcRouteDetailInterface
+     * @param   string  $key
+     * @return  MvcRouteDetailInterface
      */
     public function createRouteDetail($key);
 
     /**
-     * @param    string    $key
-     * @param    AppInputInterface $input
-     * @param    mixed    $view
-     * @return    MvcContext
+     * @param   string    $key
+     * @param   AppInputInterface $input
+     * @param   mixed    $view
+     * @return  AppContext
      */
     public function createContext($key, AppInputInterface $input, $view=null);
 
     /**
-     * @param    string    $key
-     * @return    MvcContext
+     * @param   string    $key
+     * @return  AppContext
      */
     public function createEmptyContext($key);
 

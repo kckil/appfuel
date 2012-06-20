@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details.
  */
 namespace Appfuel\App;
 
@@ -63,7 +62,7 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @return    RequestUri
+     * @return  RequestUri
      */
     public function createUri($str)
     {
@@ -71,9 +70,9 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @param    string    $method
-     * @param    array    $params
-     * @return    AppInput
+     * @param   string  $method
+     * @param   array   $params
+     * @return  AppInput
      */
     public function createInput($method, array $params = array())
     {
@@ -81,8 +80,8 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @param    array $data
-     * @return    AppInput
+     * @param   array $data
+     * @return  AppInput
      */
     public function createConsoleInput(array $data)
     {
@@ -91,7 +90,7 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @return    CliParser
+     * @return  CliParser
      */
     public function createCliArgParser()
     {
@@ -99,8 +98,8 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @param    RequestUriInterface $uri 
-     * @return    AppInput
+     * @param   RequestUriInterface $uri 
+     * @return  AppInput
      */
     public function createRestInputFromBrowser(RequestUriInterface $uri = null)
     {
@@ -180,10 +179,10 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @param    string    $key
-     * @param    AppInputInterface $input
-     * @param    mixed    $view
-     * @return    MvcContext
+     * @param   string  $key
+     * @param   AppInputInterface $input
+     * @param   mixed   $view
+     * @return  MvcContext
      */
     public function createContext($key, AppInputInterface $input, $view = null)
     {
@@ -191,8 +190,8 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @param    string    $key
-     * @return    MvcContext
+     * @param   string $key
+     * @return  MvcContext
      */
     public function createEmptyContext($key)
     {
@@ -200,7 +199,7 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
-     * @return    MvcViewBuilderInterface
+     * @return  MvcViewBuilderInterface
      */
     public function createViewBuilder()
     {

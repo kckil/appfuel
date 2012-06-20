@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details.
  */
 namespace Appfuel\App;
 
@@ -86,8 +85,8 @@ class AppDetail implements AppDetailInterface
     protected $build = 'app/build';
 
     /**
-     * @param    string    $basePath
-     * @return    AppDirStructure
+     * @param   string  $basePath
+     * @return  AppDirStructure
      */
     public function __construct($base)
     {
@@ -100,7 +99,7 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @return    string
+     * @return  string
      */
     public function getBasePath($path = null)
     {
@@ -110,8 +109,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getBin($isBase = true)
     {
@@ -119,8 +118,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getWWW($isBase = true)
     {
@@ -128,8 +127,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getTest($isBase = true)
     {
@@ -137,8 +136,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getPackage($isBase = true)
     {
@@ -146,8 +145,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getResource($isBase = true)
     {
@@ -155,8 +154,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getConfig($isBase = true)
     {
@@ -164,8 +163,8 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
-     * @param    string    $entry
-     * @return    string
+     * @param   string  $entry
+     * @return  string
      */
     public function getConfigFile($entry)
     {

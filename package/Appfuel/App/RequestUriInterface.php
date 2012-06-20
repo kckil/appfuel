@@ -7,7 +7,7 @@
  * For complete copywrite and license details see the LICENSE file distributed
  * with this source code.
  */
-namespace Appfuel\Kernel\Mvc;
+namespace Appfuel\App;
 
 /**
  * The request uri holds information about the get request from the path

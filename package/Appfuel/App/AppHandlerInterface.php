@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details. 
  */
 namespace Appfuel\App;
 
@@ -22,53 +21,53 @@ use Appfuel\View\ViewInterface,
 interface AppHandlerInterface
 {
     /**
-     * @return    AppFactoryInterface
+     * @return  AppFactoryInterface
      */
     public function getAppFactory();
 
     /**
-     * @param    AppFactoryInterface $factory
-     * @return    AppRunner
+     * @param   AppFactoryInterface $factory
+     * @return  AppHandler
      */
     public function setAppFactory(AppFactoryInterface $factory);
 
     /**
-     * @return    RequestUriInterface
+     * @return  RequestUriInterface
      */
     public function createUriFromServerSuperGlobal();
 
     /**
-     * @param    string
-     * @return    RequestUriInterface
+     * @param   string
+     * @return  RequestUriInterface
      */
     public function createUri($str);
 
     /**
-     * @param    array    $tasks
-     * @return    AppRunner
+     * @param   array    $tasks
+     * @return  AppHandler
      */
     public function findRoute($key, $format = null);
 
     /**
-     * @param    string $key
-     * @param    AppInputInterface   $input
-     * @return    MvcContextInterface
+     * @param   string $key
+     * @param   AppInputInterface   $input
+     * @return  MvcContextInterface
      */
     public function createContext($key, AppInputInterface $input);
 
     /**
-     * @param    MvcRouteDetailInterface    $route
-     * @param    MvcContextInterface        $context
-     * @return    AppRunner
+     * @param   MvcRouteDetailInterface $route
+     * @param   MvcContextInterface     $context
+     * @return  AppHandler
      */
     public function initializeApp(MvcRouteDetailInterface $route, 
                                   MvcContextInterface $context);
 
     /**
-     * @param    MvcRouteDetailInterface    $route
-     * @param    MvcContextInterface        $context
-     * @param    string                    $format
-     * @return    AppRunner
+     * @param   MvcRouteDetailInterface    $route
+     * @param   MvcContextInterface        $context
+     * @param   string     $format
+     * @return  AppHandler
      */
     public function setupView(MvcRouteDetailInterface $route, 
                               MvcContextInterface $context, 
@@ -78,30 +77,30 @@ interface AppHandlerInterface
                                 MvcContextInterface $context);
 
     /**
-     * @param    MvcRouteDetailInterface $route
-     * @param    MvcContextInterface $context
-     * @param    bool    $isHttp
-     * @return    null
+     * @param   MvcRouteDetailInterface $route
+     * @param   MvcContextInterface $context
+     * @param   bool    $isHttp
+     * @return  null
      */
     public function outputHttpContext(MvcRouteDetailInterface $route, 
                                       MvcContextInterface $context,
                                       $version = '1.1');
     /**
-     * @param    MvcContextInterface $context
-     * @return    null
+     * @param   MvcContextInterface $context
+     * @return  null
      */
     public function outputConsoleContext(MvcRouteDetailInterface $route,
                                          MvcContextInterface $context);
 
     /**
-     * @param    MvcContextInterface        $context
-     * @return    AppRunner
+     * @param   MvcContextInterface        $context
+     * @return  AppHandler
      */
     public function runAction(MvcContextInterface $context);
 
     /**
-     * @param    array    $tasks
-     * @return    AppRunner
+     * @param   array    $tasks
+     * @return  AppHandler
      */
     public function initialize(array $taks = null);
     public function runTasks(array $tasks);
@@ -112,8 +111,8 @@ interface AppHandlerInterface
     public function getTaskHandler();
 
     /**
-     * @param    TaskHandlerInterface $handler
-     * @return    AppRunner
+     * @param   TaskHandlerInterface $handler
+     * @return  AppHandler
      */
     public function setTaskHandler(TaskHandlerInterface $handler);
 }

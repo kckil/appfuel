@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details. 
  */
 namespace Appfuel\App;
 

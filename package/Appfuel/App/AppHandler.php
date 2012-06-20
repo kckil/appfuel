@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details. 
  */
 namespace Appfuel\App;
 
@@ -51,8 +50,8 @@ class AppHandler implements AppHandlerInterface
      * Ensure base path and library paths are correct. Setup Contants.
      * Load Kernel Dependencies
      *
-     * @param    AppDetailInterface    
-     * @return    AppHandler
+     * @param   AppDetailInterface    
+     * @return  AppHandler
      */
     public function __construct(AppDetailInterface $detail)
     {
@@ -61,7 +60,7 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return    AppDetailInterface
+     * @return  AppDetailInterface
      */
     public function getAppDetail()
     {
@@ -70,8 +69,9 @@ class AppHandler implements AppHandlerInterface
     
     /**
      * Create the app factory and task handler and define constants
-     * @param    array    $tasks 
-     * @return    null
+     * 
+     * @param   array    $tasks 
+     * @return  null
      */
     public function initialize(array $tasks = null)
     {
@@ -106,7 +106,7 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return    AppFactoryInterface
+     * @return  AppFactoryInterface
      */
     public function getAppFactory()
     {
@@ -114,8 +114,8 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    MvcFactoryInterface $factory
-     * @return    AppRunner
+     * @param   MvcFactoryInterface $factory
+     * @return  AppRunner
      */
     public function setAppFactory(AppFactoryInterface $factory)
     {
@@ -124,7 +124,7 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return    MvcFactoryInterface
+     * @return  MvcFactoryInterface
      */
     public function createAppFactory()
     {
@@ -132,7 +132,7 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return    RequestUriInterface
+     * @return  RequestUriInterface
      */
     public function createUriFromServerSuperGlobal()
     {
@@ -141,8 +141,8 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    string
-     * @return    RequestUriInterface
+     * @param   string
+     * @return  RequestUriInterface
      */
     public function createUri($str)
     {
@@ -151,7 +151,7 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return    AppInputInterface
+     * @return  AppInputInterface
      */
     public function createRestInputFromBrowser($uri = null)
     {
@@ -160,8 +160,8 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    array    $data
-     * @return    AppInputInterface
+     * @param   array    $data
+     * @return  AppInputInterface
      */
     public function createConsoleInput(array $data)
     {
@@ -170,8 +170,8 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    array    $tasks
-     * @return    AppRunner
+     * @param   array    $tasks
+     * @return  RouteDetailInterface
      */
     public function findRoute($key, $format = null)
     {
@@ -196,9 +196,9 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    string $key
-     * @param    AppInputInterface   $input
-     * @return    MvcContextInterface
+     * @param   string $key
+     * @param   AppInputInterface   $input
+     * @return  MvcContextInterface
      */
     public function createContext($key, AppInputInterface $input)
     {
@@ -207,9 +207,9 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    MvcRouteDetailInterface    $route
-     * @param    MvcContextInterface        $context
-     * @return    AppRunner
+     * @param   MvcRouteDetailInterface    $route
+     * @param   MvcContextInterface        $context
+     * @return  AppHandler
      */
     public function initializeApp(MvcRouteDetailInterface $route, 
                                   MvcContextInterface $context)
@@ -220,10 +220,10 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    MvcRouteDetailInterface    $route
-     * @param    MvcContextInterface        $context
-     * @param    string                    $format
-     * @return    AppRunner
+     * @param   MvcRouteDetailInterface    $route
+     * @param   MvcContextInterface        $context
+     * @param   string                    $format
+     * @return  AppRunner
      */
     public function setupView(MvcRouteDetailInterface $route, 
                               MvcContextInterface $context, 
@@ -269,10 +269,10 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    MvcRouteDetailInterface $route
-     * @param    MvcContextInterface $context
-     * @param    bool    $isHttp
-     * @return    null
+     * @param   MvcRouteDetailInterface $route
+     * @param   MvcContextInterface $context
+     * @param   bool    $isHttp
+     * @return  null
      */
     public function outputHttpContext(MvcRouteDetailInterface $route, 
                                       MvcContextInterface $context,
@@ -344,13 +344,12 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param    TaskHandlerInterface $handler
-     * @return    AppRunner
+     * @param   TaskHandlerInterface $handler
+     * @return  AppHandler
      */
     public function setTaskHandler(TaskHandlerInterface $handler)
     {
         $this->taskHandler = $handler;
         return $this;    
     }
-
 }

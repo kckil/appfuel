@@ -3,9 +3,8 @@
  * Appfuel                                                                       
  * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
  *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at the project root directory for details.
  */
 namespace Appfuel\App;
 
@@ -28,55 +27,55 @@ namespace Appfuel\App;
 interface AppDetailInterface
 {
     /**
-     * @return    string
+     * @return  string
      */
     public function getBasePath($path = null);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getBin($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getWWW($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getTest($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getPackage($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getResource($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getConfig($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getDataSource($isBase = true);
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   bool    $isBase
+     * @return  string
      */
     public function getBuild($isBase = true);
 }
