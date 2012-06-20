@@ -5,5 +5,6 @@
     "php-autoloader":			"Appfuel\\ClassLoader\\StandardAutoLoader",
     "php-default-timezone":		"America/Los_Angeles",
     "php-display-errors":		"on",
-    "php-error-level":			"all, strict"
+    "php-error-level":			"all, strict",
+    "action-dirs": ["Fuelcell/Action"]
 }

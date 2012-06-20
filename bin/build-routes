@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
+ */
+use Appfuel\Config\ConfigRegistry;
+
+$base = realpath(__DIR__ . '/../');
+$sep  = DIRECTORY_SEPARATOR;
+$header = "$base{$sep}app{$sep}app-header.php";
+if (! file_exists($header)) {
+	$err = "could not find app header at -($header)" . PHP_EOL;
+	fwrite(STDERR, $header);
+	exit(1);
+}
+
+$handler = require $header;
+$input = $handler->createConsoleInput($_SERVER['argv']);
+
+/*
+ * list of directories (relative path from package) where the action controller
+ * are kept
+ */
+$dirs = ConfigRegistry::get('action-dirs', array());
+if (! is_array($dirs)) {
+	$err = "the key -(action-dirs) needs to be an array of strings" . PHP_EOL;
+	fwrite(STDERR, $err);
+}
+
+echo "\n", print_r($dirs,1), "\n";exit;
+exit(0);

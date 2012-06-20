@@ -42,7 +42,8 @@ class RouteAccessSpecTest extends BaseTestCase
 			array('on'),
 			array(1),
 			array(0),
-			array('true')
+			array('true'),
+            array(new StdClass())
 		);
 	}
 

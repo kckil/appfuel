@@ -9,15 +9,15 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 use Appfuel\App\AppDetail,
-	Appfuel\App\AppHandler,
-	Appfuel\Config\ConfigLoader,
-	Appfuel\Config\ConfigRegistry;
+    Appfuel\App\AppHandler,
+    Appfuel\Config\ConfigLoader,
+    Appfuel\Config\ConfigRegistry;
 
 $sep  = DIRECTORY_SEPARATOR;
 $base = realpath(__DIR__ . '/../');
 $src  = "$base{$sep}package";
 if (! defined('AF_BASE_PATH')) {
-	define('AF_BASE_PATH', $base);
+    define('AF_BASE_PATH', $base);
 }
 
 /*
@@ -27,8 +27,8 @@ if (! defined('AF_BASE_PATH')) {
  */ 
 $file = "{$base}{$sep}app{$sep}kernel-dependencies.php";
 if (! file_exists($file)) {
-	$err = "could not find kernel dependency file at -($file)";
-	throw new RunTimeException($err);
+    $err = "could not find kernel dependency file at -($file)";
+    throw new RunTimeException($err);
 }
 $list = require $file;
 
@@ -37,20 +37,20 @@ $list = require $file;
  * loaded into memory and add them to the end of the kernel's list
  */
 if (isset($dependList) && is_array($dependList)) {
-	$list = array_splice($list, count($list), 0, $dependList);
+    $list = array_splice($list, count($list), 0, $dependList);
 }
 
 foreach ($list as $class => $file) {
-	if (class_exists($class) || interface_exists($class, false)) {
-		continue;	
-	}
-	$absolute = "{$src}{$sep}{$file}";
-	if (! file_exists($absolute)) {
-		$err = "could not find kernel dependency at -($absolute)";
-		throw new RunTimeException($err);
-	}
+    if (class_exists($class) || interface_exists($class, false)) {
+        continue;    
+    }
+    $absolute = "{$src}{$sep}{$file}";
+    if (! file_exists($absolute)) {
+        $err = "could not find kernel dependency at -($absolute)";
+        throw new RunTimeException($err);
+    }
 
-	require $absolute;
+    require $absolute;
 }
 unset($file, $list, $dependList, $class, $asbsolute, $err);
 
@@ -65,13 +65,13 @@ $detail = new AppDetail($base);
 define('AF_CODE_PATH', $detail->getPackage());
 
 if (isset($configData)) {
-	$loader->set($configData);
+    $loader->set($configData);
 }
 else {
-	if (! isset($configKey)) {
-		$configKey = 'web';
-	}
-	$loader->loadFile($detail->getConfigFile($configKey), true);
+    if (! isset($configKey)) {
+        $configKey = 'web';
+    }
+    $loader->loadFile($detail->getConfigFile($configKey), true);
 }
 
 /*
@@ -79,7 +79,7 @@ else {
  * including script can append, prepend or replaces these when needed. 
  */
 $tasks = array(
-	'Appfuel\Kernel\PHPIniTask',
+    'Appfuel\Kernel\PHPIniTask',
     'Appfuel\Kernel\PHPErrorTask',
     'Appfuel\Kernel\PHPPathTask',
     'Appfuel\Kernel\PHPDefaultTimezoneTask',
@@ -87,28 +87,29 @@ $tasks = array(
     'Appfuel\Kernel\FaultHandlerTask',
     'Appfuel\Kernel\DependencyLoaderTask',
     'Appfuel\Kernel\RouteListTask',
-	'Appfuel\Validate\ValidationStartupTask'
+    'Appfuel\Validate\ValidationStartupTask'
 );
 
 if (! isset($taskAction) || ! is_string($taskAction) || empty($taskAction)) {
-	$taskAction = 'append';
+    $taskAction = 'append';
 }
 
 if (isset($fwTasks) && is_array($fwTasks)) {
-	switch($taskAction) {
-		case 'append': 
-			array_splice($tasks, count($tasks), 0, $fwTasks);
-			break;
-		case 'prepend':
-			array_splice($tasks, 0, 0, $fwTasks);
-			break;
-		case 'replace':
-			$tasks = $fwTasks;
-			break;			
-	}
+    switch($taskAction) {
+        case 'append': 
+            array_splice($tasks, count($tasks), 0, $fwTasks);
+            break;
+        case 'prepend':
+            array_splice($tasks, 0, 0, $fwTasks);
+            break;
+        case 'replace':
+            $tasks = $fwTasks;
+            break;            
+    }
 }
 
 $handler = new AppHandler($detail);
 $handler->initialize($tasks);
 
 unset($tasks, $detail, $loader);
+return $handler;

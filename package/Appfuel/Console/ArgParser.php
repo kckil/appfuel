@@ -31,12 +31,14 @@ class ArgParser implements ArgParserInterface
 	public function parse(array $args)
     {
         $out = array(
-            'cmd'   => null,
             'long'  => array(),
             'short' => array(),
-            'args'  => array()
+            'args'  => array(
+				'cmd'  => null,
+				'list' => array()
+			)
         );
-        $out['cmd'] = array_shift($args);
+        $out['args']['cmd'] = array_shift($args);
 
 		$max = count($args);
 		$pattern = '/^--?.+/';
@@ -101,15 +103,15 @@ class ArgParser implements ArgParserInterface
 		$max  = count($args) - 1;
 
 		if (true === $isOptionsEnd) {
-			$out['args'] = $args;
+			$out['args']['list'] = $args;
 		}
 		else {
 			for($i = $max; $i >= 0; $i--) {
 				if (preg_match($pattern, $args[$i]) === 0) {
-					$out['args'][] = $args[$i];
+					$out['args']['list'][] = $args[$i];
 				}
 			}
-			$out['args'] = array_reverse($out['args']);
+			$out['args']['list'] = array_reverse($out['args']['list']);
 		}
 
 

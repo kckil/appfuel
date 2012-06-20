@@ -23,10 +23,12 @@ class ArgParserTest extends BaseTestCase
 	public function createResult(array $data = array())
 	{
 		$result = array(
-			'cmd'   => null,
 			'long'  => array(),
 			'short' => array(),
-			'args'  => array()
+			'args'  => array(
+                'cmd'  => null,
+                'list' => array()
+            )
 		);
 
 		return array_merge($result, $data);
