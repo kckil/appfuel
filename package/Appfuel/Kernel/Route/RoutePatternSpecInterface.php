@@ -4,8 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at the project root directory for details.
  */
 namespace Appfuel\Kernel\Route;
 
@@ -16,18 +15,18 @@ namespace Appfuel\Kernel\Route;
  */
 interface RoutePatternSpecInterface
 {
-	/**
-	 * @return string
-	 */
-	public function getRouteKey();
+    /**
+     * @return  string
+     */
+    public function getRouteKey();
 
-	/**
-	 * @return string
-	 */
-	public function getRegEx();
+    /**
+     * @return  string
+     */
+    public function getRegEx();
 
-	/**
-	 * @return	string | null when not set
-	 */
-	public function getGroup();
+    /**
+     * @return  string | null when not set
+     */
+    public function getGroup();
 }

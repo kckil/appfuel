@@ -97,19 +97,19 @@ class RouteStartupSpecTest extends BaseTestCase
 	 */
 	public function disableStartupTasks()
 	{
-		$spec = array('is-disabled' => true);
+		$spec = array('disable-startup' => true);
 		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertTrue($startup->isStartupDisabled());
 
-		$spec = array('is-disabled' => false);
+		$spec = array('disable-startup' => false);
 		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	
-		$spec = array('is-disabled' => 1);
+		$spec = array('disable-startup' => 1);
 		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	
-		$spec = array('is-disabled' => 'on');
+		$spec = array('disable-startup' => 'on');
 		$startup = $this->createRouteStartupSpec($spec);
 		$this->assertFalse($startup->isStartupDisabled());
 	}
