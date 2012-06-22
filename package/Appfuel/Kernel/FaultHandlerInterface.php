@@ -1,17 +1,15 @@
 <?php
-/**
- * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
- */
+/**                                                                              
+ * Appfuel                                                                       
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
+ *                                                                               
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
+ * See LICENSE file at the project root directory for details.                   
+ */ 
 namespace Appfuel\Kernel;
 
 use Appfuel\Log\Logger,
-	Appfuel\Log\LoggerInterface;
+    Appfuel\Log\LoggerInterface;
 
 /**
  * The fault handler is responsible for handling uncaught exceptions and
@@ -19,9 +17,9 @@ use Appfuel\Log\Logger,
  */
 interface FaultHandlerInterface
 {
-	/**
-	 * Used to log the error and exceptions
-	 * @return	LoggerInterface
-	 */
-	public function getLogger();
+    /**
+     * Used to log the error and exceptions
+     * @return	LoggerInterface
+     */
+    public function getLogger();
 }

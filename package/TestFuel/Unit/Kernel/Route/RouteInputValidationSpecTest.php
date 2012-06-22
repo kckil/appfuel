@@ -23,7 +23,7 @@ class RouteInputValidationTest extends BaseTestCase
 	public function provideNonTrueValues()
 	{
 		return array(
-			array(false),
+			[false],
 			array(0),
 			array(1),
 			array('on'),
