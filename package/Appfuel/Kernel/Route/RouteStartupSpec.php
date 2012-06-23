@@ -57,21 +57,22 @@ class RouteStartupSpec implements RouteStartupSpecInterface
             $this->isStartupDisabled = true;            
         }
 
-        if (isset($spec['is-prepended']) && true === $spec['is-prepended']) {    
+        if (isset($spec['prepend-startup-tasks']) && 
+            true === $spec['prepend-startup-tasks']) {    
             $this->isPrepend = true;
         }
 
-        if (isset($spec['is-config-ignored']) &&                                 
-            true === $spec['is-config-ignored']) {                               
+        if (isset($spec['only-route-startup-tasks']) &&                                 
+            true === $spec['only-route-startup-tasks']) {                               
             $this->isIgnoreConfig = true;
         } 
 
-        if (isset($spec['tasks'])) {                                             
-            $this->setStartupTasks($spec['tasks']);                           
+        if (isset($spec['startup-tasks'])) {                              
+            $this->setStartupTasks($spec['startup-tasks']);                           
         }                                                                       
                                                                                  
-        if (isset($spec['excluded-tasks'])) {                                    
-            $this->setExcludedStartupTasks($spec['excluded-tasks']);          
+        if (isset($spec['excluded-startup-tasks'])) {                                    
+            $this->setExcludedStartupTasks($spec['excluded-startup-tasks']);          
         }  
     }
 
