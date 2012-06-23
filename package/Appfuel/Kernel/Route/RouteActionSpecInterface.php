@@ -10,27 +10,28 @@ namespace Appfuel\Kernel\Route;
 
 interface RouteActionSpecInterface
 {
-	/**
-	 * @param	array	$spec
-	 * @return	RouteAction
-	 */
-	public function __construct(array $spec);
+    /**
+     * @param   array   $spec
+     * @return  RouteAction
+     */
+    public function __construct(array $spec);
 
-	/**
-	 * @param	string	$method 
-	 * @param	bool	$isQualified 
-	 * @return	string | false
-	 */
-	public function findAction($method = null, $isQualified = true);
+    /**
+     * @param   string  $method 
+     * @param   bool    $isQualified 
+     * @return  string | false
+     */
+    public function findAction($method = null, $isQualified = true);
 
-	/**
-	 * @return	string
-	 */
-	public function getNamespace();
+    /**
+     * @return  string
+     */
+    public function getNamespace();
 
-	/**
-	 * @param	string	$method
-	 * @return	MvcActionInterface
-	 */
-	public function createAction($method = null);
+    /**
+     * @throws  DomainException
+     * @param   string  $method
+     * @return  MvcActionInterface
+     */
+    public function createAction($method = null);
 }

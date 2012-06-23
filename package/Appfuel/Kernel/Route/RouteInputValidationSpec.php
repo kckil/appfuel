@@ -53,12 +53,13 @@ class RouteInputValidationSpec implements RouteInputValidationSpecInterface
      */
     public function __construct(array $spec)
     {
-        if (isset($spec['ignore']) && true === $spec['ignore']) {
+        if (isset($spec['disable-validation']) && 
+            true === $spec['disable-validation']) {
             $this->isInputValidation = false;
         }
 
-        if (isset($spec['throw-on-failure']) && 
-            false === $spec['throw-on-failure']) {
+        if (isset($spec['disable-validation-failures']) && 
+            true === $spec['disable-validation-failures']) {
             $this->isThrowOnFailure = false;
         }
 

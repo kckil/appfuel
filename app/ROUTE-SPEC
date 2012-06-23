@@ -7,17 +7,20 @@ route-key => array
                                 when array it will be an associative array that
                                 maps request method to action class name.
 
+    /* route startup */
     disable-startup             => [bool false by default],
     prepend-startup-tasks       => [bool false by default],
     only-route-startup-tasks    => [bool false by default],
     startup-tasks               => [array strings, classnames of tasks],
     excluded-startup-tasks      => [array strings, classnames of excluded tasks],
 
+    /* route view */
     default-view-format => [string   determines how the view is composed],
     disable-view   => [bool     false by default],
     manual-view    => [bool     false by defualt],
     view-pkg       => [string   location of the view package]
 
+    /* route intercepting filters */
     disable-pre-filters  => [bool    false by default],
     pre-filters          => [array strings   classnames of prefilters],
     excluded-pre-filters => [array strings   classnames of excluded prefilters],
@@ -25,15 +28,17 @@ route-key => array
     post-filters         => [array strings   classnames of post filters],
     exclude-post-filters => [array strings  classnames of excluded post filters]
 
+    /* route access */
     is-public     => [bool  false by default],
     is-internal   => [bool  false by default],
     is-ignore-acl => [bool  false by default],
     acl           => [array acl],
 
-    disable-validation     =>  [bool   false by default],
-    no-validation-failures =>  [bool   false by default],
-    validation-error-code   =>  [scalar used when throwing an error],
-    validation-spec         =>  [array
+    /* route input validation */
+    disable-validation          =>  [bool   false by default],
+    disable-validation-failures =>  [bool   false by default],
+    validation-error-code       =>  [scalar used when throwing an error],
+    validation-spec             =>  [array
         field   => [string | array of fields ],
             filters => [array
                 filter-name => array[

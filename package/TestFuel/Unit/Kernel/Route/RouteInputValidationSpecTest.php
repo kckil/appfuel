@@ -110,7 +110,7 @@ class RouteInputValidationTest extends BaseTestCase
 	 */
 	public function disableValidation(array $spec)
 	{
-		$spec['ignore'] = true;
+		$spec['disable-validation'] = true;
 		$input = $this->createRouteInputValidationSpec($spec);
 		$this->assertFalse($input->isInputValidation());
 	}
@@ -124,7 +124,7 @@ class RouteInputValidationTest extends BaseTestCase
 	 */
 	public function disableValidationNonTrueValues($value)
 	{
-		$spec['ignore'] = $value;
+		$spec['disable-validation'] = $value;
 		$input = $this->createRouteInputValidationSpec($spec);
 		$this->assertTrue($input->isInputValidation());
 	}
@@ -136,7 +136,7 @@ class RouteInputValidationTest extends BaseTestCase
 	 */
 	public function disableThrowOnFailure(array $spec)
 	{
-		$spec['throw-on-failure'] = false;
+		$spec['disable-validation-failures'] = true;
 		$input = $this->createRouteInputValidationSpec($spec);
 		$this->assertFalse($input->isThrowOnFailure());
 	}
@@ -145,12 +145,12 @@ class RouteInputValidationTest extends BaseTestCase
 	 * Only a string bool false will disable the isThrowOnFailure flag
 	 *
 	 * @test
-	 * @dataProvider	provideNonFalseValues
+	 * @dataProvider	provideNonTrueValues
 	 * @return			null
 	 */
-	public function disableThrowOnFailureNonFalseValues($value)
+	public function disableThrowOnFailureNonTrueValues($value)
 	{
-		$spec['throw-on-failure'] = $value;
+		$spec['disable-validation-failures'] = $value;
 		$input = $this->createRouteInputValidationSpec($spec);
 		$this->assertTrue($input->isThrowOnFailure());
 	}
