@@ -81,7 +81,7 @@ class RouteInputValidationSpec implements RouteInputValidationSpecInterface
     }
 
     /**
-     * @return bool
+     * @return  bool
      */
     public function isThrowOnFailure()
     {
@@ -113,7 +113,7 @@ class RouteInputValidationSpec implements RouteInputValidationSpecInterface
     }
 
     /**
-     * @param    scalar    $code
+     * @param   scalar  $code
      * @return  RouteInputValidationSpec
      */
     protected function setErrorCode($code)
@@ -127,7 +127,7 @@ class RouteInputValidationSpec implements RouteInputValidationSpecInterface
     }
 
     /**
-     * @param   array    $list
+     * @param   array   $list
      * @return  RouteInputValidationSpec
      */
     protected function setSpecList(array $list)

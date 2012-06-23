@@ -57,7 +57,8 @@ class RouteInterceptFilterSpec implements RouteInterceptFilterSpecInterface
      */
     public function __construct(array $spec)
     {
-        if (isset($spec['skip-pre']) && true === $spec['skip-pre']) {
+        if (isset($spec['disable-pre-filters']) && 
+            true === $spec['disable-pre-filters']) {
             $this->isPreFilterEnabled = false;
         }
         else {

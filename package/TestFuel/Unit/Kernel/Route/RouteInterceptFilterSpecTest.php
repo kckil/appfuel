@@ -92,7 +92,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function skipPreFilters(array $spec)
 	{
-		$spec['skip-pre'] = true;
+		$spec['disable-pre-filters'] = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertFalse($filter->isPreFilteringEnabled());
 	}
@@ -106,7 +106,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function skipPreFiltersNoBoolTrue($bool)
 	{
-		$spec['skip-pre'] = $bool;
+		$spec['disable-pre-filters'] = $bool;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isPreFilteringEnabled());
 	}
@@ -203,7 +203,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPreAndPreFiltersWhenSkip(array $spec)
 	{
-		$spec['skip-pre'] = true;
+		$spec['disable-pre-filters'] = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertFalse($filter->isPreFilteringEnabled());
 
@@ -386,7 +386,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	public function setExcludedBothAndBothFiltersWhenSkip(array $spec)
 	{
 		$spec['skip-post'] = true;
-		$spec['skip-pre']  = true;
+		$spec['disable-pre-filters']  = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 
 		$this->assertFalse($filter->isPreFilteringEnabled());
