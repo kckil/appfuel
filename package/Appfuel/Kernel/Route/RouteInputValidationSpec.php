@@ -63,8 +63,8 @@ class RouteInputValidationSpec implements RouteInputValidationSpecInterface
             $this->isThrowOnFailure = false;
         }
 
-        if (array_key_exists('error-code', $spec)) {
-            $this->setErrorCode($spec['error-code']);
+        if (array_key_exists('validation-error-code', $spec)) {
+            $this->setErrorCode($spec['validation-error-code']);
         }
 
         if (isset($spec['validation-spec'])) {

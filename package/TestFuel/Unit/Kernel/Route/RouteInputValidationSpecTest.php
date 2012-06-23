@@ -162,7 +162,7 @@ class RouteInputValidationTest extends BaseTestCase
 	 */
 	public function errorCode($code)
 	{
-		$spec['error-code'] = $code;
+		$spec['validation-error-code'] = $code;
 		$input = $this->createRouteInputValidationSpec($spec);
 		$this->assertEquals($code, $input->getErrorCode());
 	}
@@ -177,7 +177,7 @@ class RouteInputValidationTest extends BaseTestCase
 		$msg = 'error code must be a scalar value or null';
 		$this->setExpectedException('DomainException', $msg);
 
-		$spec['error-code'] = $code;
+		$spec['validation-error-code'] = $code;
 		$input = $this->createRouteInputValidationSpec($spec);
 	}
 
