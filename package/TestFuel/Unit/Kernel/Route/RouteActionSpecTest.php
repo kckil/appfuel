@@ -62,7 +62,7 @@ class RouteActionTest extends BaseTestCase
 	{
 		return array(
 			'namespace'   => 'MyName\Space',
-			'action-name' => 'MyAction'
+			'action' => 'MyAction'
 		);
 	}
 
@@ -102,10 +102,10 @@ class RouteActionTest extends BaseTestCase
 	 */
 	public function noActionSet($spec)
 	{
-		$msg = 'one of the following keys must be set -(action-name, map)';
+		$msg = 'the key -(action) must be set';
 		$this->setExpectedException('DomainException', $msg);
 		
-		unset($spec['action-name']);
+		unset($spec['action']);
 		$action = $this->createRouteActionSpec($spec);
 	}
 
@@ -118,7 +118,7 @@ class RouteActionTest extends BaseTestCase
 		$ns = "MyNamespace";
 		$spec = array(
 			'namespace'   => $ns,
-			'action-name' => 'MyAction'
+			'action' => 'MyAction'
 		);
 		$action = $this->createRouteActionSpec($spec);
 
@@ -132,12 +132,11 @@ class RouteActionTest extends BaseTestCase
 	 */
 	public function actionNameFailure($badName)
 	{
-		$msg = 'action name must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
+		$this->setExpectedException('DomainException');
 	
 		$spec = array(
 			'namespace'   => 'MyName\Space',
-			'action-name' => $badName
+			'action' => $badName
 		);	
 		$action = $this->createRouteActionSpec($spec);
 	}
@@ -156,8 +155,8 @@ class RouteActionTest extends BaseTestCase
 			'delete' => 'MyDelete'
 		);
 		$spec = array(
-			'namespace'   => $ns,
-			'map'		  => $map
+			'namespace' => $ns,
+			'action'	=> $map
 		);
 		$action = $this->createRouteActionSpec($spec);
 		$this->assertEquals("$ns\MyGet", $action->findAction('get'));
@@ -186,7 +185,7 @@ class RouteActionTest extends BaseTestCase
 		);
 		$spec = array(
 			'namespace' => "MyNamespace",
-			'map'		=> $map
+			'action'	=> $map
 		);
 		$action = $this->createRouteActionSpec($spec);
 	}
@@ -208,7 +207,7 @@ class RouteActionTest extends BaseTestCase
 		);
 		$spec = array(
 			'namespace' => "MyNamespace",
-			'map'		=> $map
+			'action'	=> $map
 		);
 		$action = $this->createRouteActionSpec($spec);
 	}
@@ -222,8 +221,8 @@ class RouteActionTest extends BaseTestCase
 		$name = 'MyController';
 		$ns   = "MyNamespace";
 		$spec = array(
-			'namespace'   => $ns,
-			'action-name' => $name
+			'namespace' => $ns,
+			'action'    => $name
 		);
 		$action = $this->createRouteActionSpec($spec);
 
