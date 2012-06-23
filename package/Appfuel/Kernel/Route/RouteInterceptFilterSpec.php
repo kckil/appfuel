@@ -63,26 +63,27 @@ class RouteInterceptFilterSpec implements RouteInterceptFilterSpecInterface
         }
         else {
 
-            if (isset($spec['pre'])) {
-                $this->setPreFilters($spec['pre']);
+            if (isset($spec['pre-filters'])) {
+                $this->setPreFilters($spec['pre-filters']);
             }
 
-            if (isset($spec['exclude-pre'])) {
-                $this->setExcludedPreFilters($spec['exclude-pre']);
+            if (isset($spec['exclude-pre-filters'])) {
+                $this->setExcludedPreFilters($spec['exclude-pre-filters']);
             }
         }
 
-        if (isset($spec['skip-post']) && true === $spec['skip-post']) {
+        if (isset($spec['disable-post-filters']) && 
+            true === $spec['disable-post-filters']) {
             $this->isPostFilterEnabled = false;
         }
         else {
 
-            if (isset($spec['post'])) {
-                $this->setPostFilters($spec['post']);
+            if (isset($spec['post-filters'])) {
+                $this->setPostFilters($spec['post-filters']);
             }
 
-            if (isset($spec['exclude-post'])) {
-                $this->setExcludedPostFilters($spec['exclude-post']);
+            if (isset($spec['exclude-post-filters'])) {
+                $this->setExcludedPostFilters($spec['exclude-post-filters']);
             }
         }
     }

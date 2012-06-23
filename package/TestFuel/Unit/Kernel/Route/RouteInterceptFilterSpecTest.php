@@ -118,10 +118,10 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setPreFilters(array $spec)
 	{
-		$spec['pre'] = array('FilterA', 'FilterB', 'FilterC');
+		$spec['pre-filters'] = array('FilterA', 'FilterB', 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isPreFilters());	
-		$this->assertEquals($spec['pre'], $filter->getPreFilters());
+		$this->assertEquals($spec['pre-filters'], $filter->getPreFilters());
 
 		return $spec;
 	}
@@ -136,7 +136,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 		$msg = 'pre intercept filter must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
 
-		$spec['pre'] = array('FilterA', $filter, 'FilterC');
+		$spec['pre-filters'] = array('FilterA', $filter, 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 	}
 
@@ -147,11 +147,11 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPreFilters(array $spec)
 	{
-		$spec['exclude-pre'] = array('FilterA', 'FilterB', 'FilterC');
+		$spec['exclude-pre-filters'] = array('FilterA', 'FilterB', 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isExcludedPreFilters());	
 		$this->assertEquals(
-			$spec['exclude-pre'], 
+			$spec['exclude-pre-filters'], 
 			$filter->getExcludedPreFilters()
 		);
 
@@ -168,10 +168,9 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 		$msg = 'excluded pre intercept filter must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
 
-		$spec['exclude-pre'] = array('FilterA', $filter, 'FilterC');
+		$spec['exclude-pre-filters'] = array('FilterA', $filter, 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 	}
-
 
 	/**
 	 * @test
@@ -180,16 +179,16 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPreAndPreFilters(array $spec)
 	{
-		$spec['pre'] = array('FilterA', 'FilterB', 'FilterC');
-		$spec['exclude-pre'] = array('FilterD', 'FilterE', 'FilterF');
+		$spec['pre-filters'] = array('FilterA', 'FilterB', 'FilterC');
+		$spec['exclude-pre-filters'] = array('FilterD', 'FilterE', 'FilterF');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 
 		$this->assertTrue($filter->isPreFilters());	
-		$this->assertEquals($spec['pre'], $filter->getPreFilters());
+		$this->assertEquals($spec['pre-filters'], $filter->getPreFilters());
 
 		$this->assertTrue($filter->isExcludedPreFilters());	
 		$this->assertEquals(
-			$spec['exclude-pre'], 
+			$spec['exclude-pre-filters'], 
 			$filter->getExcludedPreFilters()
 		);
 
@@ -223,7 +222,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function skipPostFilters(array $spec)
 	{
-		$spec['skip-post'] = true;
+		$spec['disable-post-filters'] = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertFalse($filter->isPostFilteringEnabled());
 	}
@@ -237,7 +236,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function skipPostFiltersNoBoolTrue($bool)
 	{
-		$spec['skip-post'] = $bool;
+		$spec['disable-post-filters'] = $bool;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isPostFilteringEnabled());
 	}
@@ -249,10 +248,10 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setPostFilters(array $spec)
 	{
-		$spec['post'] = array('FilterA', 'FilterB', 'FilterC');
+		$spec['post-filters'] = array('FilterA', 'FilterB', 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isPostFilters());	
-		$this->assertEquals($spec['post'], $filter->getPostFilters());
+		$this->assertEquals($spec['post-filters'], $filter->getPostFilters());
 
 		return $spec;
 	}
@@ -267,10 +266,9 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 		$msg = 'post intercept filter must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
 
-		$spec['post'] = array('FilterA', $filter, 'FilterC');
+		$spec['post-filters'] = array('FilterA', $filter, 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 	}
-
 
 	/**
 	 * @test
@@ -279,11 +277,11 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPostFilters(array $spec)
 	{
-		$spec['exclude-post'] = array('FilterA', 'FilterB', 'FilterC');
+		$spec['exclude-post-filters'] = array('FilterA', 'FilterB', 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertTrue($filter->isExcludedPostFilters());	
 		$this->assertEquals(
-			$spec['exclude-post'], 
+			$spec['exclude-post-filters'], 
 			$filter->getExcludedPostFilters()
 		);
 
@@ -300,7 +298,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 		$msg = 'excluded post intercept filter must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
 
-		$spec['exclude-post'] = array('FilterA', $filter, 'FilterC');
+		$spec['exclude-post-filters'] = array('FilterA', $filter, 'FilterC');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 	}
 
@@ -311,15 +309,15 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPostAndPostFilters(array $spec)
 	{
-		$spec['exclude-post'] = array('FilterD', 'FilterE', 'FilterF');
+		$spec['exclude-post-filters'] = array('FilterD', 'FilterE', 'FilterF');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 
 		$this->assertTrue($filter->isPostFilters());	
-		$this->assertEquals($spec['post'], $filter->getPostFilters());
+		$this->assertEquals($spec['post-filters'], $filter->getPostFilters());
 
 		$this->assertTrue($filter->isExcludedPostFilters());	
 		$this->assertEquals(
-			$spec['exclude-post'], 
+			$spec['exclude-post-filters'], 
 			$filter->getExcludedPostFilters()
 		);
 
@@ -333,7 +331,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPostAndPostFiltersWhenSkip(array $spec)
 	{
-		$spec['skip-post'] = true;
+		$spec['disable-post-filters'] = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 		$this->assertFalse($filter->isPostFilteringEnabled());
 
@@ -353,25 +351,25 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedPrePostAndPrePostFilters(array $spec)
 	{
-		$spec['pre'] = array('FilterU', 'FilterV', 'FilterW');
-		$spec['exclude-pre'] = array('FilterX', 'FilterY', 'FilterZ');
+		$spec['pre-filters'] = array('FilterU', 'FilterV', 'FilterW');
+		$spec['exclude-pre-filters'] = array('FilterX', 'FilterY', 'FilterZ');
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 
 		$this->assertTrue($filter->isPreFilters());	
-		$this->assertEquals($spec['pre'], $filter->getPreFilters());
+		$this->assertEquals($spec['pre-filters'], $filter->getPreFilters());
 
 		$this->assertTrue($filter->isExcludedPreFilters());	
 		$this->assertEquals(
-			$spec['exclude-pre'], 
+			$spec['exclude-pre-filters'], 
 			$filter->getExcludedPreFilters()
 		);
 
 		$this->assertTrue($filter->isPostFilters());	
-		$this->assertEquals($spec['post'], $filter->getPostFilters());
+		$this->assertEquals($spec['post-filters'], $filter->getPostFilters());
 
 		$this->assertTrue($filter->isExcludedPostFilters());	
 		$this->assertEquals(
-			$spec['exclude-post'], 
+			$spec['exclude-post-filters'], 
 			$filter->getExcludedPostFilters()
 		);
 
@@ -385,7 +383,7 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 	 */
 	public function setExcludedBothAndBothFiltersWhenSkip(array $spec)
 	{
-		$spec['skip-post'] = true;
+		$spec['disable-post-filters'] = true;
 		$spec['disable-pre-filters']  = true;
 		$filter = $this->createRouteInterceptFilterSpec($spec);
 
@@ -408,8 +406,4 @@ class RouteInterceptFilterSpecTest extends BaseTestCase
 
 		return $spec;
 	}
-
-
-
-
 }
