@@ -12,13 +12,7 @@
 <!--	<file>../package/Testfuel/Unit/Kernel/Mvc/RequestUriTest.php</file> -->
 <!--	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteManagerTest.php</file>-->
 
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteAccessSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteStartupSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteActionSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteInterceptFilterSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteViewSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RouteInputValidationSpecTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Route/RoutePatternSpecTest.php</file>
+	<directory suffix="Test.php">../package/Testfuel/Unit/Kernel/Route</directory>
 	
 	<file>../package/Testfuel/Unit/App/AppInputTest.php</file>
 

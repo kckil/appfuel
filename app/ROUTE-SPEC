@@ -15,7 +15,7 @@ route-key => array
     excluded-startup-tasks      => [array strings, classnames of excluded tasks],
 
     /* route view */
-    default-view-format => [string   determines how the view is composed],
+    default-format => [string   determines how the view is composed],
     disable-view   => [bool     false by default],
     manual-view    => [bool     false by defualt],
     view-pkg       => [string   location of the view package]
