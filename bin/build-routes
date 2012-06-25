@@ -2,13 +2,13 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
-use Appfuel\Config\ConfigRegistry;
+use Appfuel\Config\ConfigRegistry,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileWriter,
+    Appfuel\Kernel\Route\RouteCollector;
 
 $base = realpath(__DIR__ . '/../');
 $sep  = DIRECTORY_SEPARATOR;
@@ -30,7 +30,23 @@ $dirs = ConfigRegistry::get('action-dirs', array());
 if (! is_array($dirs)) {
 	$err = "the key -(action-dirs) needs to be an array of strings" . PHP_EOL;
 	fwrite(STDERR, $err);
+    exit(-1);   
 }
 
-echo "\n", print_r($dirs,1), "\n";exit;
+foreach ($dirs as &$dir) {
+    if (! is_string($dir) || empty($dir)) {
+        $err = "invalid -(action-dirs) item: dir must be a non empty string";
+        fwrite(STDERR, $err);
+        exit(-1);   
+    }
+    $dir = AF_CODE_PATH . DIRECTORY_SEPARATOR . $dir;
+}
+
+$collector = new RouteCollector();
+$routes = $collector->collect($dirs);
+$routes = json_encode($routes, JSON_PRETTY_PRINT);
+
+$finder = new FileFinder('app/build');
+$writer = new FileWriter($finder);
+$writer->putContent($routes, 'routes.json');
 exit(0);

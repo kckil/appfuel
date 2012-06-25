@@ -1,4 +1,5 @@
 app/config/config.php
+app/build/routes.json
 resource/build
 *.swp
 *.swo

@@ -14,6 +14,7 @@ use LogicException,
     Appfuel\Filesystem\FileFinder;
 
 /**
+ * Recursively traverse action directories collecting their route details
  */
 class RouteCollector implements RouteCollectorInterface
 {
