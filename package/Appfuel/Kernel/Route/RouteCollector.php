@@ -6,10 +6,12 @@
  */
 namespace Appfuel\Kernel\Route;
 
-use DomainException,
-    Appfuel\Filesystem\FileFinder,
+use LogicException,
+    DomainException,
+    RecursiveIteratorIterator,
+    RecursiveDirectoryIterator,
     Appfuel\Filesystem\FileReader,
-    Appfuel\Filesystem\FileReaderInterface;
+    Appfuel\Filesystem\FileFinder;
 
 /**
  */
@@ -22,27 +24,62 @@ class RouteCollector implements RouteCollectorInterface
     protected $filename = 'route-details.php';
 
     /**
-     * Used to import the route details file into memory
-     * @var FileReaderInterface
-     */
-    protected $reader = null;
-
-    /**
      * @param   string  $filename
      * @param   FileReaderInterface $reader
      * @return  RouteCollector
      */
-    public function __construct($filename = null, 
-                                FileReaderInterface $reader = null)
+    public function __construct($filename = null)
     {
         if (null !== $filename) {
             $this->setFilename($filename);
         }
+    }
 
-        if (null === $reader) {
-            $reader = new FileReader(new FileFinder());
+    /**
+     * @param   $list   list of directories to search 
+     * @return  array
+     */
+    public function collect(array $dirs)
+    {
+        $master = array();
+        $finder = new FileFinder(null, false);
+        $reader = new FileReader($finder);
+
+        $filename = $this->getFilename();
+        foreach ($dirs as $dir) {
+            if (! is_string($dir) || empty($dir)) {
+                $err  = "dir path to actions must be a non empty string";
+                throw new DomainException($err);
+            }
+            $topDir = new RecursiveDirectoryIterator($finder->getPath($dir));
+            foreach (new RecursiveIteratorIterator($topDir) as $file) {
+                if ($filename !== $file->getFilename()) {
+                    continue;
+                }
+                $fullPath = $file->getRealPath();
+                $routes = $reader->import($fullPath);
+                if (! is_array($routes)) {
+                    $type = gettype($routes);
+                    $err  = "routes file at -($fullPath) must return an array ";
+                    $err .= "of route specifications -($type) given instead";
+                    throw new LogicException($err);
+                }
+                foreach ($routes as $key => $spec) {
+                    if (isset($master[$key])) {
+                        $err  = "route key -($key) already exists at ";
+                        $err .= "({$master[$key]['namespace']})";
+                        throw new LogicException($err);
+                    }
+                    if (! is_array($spec) || $spec === array_values($spec)) {
+                        $err = "route spec -($key) must be an assoc array";
+                        throw new LogicException($err);
+                    }
+                    $master[$key] = $spec;
+                }
+            }
         }
-        $this->setFileReader($reader);
+
+        return $master;
     }
 
     /**
@@ -65,24 +102,6 @@ class RouteCollector implements RouteCollectorInterface
         }
 
         $this->filename = $name;
-        return $this;
-    }
-
-    /**
-     * @return  FileReaderInterface
-     */
-    public function getFileReader()
-    {
-        return $this->reader;
-    }
-
-    /**
-     * @param   FileReaderInterface $reader
-     * @return  RouteCollector
-     */
-    public function setFileReader(FileReaderInterface $reader)
-    {
-        $this->reader = $reader;
         return $this;
     }
 }

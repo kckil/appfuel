@@ -36,7 +36,9 @@
 	<file>../package/Testfuel/Unit/Validate/Filter/IpFilterTest.php</file>
 	
 	<file>../package/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
-	<file>../package/TestFuel/Unit/Html/Resource/PkgTest.php</file>
+	<file>../package/TestFuel/Unit/Filesystem/FileManagerTest.php</file>
+	
+    <file>../package/TestFuel/Unit/Html/Resource/PkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/ViewPkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/PagePkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/HtmlDocPkgTest.php</file>

@@ -21,21 +21,7 @@ interface RouteCollectorInterface
     public function getFilename();
 
     /**
-     * @param   string  $name
-     * @return  RouteCollectorInterface
+     * @return string
      */
-    public function setFilename($name);
-
-    /**
-     * @return  FileReaderInterface
-     */
-    public function getFileReader();
-
-    /**
-     * @param   FileReaderInterface $reader
-     * @return  RouteCollectorInterface
-     */
-    public function setFileReader(FileReaderInterface $reader);
-
-
+    public function collect(array $dirs);
 }
