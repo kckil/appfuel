@@ -7,7 +7,9 @@
 use Appfuel\App\AppDetail,
     Appfuel\App\AppFactory,
     Appfuel\App\AppRegistry,
-    Appfuel\App\ConfigHandler;
+    Appfuel\App\ConfigHandler,
+    Appfuel\App\WebHandlerInterface,
+    Appfuel\App\ConsoleHandlerInterface;
 
 /*
  * base path is the absolute path to the application root, app path is the 
@@ -46,17 +48,18 @@ $dlist = require $file;
  * framework dependencies. The array given must be an associative array of 
  * qualified class name => file path (relative to AF_CODE_PATH)
  */
-if (!isset($dependAction) || !is_string($dependAction)) {
-    $dependAction = 'append';
+if (!isset($ctrl['depend-action']) || !is_string($ctrl['depend-action'])) {
+    $ctrl['depend-action'] = 'append';
 }
-if (isset($dependList) && is_array($dependList)) {
+if (isset($ctrl['depend-list']) && is_array($ctrl['depend-list'])) {
+    $dependList = $ctrl['depend-list'];
     if ($dependList === array_values($dependList)) {
         $err  = "dependency array given by the calling script must be an ";
         $err .= "associative array";
         throw new LogicException($err);
     }
     
-    switch ($dependAction) {
+    switch ($ctrl['depend-action']) {
         case 'prepend':
             $dlist = array_merge($dependList, $dlist);
             break;
@@ -65,7 +68,6 @@ if (isset($dependList) && is_array($dependList)) {
             break;
         default:
             $dlist = array_merge($dlist, $dependList);
-            
     }
 }
 
@@ -84,54 +86,70 @@ foreach ($dlist as $class => $file) {
 
     require $absolute;
 }
-unset($file, $dlist, $class, $asbsolute, $err);
+unset($file, $dlist, $dependList, $class, $asbsolute, $err);
 
 /*
  * Decouple the application directories from the kernel. Note: the only 
  * directories you can not change are 'app' and 'app-build'. 
  */
-$paths  = ["base" => $base, "src" => "package"];
-$detail = new AppDetail($paths);
-
+if (! isset($ctrl['paths']) || ! is_array($ctrl['paths'])) {
+    $ctrl['paths'] = array("base" => $base, "src" => "package");
+}
+$detail  = new AppDetail($ctrl['paths']);
 $factory = new AppFactory();
-$config  = $factory->createConfigHandler();
 
+/*
+ * The detail and factory are needed globally so we set them to application 
+ * registry where all globals for the app are kept
+ */
+AppRegistry::setAppDetail($detail);
+AppRegistry::setAppFactory($factory);
+
+$config = $factory->createConfigHandler();
 /*
  * Allow the calling code to have control over configuration. By default if
  * the calling script populates a variable called $settings with an array
  * then that array will replace the original config settings.
  */
-if (!isset($configAction) || !is_string($configAction)) {
-    $configAction = 'replace';
+if (! isset($ctrl['config-action']) || ! is_string($ctrl['config-action'])) {
+    $ctrl['config-action'] = 'replace';
 }
 
 /*
  * Allow the calling code to change the config file. Note: you must specify 
  * the absolute path to the config file you wish to load
  */
-if (! isset($configFile)) {
+if (isset($ctrl['config-build-file'])) {
+    $configFile = $ctrl['config-build-file'];
+}
+else {
     $configFile = $detail->getPath('config-build-settings');
 }
 
+$settings = null;
+if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {
+    $settings = $ctrl['config-settings'];
+}
+
 /*
- * Ignore normal config data when calling scripts is using its own otherwise
- * merge the calling scripts config settings with ours
+ * If settings has config data and the action is replace then only use
+ * settings, otherwise use config data as found in the config file and
+ * if settings has data then merge with it.
  */
-if (isset($settings) && 'replace' === $configAction) {
+if (null !== $settings && 'replace' === $ctrl['config-action']) {
     $headSettings = $settings;
 }
 else {
     $headSettings = $config->getFileData($configFile);
-    if (isset($settings) && is_array($settings)) {
+    if (null !== $settings) {
         $headSettings = array_merge($headSettings, $settings);
     }
 }
 
 /*
- * Add the configuration settings to the application registry. Note: this 
- * clears out any settings already there. Use load if you want to append.
+ * Load the configuration settings to the application registry.
  */
-AppRegistry::setAll($headSettings);
+AppRegistry::load($headSettings);
 
 /*
  * list of framework startup tasks to be run after initialization. The 
@@ -154,39 +172,56 @@ $tasks = array(
  * append the extra tasks to the list (default), prepend the tasks or even 
  * the kernel tasks with your own.
  */
-if (! isset($taskAction) || ! is_string($taskAction)) {
-    $taskAction = 'append';
+if (! isset($ctrl['task-action']) || ! is_string($ctrl['task-action'])) {
+    $ctrl['task-action'] = 'append';
 }
 
-if (isset($fwTasks) && is_array($fwTasks)) {
+if (isset($ctrl['tasks']) && is_array($ctrl['tasks'])) {
     switch($taskAction) {
         case 'prepend':
-            $tasks = array_merge($fwTasks, $tasks);
+            $tasks = array_merge($ctrl['tasks'], $tasks);
             break;
         case 'replace':
             $tasks = $fwTasks;
             break;
         default:
-            $tasks = array_merge($tasks, $fwTasks);
+            $tasks = array_merge($tasks, $ctrl['tasks']);
     }
 }
 
-if (isset($appType) && 'cli' === $appType) {
-    $handler = new CliHandler($detail, $factory);
-}
-else {
-    $handler = new WebHandler($detail, $factory);
+if (! isset($ctrl['app-type']) || ! is_string($ctrl['app-type'])) {
+    $ctrl['app-type'] = 'web';
 }
 
+if ('web' === $ctrl['app-type']) {
+    $handler = $factory->createWebHandler();
+    if (! $handler instanceof WebHandlerInterface) {
+        $class = gettype($handler);
+        $err   = "Web app handler -($class) implement Appfuel\App\WebHandler";
+        $err  .= "Interface";
+        throw new LogicException($err);        
+    } 
+}
+else {
+    $handler = $factory->createConsoleHandler();
+    if (! $handler instanceof ConsoleHandlerInterface) {
+        $class = gettype($handler);
+        $err   = "Console app handler -($class) must implement Appfuel\App";
+        $err  .= "\ConsoleHandlerInterface";
+        throw new LogicException($err);        
+    } 
+}
+unset($detail, $config, $class);
+
+echo "\n", print_r($handler,1), "\n";exit;
 /*
  * allow the calling code to opt out of initializing that handler
  */
-if (isset($disableInitialize) && true === $disableInitialize) {
-    unset($tasks, $detail, $config);
+if (isset($ctrl['disable-tasks']) && true === $ctrl['disable-tasks']) {
     return $handler;
 }
 
 $handler->initialize($tasks);
-unset($tasks, $detail, $config);
+unset($tasks);
 
 return $handler;

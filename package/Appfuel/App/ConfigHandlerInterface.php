@@ -18,18 +18,6 @@ interface ConfigHandlerInterface
     public function loadFile($path, $isReplace = true);
 
     /**
-     * @param   mixed   $data
-     * @return  null
-     */
-    public function loadToRegistry(array $data);
-
-    /**
-     * @param   array   $data
-     * @return  null
-     */
-    public function setToRegistry(array $data);
-
-    /**
      * Read a json file or any php file. When php files are used it expects 
      * the file will return an array of config data
      *

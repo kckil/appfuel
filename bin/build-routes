@@ -5,7 +5,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-use Appfuel\Config\ConfigRegistry,
+use Appfuel\App\AppRegistry,
     Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileWriter,
     Appfuel\Kernel\Route\RouteCollector;
@@ -24,7 +24,7 @@ $input = $handler->createConsoleInput($_SERVER['argv']);
  * list of directories (relative path from package) where the action controller
  * are kept
  */
-$dirs = ConfigRegistry::get('action-dirs', array());
+$dirs = AppRegistry::get('action-dirs', array());
 if (! is_array($dirs)) {
 	$err = "the key -(action-dirs) needs to be an array of strings" . PHP_EOL;
 	fwrite(STDERR, $err);

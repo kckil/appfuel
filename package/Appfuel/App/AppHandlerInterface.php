@@ -21,12 +21,6 @@ interface AppHandlerInterface
     public function getAppFactory();
 
     /**
-     * @param   AppFactoryInterface $factory
-     * @return  AppHandler
-     */
-    public function setAppFactory(AppFactoryInterface $factory);
-
-    /**
      * @param   string $key
      * @param   AppInputInterface   $input
      * @return  MvcContextInterface

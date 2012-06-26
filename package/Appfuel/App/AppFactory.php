@@ -11,6 +11,7 @@ use RunTimeException,
     Appfuel\Http\HttpResponse,
     Appfuel\Console\ArgParser,
     Appfuel\Console\ConsoleOutput,
+    Appfuel\Console\ConsoleOutputInterface,
     Appfuel\View\ViewBuilder,
     Appfuel\Kernel\TaskHandler,
     Appfuel\Kernel\Mvc\MvcFront,
@@ -31,6 +32,15 @@ class AppFactory implements AppFactoryInterface
     public function createConfigHandler()
     {
         return new ConfigHandler();
+    }
+   
+    /**
+     * @param   ConsoleOutputInterface  $output
+     * @return  ConsoleHandlerInterface
+     */ 
+    public function createConsoleHandler(ConsoleOutputInterface $output = null)
+    {
+        return new ConsoleHandler($output);
     }
 
     /**

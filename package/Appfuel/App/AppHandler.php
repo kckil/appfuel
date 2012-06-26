@@ -26,44 +26,17 @@ use LogicException,
 class AppHandler implements AppHandlerInterface
 {
     /**
-     * Holds the details of the top level directory structure as well as
-     * the location of config files and environments
-     * @var AppDetailInterface
-     */
-    protected $detail = null;
-
-    /**
      * Used to run individual startup startegies
      * @var TaskHandlerInterface
      */
     protected $taskHandler = null;
 
     /**
-     * Used to create objects needed by the application infrastructure
-     * @var AppFactoryInterface
-     */
-    protected $factory = null;
-
-    /**
-     * Ensure base path and library paths are correct. Setup Contants.
-     * Load Kernel Dependencies
-     *
-     * @param   AppDetailInterface    
-     * @return  AppHandler
-     */
-    public function __construct(AppDetailInterface $detail, 
-                                AppFactoryInterface $factory)
-    {
-        $this->detail = $detail;
-        $this->setFactory($factory);
-    }
-
-    /**
      * @return  AppDetailInterface
      */
     public function getAppDetail()
     {
-        return $this->detail;
+        return AppRegistry::getAppDetail();
     }
     
     /**
@@ -111,64 +84,9 @@ class AppHandler implements AppHandlerInterface
      */
     public function getAppFactory()
     {
-        return $this->factory;
+        return AppRegistry::getAppFactory();
     }
 
-    /**
-     * @param   MvcFactoryInterface $factory
-     * @return  AppRunner
-     */
-    public function setAppFactory(AppFactoryInterface $factory)
-    {
-        $this->factory = $factory;
-        return $this;
-    }
-
-    /**
-     * @return  MvcFactoryInterface
-     */
-    public function createAppFactory()
-    {
-        return new AppFactory();
-    }
-
-    /**
-     * @return  RequestUriInterface
-     */
-    public function createUriFromServerSuperGlobal()
-    {
-        return $this->getAppFactory()
-                    ->createUriFromServerSuperGlobal();
-    }
-
-    /**
-     * @param   string
-     * @return  RequestUriInterface
-     */
-    public function createUri($str)
-    {
-        return $this->getAppFactory()
-                    ->createUri($str);
-    }
-
-    /**
-     * @return  AppInputInterface
-     */
-    public function createRestInputFromBrowser($uri = null)
-    {
-        return $this->getAppFactory()
-                    ->createRestInputFromBrowser($uri);
-    }
-
-    /**
-     * @param   array    $data
-     * @return  AppInputInterface
-     */
-    public function createConsoleInput(array $data)
-    {
-        return $this->getAppFactory()
-                    ->createConsoleInput($data);
-    }
 
     /**
      * @param   array    $tasks

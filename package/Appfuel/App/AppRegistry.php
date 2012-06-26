@@ -9,7 +9,8 @@ namespace Appfuel\App;
 use Appfuel\DataStructure\ArrayData;
     
 /**
- * Decouples settings from the files they are located in. 
+ * The applicatins global level registry. It holds general configuration data
+ * and the AppDetail. 
  */
 class AppRegistry
 {
@@ -18,6 +19,50 @@ class AppRegistry
      * @var ArrayData
      */
     static protected $data = null;
+    
+    /**
+     * @var AppDetailInterface
+     */
+    static protected $detail = null;
+
+    /**
+     * @var AppFactoryInterface
+     */
+    static protected $factory = null;
+
+    /**
+     * @return  AppDetailInterface
+     */
+    static public function getAppDetail()
+    {
+        return self::$detail;
+    }
+
+    /**
+     * @param   AppDetailInterface  $detail
+     * @return  null
+     */
+    static public function setAppDetail(AppDetailInterface $detail)
+    {
+        self::$detail = $detail;
+    }
+
+    /**
+     * @return  AppFactoryInterface
+     */
+    static public function getAppFactory()
+    {
+        return self::$factory;
+    }
+
+    /**
+     * @param   AppDetailInterface  $detail
+     * @return  null
+     */
+    static public function setAppFactory(AppFactoryInterface $factory)
+    {
+        self::$factory = $factory;
+    }
 
     /**
      * @return  array
@@ -131,9 +176,9 @@ class AppRegistry
     static protected function getData()
     {
         if (null === self::$data) {
-            self::$config = new ArrayData();
+            self::$data = new ArrayData();
         }
 
-        return self::$config;
+        return self::$data;
     }
 }
