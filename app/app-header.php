@@ -6,6 +6,7 @@
  */
 use Appfuel\App\AppDetail,
     Appfuel\App\AppFactory,
+    Appfuel\App\AppRegistry,
     Appfuel\App\ConfigHandler;
 
 /*
@@ -128,10 +129,9 @@ else {
 
 /*
  * Add the configuration settings to the application registry. Note: this 
- * clears out any settings already there. Use loadRegistry to append if you
- * need to
+ * clears out any settings already there. Use load if you want to append.
  */
-$config->setRegistry($headSettings);
+AppRegistry::setAll($headSettings);
 
 /*
  * list of framework startup tasks to be run after initialization. The 

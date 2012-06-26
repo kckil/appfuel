@@ -8,7 +8,6 @@ namespace Appfuel\App;
 
 use DomainException,
     RunTimeException,
-    InvalidArgumentException,
     Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileReader,
     Appfuel\Filesystem\FileReaderInterface;
@@ -66,24 +65,6 @@ class ConfigHandler implements ConfigHandlerInterface
         }
             
         $this->load($data, $section);
-    }
-
-    /**
-     * @param   mixed   $data
-     * @return  null
-     */
-    public function loadToRegistry(array $data)
-    {
-        AppRegistry::load($data);
-    }
-
-    /**
-     * @param   array   $data
-     * @return  null
-     */
-    public function setToRegistry(array $data)
-    {
-        AppRegistry::setAll($data);
     }
 
     /**
