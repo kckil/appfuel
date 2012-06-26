@@ -1,10 +1,8 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
+/**
+ * Appfuel
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * See LICENSE file at the project root directory for details. 
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\App;
 
@@ -53,10 +51,11 @@ class AppHandler implements AppHandlerInterface
      * @param   AppDetailInterface    
      * @return  AppHandler
      */
-    public function __construct(AppDetailInterface $detail)
+    public function __construct(AppDetailInterface $detail, 
+                                AppFactoryInterface $factory)
     {
         $this->detail = $detail;
-
+        $this->setFactory($factory);
     }
 
     /**
@@ -71,7 +70,7 @@ class AppHandler implements AppHandlerInterface
      * Create the app factory and task handler and define constants
      * 
      * @param   array    $tasks 
-     * @return  null
+     * @return  AppHandler
      */
     public function initialize(array $tasks = null)
     {
@@ -103,6 +102,8 @@ class AppHandler implements AppHandlerInterface
         if (null !== $tasks) {
             $this->runTasks($tasks);
         }
+
+        return $this;
     }
 
     /**

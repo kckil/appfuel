@@ -1,81 +1,30 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
+/**
+ * Appfuel
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * See LICENSE file at the project root directory for details.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\App;
 
 /**
- * Handle path information for the following
- * <base-path>  : absolute path to the applications root directory
- * www            : the web root directory
- * bin            : cli scripts
- * test            : unit test bootrapping and supporting files
- * package        : php source code
- * resource        : clientside resource files js,css,html,phtml etc...
- * routes        : route specification files 
- * config        : config files 
- * datasource    : mappings for database, webservices, files etc..
- * build        : system generated files    
- * 
- * Allows the application dir structure change without changing the
- * kernel code.
+ * Allows the app dir structure to change without changing the kernel code.
  */
 interface AppDetailInterface
 {
     /**
-     * @return  string
+     * @param   string  $basePath
+     * @return  AppDetail
      */
-    public function getBasePath($path = null);
+    public function __construct(array $spec);
 
     /**
-     * @param   bool    $isBase
      * @return  string
      */
-    public function getBin($isBase = true);
+    public function getBasePath();
 
     /**
-     * @param   bool    $isBase
-     * @return  string
+     * @param   string  $name
+     * @return  string | false
      */
-    public function getWWW($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getTest($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getPackage($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getResource($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getConfig($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getDataSource($isBase = true);
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getBuild($isBase = true);
+    public function getPath($name, $isAbsolute = true);
 }

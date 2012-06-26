@@ -1,10 +1,8 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
+/**
+ * Appfuel
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * See LICENSE file at the project root directory for details.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\App;
 
@@ -15,14 +13,8 @@ use RunTimeException,
     Appfuel\Console\ConsoleOutput,
     Appfuel\View\ViewBuilder,
     Appfuel\Kernel\TaskHandler,
-    Appfuel\Kernel\ConfigRegistry,
     Appfuel\Kernel\Mvc\MvcFront,
-    Appfuel\Kernel\Mvc\AppInputInterface,
-    Appfuel\Kernel\Mvc\RequestUri,
-    Appfuel\Kernel\Mvc\RequestUriInterface,
-    Appfuel\Kernel\Mvc\MvcContext,
     Appfuel\Kernel\Mvc\MvcContextInterface,
-    Appfuel\Kernel\Mvc\MvcRouteManager,
     Appfuel\Kernel\Mvc\MvcDispatcher,
     Appfuel\Kernel\Mvc\MvcDispatcherInterface,
     Appfuel\Kernel\Mvc\InterceptChain,
@@ -32,7 +24,14 @@ use RunTimeException,
  * Create all object required to implement appfuels take on the mvc pattern
  */
 class AppFactory implements AppFactoryInterface
-{    
+{
+    /**
+     * @return ConfigHandler
+     */    
+    public function createConfigHandler()
+    {
+        return new ConfigHandler();
+    }
 
     /**
      * We look for query string first because the path info in the request uri
@@ -181,21 +180,11 @@ class AppFactory implements AppFactoryInterface
     /**
      * @param   string  $key
      * @param   AppInputInterface $input
-     * @param   mixed   $view
-     * @return  MvcContext
+     * @return  AppContext
      */
-    public function createContext($key, AppInputInterface $input, $view = null)
+    public function createContext($key, AppInputInterface $input)
     {
-        return new MvcContext($key, $input, $view);
-    }
-
-    /**
-     * @param   string $key
-     * @return  MvcContext
-     */
-    public function createEmptyContext($key)
-    {
-        return $this->createContext($key, $this->createEmptyInput());
+        return new MvcContext($key, $input);
     }
 
     /**
@@ -216,7 +205,7 @@ class AppFactory implements AppFactoryInterface
                                 InterceptChainInterface $preChain  = null,
                                 InterceptChainInterface $postChain = null)
     {
-        $preList = ConfigRegistry::get('pre-filters', array());
+        $preList = AppRegistry::get('pre-filters', array());
         if (null === $preChain) {
             $preChain = new InterceptChain();
         }
@@ -225,7 +214,7 @@ class AppFactory implements AppFactoryInterface
             $preChain->loadFilters($preList);
         }
 
-        $postList = ConfigRegistry::get('post-filters', array());
+        $postList = AppRegistry::get('post-filters', array());
         if (null === $postChain) {
             $postChain = new InterceptChain();
         }

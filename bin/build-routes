@@ -10,15 +10,13 @@ use Appfuel\Config\ConfigRegistry,
     Appfuel\Filesystem\FileWriter,
     Appfuel\Kernel\Route\RouteCollector;
 
-$base = realpath(__DIR__ . '/../');
-$sep  = DIRECTORY_SEPARATOR;
-$header = "$base{$sep}app{$sep}app-header.php";
+$appType = 'cli';
+$header  = realpath(__DIR__ . '/../')  . "/app/app-header.php";
 if (! file_exists($header)) {
 	$err = "could not find app header at -($header)" . PHP_EOL;
 	fwrite(STDERR, $header);
 	exit(1);
 }
-
 $handler = require $header;
 $input = $handler->createConsoleInput($_SERVER['argv']);
 

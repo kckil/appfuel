@@ -1,10 +1,8 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
+/**
+ * Appfuel
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * See LICENSE file at the project root directory for details.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\App;
 
@@ -29,180 +27,107 @@ use DomainException;
 class AppDetail implements AppDetailInterface
 {
     /**
-     * @var string
+     * Absolute path to the root directory of the application
+     * @param   string
      */
     protected $base = null;
-    
-    /**
-     * @var string
-     */
-    protected $www = 'www';
 
     /**
-     * @var string
+     * List of all the main directories and files used by appfuel
+     * @var array
      */
-    protected $bin = 'bin';
-
-    /**
-     * @var string
-     */
-    protected $test = 'test';
-
-    /**
-     * @var string
-     */
-    protected $package = 'package';
-
-    /**
-     * @var string
-     */
-    protected $resource = 'resource';
-
-    /**
-     * @var string
-     */
-    protected $route = 'route';
-
-    /**
-     * @var string
-     */
-    protected $config = 'config';
-
-    protected $configFiles = array(
-        'web'  => 'web-config.json',
-        'cli'  => 'cli-config.json',
-        'test' => 'test-config.json'
-    );
-
-    /**
-     * @var string
-     */
-    protected $datasource = 'datasource';
-    
-    /**
-     * @var string
-     */
-    protected $build = 'app/build';
+    protected $paths = [
+        'www'                   => 'www',
+        'bin'                   => 'bin',
+        'test'                  => 'test',
+        'src'                   => 'package',
+        'resource'              => 'resource',
+        'datasource'            => 'datasource',
+        'app'                   => 'app',
+        'app-build'             => 'app/build',
+        'config-settings'       => 'app/config-settings.php',
+        'config-build-settings' => 'app/build/config.json',
+    ];
 
     /**
      * @param   string  $basePath
-     * @return  AppDirStructure
+     * @return  AppDetail
      */
-    public function __construct($base)
+    public function __construct(array $spec)
     {
-        if (! is_string($base) || ! ($base = trim($base))) {
+        if (! isset($spec['base'])) {
+            $err = "base path -(base) is required and must be set";
+            throw new DomainException($err);
+        }
+        $this->setBasePath($spec['base']);
+
+        foreach ($this->paths as $key => &$path) {
+            if (!isset($spec[$key]) || 'app'===$key || 'app-build'===$key) {
+                continue;
+            }
+            $specPath = $spec[$key];
+            if (! $this->isValid($specPath)) {
+                throw new DomainException("-($key) is not a valid path");
+            }
+            $path = $specPath;
+        }
+    }
+
+    /**
+     * @return  string
+     */
+    public function getBasePath()
+    {
+        return $this->base;
+    }
+
+    /**
+     * @param   string  $name
+     * @return  string | false
+     */
+    public function getPath($name, $isAbsolute = true)
+    {
+        if (! is_string($name) || ! isset($this->paths[$name])) {
+            return false;
+        }
+
+        $base = '';
+        if (true === $isAbsolute) {
+            $base = $this->getBasePath() . DIRECTORY_SEPARATOR;
+        }
+
+        return "{$base}{$this->paths[$name]}";
+    }
+
+    /**
+     * @param   string  $path
+     * @return  null
+     */
+    protected function setBasePath($path)
+    {
+        if (! $this->isValid($path)) {
             $err = "base path must be a non empty string";
             throw new DomainException($err);
         }
 
-        $this->base = $base;
-    }
-
-    /**
-     * @return  string
-     */
-    public function getBasePath($path = null)
-    {
-        $base = $this->base;
-        return (null === $path) ? 
-            $base : $base . DIRECTORY_SEPARATOR . $path;
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getBin($isBase = true)
-    {
-        return $this->resolvePath($this->bin, $isBase);
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getWWW($isBase = true)
-    {
-        return $this->resolvePath($this->www, $isBase);
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getTest($isBase = true)
-    {
-        return $this->resolvePath($this->test, $isBase);
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getPackage($isBase = true)
-    {
-        return $this->resolvePath($this->package, $isBase);
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getResource($isBase = true)
-    {
-        return $this->resolvePath($this->resource, $isBase);
-    }
-
-    /**
-     * @param   bool    $isBase
-     * @return  string
-     */
-    public function getConfig($isBase = true)
-    {
-        return $this->resolvePath($this->config, $isBase);
-    }
-
-    /**
-     * @param   string  $entry
-     * @return  string
-     */
-    public function getConfigFile($entry)
-    {
-        if (! is_string($entry) || ! isset($this->configFiles[$entry])) {
-            $list = implode(',', array_keys($this->configFiles));
-            $err  = "entry point must be one of -($list)";
+        if (DIRECTORY_SEPARATOR !== $path{0}) {
+            $err = "base path must be an absolute path";
             throw new DomainException($err);
         }
-
-        return $this->getBuild(false) . DIRECTORY_SEPARATOR .
-               $this->configFiles[$entry];
+        
+        $this->base = $path;
     }
 
     /**
-     * @param    bool    $isBase
-     * @return    string
+     * @param   string  $path
+     * @return  bool
      */
-    public function getDataSource($isBase = true)
+    protected function isValid($path)
     {
-        return $this->resolvePath($this->datasource, $isBase);
-    }
+        if (! is_string($path) || empty($path)) {
+            return false;
+        }
 
-    /**
-     * @param    bool    $isBase
-     * @return    string
-     */
-    public function getBuild($isBase = true)
-    {
-        return $this->resolvePath($this->build, $isBase);
-    }
-
-    /**
-     * @param    string    $path
-     * @param    bool    $isBase
-     * @return    string
-     */
-    protected function resolvePath($path, $isBase = true)
-    {
-        return (true === $isBase) ? $this->getBasePath($path): $path;
+        return true;
     }
 }

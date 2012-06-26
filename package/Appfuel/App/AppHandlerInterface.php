@@ -1,11 +1,9 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
+/**
+ * Appfuel
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * See LICENSE file at the project root directory for details. 
- */
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\App;
 
 use Appfuel\View\ViewInterface,
@@ -15,9 +13,6 @@ use Appfuel\View\ViewInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface,
     Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
-/**
- * 
- */
 interface AppHandlerInterface
 {
     /**
@@ -30,23 +25,6 @@ interface AppHandlerInterface
      * @return  AppHandler
      */
     public function setAppFactory(AppFactoryInterface $factory);
-
-    /**
-     * @return  RequestUriInterface
-     */
-    public function createUriFromServerSuperGlobal();
-
-    /**
-     * @param   string
-     * @return  RequestUriInterface
-     */
-    public function createUri($str);
-
-    /**
-     * @param   array    $tasks
-     * @return  AppHandler
-     */
-    public function findRoute($key, $format = null);
 
     /**
      * @param   string $key
@@ -77,22 +55,6 @@ interface AppHandlerInterface
                                 MvcContextInterface $context);
 
     /**
-     * @param   MvcRouteDetailInterface $route
-     * @param   MvcContextInterface $context
-     * @param   bool    $isHttp
-     * @return  null
-     */
-    public function outputHttpContext(MvcRouteDetailInterface $route, 
-                                      MvcContextInterface $context,
-                                      $version = '1.1');
-    /**
-     * @param   MvcContextInterface $context
-     * @return  null
-     */
-    public function outputConsoleContext(MvcRouteDetailInterface $route,
-                                         MvcContextInterface $context);
-
-    /**
      * @param   MvcContextInterface        $context
      * @return  AppHandler
      */
@@ -109,10 +71,4 @@ interface AppHandlerInterface
      * @return    TaskHandlerInterface
      */
     public function getTaskHandler();
-
-    /**
-     * @param   TaskHandlerInterface $handler
-     * @return  AppHandler
-     */
-    public function setTaskHandler(TaskHandlerInterface $handler);
 }

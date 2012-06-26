@@ -1,12 +1,9 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
- */
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Config;
 
 /**
@@ -16,33 +13,33 @@ namespace Appfuel\Config;
  */
 interface ConfigLoaderInterface
 {
-	/**
-	 * @return	FileReaderInterface
-	 */
-	public function getFileReader();
+    /**
+     * @return  FileReaderInterface
+     */
+    public function getFileReader();
 
-	/**
-	 * @param	string	$path
-	 * @param	string	$path
-	 * @return	bool
-	 */
-	public function loadFile($path, $isReplace = true);
+    /**
+     * @param   string  $path
+     * @param   string  $path
+     * @return  bool
+     */
+    public function loadFile($path, $isReplace = true);
 
-	/**
-	 * @param	array $data
-	 * @return	null
-	 */
-	public function load(array $data);
+    /**
+     * @param   array   $data
+     * @return  null
+     */
+    public function load(array $data);
 
-	/**
-	 * @param	array	$data
-	 * @return	null
-	 */
-	public function set(array $data);
+    /**
+     * @param   array   $data
+     * @return  null
+     */
+    public function set(array $data);
 
-	/**
-	 * @param	string	$path
-	 * @return	array | false
-	 */
-	public function getFileData($path);
+    /**
+     * @param   string  $path
+     * @return  array | false
+     */
+    public function getFileData($path);
 }

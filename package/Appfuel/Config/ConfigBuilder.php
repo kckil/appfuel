@@ -1,21 +1,18 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
- */
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Config;
 
 use InvalidArgumentException,
-	Appfuel\Filesystem\FileFinder,
-	Appfuel\Filesystem\FileReader,
-	Appfuel\Filesystem\FileWriter,
-	Appfuel\Filesystem\FileFinderInterface,
-	Appfuel\Filesystem\FileReaderInterface,
-	Appfuel\Filesystem\FileWriterInterface;
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileReader,
+    Appfuel\Filesystem\FileWriter,
+    Appfuel\Filesystem\FileFinderInterface,
+    Appfuel\Filesystem\FileReaderInterface,
+    Appfuel\Filesystem\FileWriterInterface;
 
 /**
  * Build a config file from merging two enviroment specific config files 
@@ -23,35 +20,35 @@ use InvalidArgumentException,
  */
 class ConfigBuilder implements ConfigBuilderInterface
 {
-	/**
-	 * Used to find the config files on disk
-	 * @var FileFinderInterface
-	 */
-	protected $fileFinder = null;
+    /**
+     * Used to find the config files on disk
+     * @var FileFinderInterface
+     */
+    protected $fileFinder = null;
 
-	/**
-	 * Used to read the config file data
-	 * @var FileReaderInterface
-	 */
-	protected $fileReader = null;
+    /**
+     * Used to read the config file data
+     * @var FileReaderInterface
+     */
+    protected $fileReader = null;
 
-	/**
-	 * Used to write the final config file
-	 * @var FileWriterInterface 
-	 */
-	protected $fileWriter = null;
+    /**
+     * Used to write the final config file
+     * @var FileWriterInterface 
+     */
+    protected $fileWriter = null;
 
-	/**
-	 * Current environment config we are building for
-	 * @var string
-	 */
-	protected $currentEnv = ' ';
-	
-	/**
-	 * Env we will be merge to
-	 * @var string
-	 */
-	protected $mergeEnv = 'prod';
+    /**
+     * Current environment config we are building for
+     * @var string
+     */
+    protected $currentEnv = ' ';
+    
+    /**
+     * Env we will be merge to
+     * @var string
+     */
+    protected $mergeEnv = 'prod';
 
     /**
      * FileType
@@ -68,92 +65,92 @@ class ConfigBuilder implements ConfigBuilderInterface
      */
     protected $fileName = null;
 
-	/**
-	 * @param	string	$env
-	 * @param	FileFinderInterface	$finder
-	 * @param	FileReaderInterface $reader
-	 * @param	FileWriterInterface $writer
-	 * @return	ConfigBuilder
-	 */
-	public function __construct($env, 
-								FileFinderInterface $finder = null,
-								FileReaderInterface $reader = null,
-								FileWriterInterface $writer = null)
-	{
-		$this->setCurrentEnv($env);
-		if (null === $finder) {
-			$finder = new FileFinder('app/config');
-		}
-		$this->finder = $finder;
+    /**
+     * @param    string    $env
+     * @param    FileFinderInterface    $finder
+     * @param    FileReaderInterface $reader
+     * @param    FileWriterInterface $writer
+     * @return  ConfigBuilder
+     */
+    public function __construct($env, 
+                                FileFinderInterface $finder = null,
+                                FileReaderInterface $reader = null,
+                                FileWriterInterface $writer = null)
+    {
+        $this->setCurrentEnv($env);
+        if (null === $finder) {
+            $finder = new FileFinder('app/config');
+        }
+        $this->finder = $finder;
 
-		if (null === $reader) {
-			$reader = new FileReader($this->finder);
-		}
-		$this->reader = $reader;
+        if (null === $reader) {
+            $reader = new FileReader($this->finder);
+        }
+        $this->reader = $reader;
 
-		if (null === $writer) {
-			$writer = new FileWriter($this->finder);
-		}
-		$this->writer = $writer;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getMergeEnv()
-	{
-		return $this->mergeEnv;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCurrentEnv()
-	{
-		return $this->currentEnv;
-	}
-
-	/**
-	 * @param	string	$char
-	 * @return	ConfigBuilder
-	 */
-	public function setCurrentEnv($env)
-	{
-		if (! is_string($env) || empty($env)) {
-			$err = 'current environment name must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->currentEnv = $env;
-		return $this;
-	}
-
-	/**
-	 * @return	FileFinderInterface
-	 */
-	public function getFileFinder()
-	{
-		return $this->finder;
-	}
-
-	/**
-	 * @return	FileReaderInterface
-	 */
-	public function getFileReader()
-	{
-		return $this->reader;
-	}
-
-	/**
-	 * @return	FileWriterInterface
-	 */
-	public function getFileWriter()
-	{
-		return $this->writer;
-	}
+        if (null === $writer) {
+            $writer = new FileWriter($this->finder);
+        }
+        $this->writer = $writer;
+    }
 
     /**
-     * @param   string      $fileType
+     * @return  string
+     */
+    public function getMergeEnv()
+    {
+        return $this->mergeEnv;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentEnv()
+    {
+        return $this->currentEnv;
+    }
+
+    /**
+     * @param   string  $char
+     * @return  ConfigBuilder
+     */
+    public function setCurrentEnv($env)
+    {
+        if (! is_string($env) || empty($env)) {
+            $err = 'current environment name must be a non empty string';
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->currentEnv = $env;
+        return $this;
+    }
+
+    /**
+     * @return  FileFinderInterface
+     */
+    public function getFileFinder()
+    {
+        return $this->finder;
+    }
+
+    /**
+     * @return  FileReaderInterface
+     */
+    public function getFileReader()
+    {
+        return $this->reader;
+    }
+
+    /**
+     * @return  FileWriterInterface
+     */
+    public function getFileWriter()
+    {
+        return $this->writer;
+    }
+
+    /**
+     * @param   string  $fileType
      * @return  ConfigBuilder
      */
     public function setFileType($fileType)
@@ -179,7 +176,7 @@ class ConfigBuilder implements ConfigBuilderInterface
     }
 
     /**
-     * @param   string      $fileName
+     * @param   string  $fileName
      * @return  ConfigBuilder
      */
     protected function setFileName($fileName)
@@ -196,52 +193,52 @@ class ConfigBuilder implements ConfigBuilderInterface
         return $this->fileName;
     }
 
-	/**
-	 * @throws	RunTimeException
-	 * @return	array
-	 */
-	public function getCurrentEnvData()
-	{
-		$reader  = $this->getFileReader();
-		$env     = $this->getCurrentEnv();
-		$envFile = "$env.php";
-		
-		$isThrow = true;
-		return $reader->import($envFile, $isThrow);
-	}
+    /**
+     * @throws  RunTimeException
+     * @return  array
+     */
+    public function getCurrentEnvData()
+    {
+        $reader  = $this->getFileReader();
+        $env     = $this->getCurrentEnv();
+        $envFile = "$env.php";
+        
+        $isThrow = true;
+        return $reader->import($envFile, $isThrow);
+    }
 
-	/**
-	 * @throws	RunTimeException
-	 * @return	array
-	 */
-	public function getProductionData()
-	{
-		$reader  = $this->getFileReader();
-		
-		$isThrow = true;
-		return $reader->import('production.php', $isThrow);
-	}
+    /**
+     * @throws  RunTimeException
+     * @return  array
+     */
+    public function getProductionData()
+    {
+        $reader  = $this->getFileReader();
+        
+        $isThrow = true;
+        return $reader->import('production.php', $isThrow);
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function mergeConfigurations()
-	{
-		$prod = $this->getProductionData();
-		$env  = $this->getCurrentEnvData();
-		return array_replace_recursive($prod, $env);
-	}
+    /**
+     * @return    array
+     */
+    public function mergeConfigurations()
+    {
+        $prod = $this->getProductionData();
+        $env  = $this->getCurrentEnvData();
+        return array_replace_recursive($prod, $env);
+    }
 
-	/**
-	 * @return	string
-	 */
-	public function generateConfigFile()
-	{
-		$env = $this->getCurrentEnv();
-		if ('production' === $env) {
-			$data = $this->getProductionData();
-		}
-		$data = $this->mergeConfigurations();
+    /**
+     * @return    string
+     */
+    public function generateConfigFile()
+    {
+        $env = $this->getCurrentEnv();
+        if ('production' === $env) {
+            $data = $this->getProductionData();
+        }
+        $data = $this->mergeConfigurations();
         $type = $this->getFileType();
         switch ($type) {
             case 'json':
@@ -259,8 +256,8 @@ class ConfigBuilder implements ConfigBuilderInterface
         }
 
         $this->setFileName($fileName);
-		$writer = $this->getFileWriter();
-		return $writer->putContent($content, $fileName);
+        $writer = $this->getFileWriter();
+        return $writer->putContent($content, $fileName);
     }
 
     /**
@@ -272,12 +269,12 @@ class ConfigBuilder implements ConfigBuilderInterface
      */
     protected function processPhp(array $data)
     {
-		$content = "<?php \n /* generated config file */ \n return ";
-		$content .= $this->printArray($data);
-		$content .= "\n?>";
+        $content = "<?php \n /* generated config file */ \n return ";
+        $content .= $this->printArray($data);
+        $content .= "\n?>";
 
         return $content;
-	}
+    }
 
     /**
      * Write the contents of the data array into a file as a json formatted
@@ -291,55 +288,55 @@ class ConfigBuilder implements ConfigBuilderInterface
         return json_encode($data);
     }
 
-	/**
-	 * @param	array	$array
-	 * @return	string
-	 */
-	public function printArray(array $array)
-	{
-		$str  = "array(\n";
-		$str .= $this->printArrayBody($array);
-		$str .= ");";
-		return $str;
-	}
+    /**
+     * @param    array    $array
+     * @return    string
+     */
+    public function printArray(array $array)
+    {
+        $str  = "array(\n";
+        $str .= $this->printArrayBody($array);
+        $str .= ");";
+        return $str;
+    }
 
-	/**
-	 * @param	array	$array
-	 * @param	int		$level
-	 * @return	string
-	 */	
-	public function printArrayBody(array $array, $level = 0)
-	{
-		$tab = str_repeat("\t", $level);
-		$body = '';
-		foreach ($array as $key => $value) {
-			
-			$type = gettype($value);
-			switch ($type) {
-				case 'object':
-					continue 2;
-					break;
-				case 'boolean':
-					$vline = (true ===$value) ? "true" : "false";
-					$vline .= ",\n";
-					break;
-				case 'integer':
-				case 'double':
-					$vline = "$value,\n";
-					break;
-				case 'string':
-					$vline = "'{$value}', \n";
-					break;
-				case 'array':
-					$vline = "array(\n" . 
-							 $this->printArrayBody($value, $level+1) .
-							 "$tab),\n";
-					break;
-			}
-			$kline = (is_string($key)) ? "{$tab}'{$key}'" : $tab . $key;
-			$body .= $kline . ' => ' . $vline;	
-		}
+    /**
+     * @param    array    $array
+     * @param    int        $level
+     * @return  string
+     */    
+    public function printArrayBody(array $array, $level = 0)
+    {
+        $tab = str_repeat("\t", $level);
+        $body = '';
+        foreach ($array as $key => $value) {
+            
+            $type = gettype($value);
+            switch ($type) {
+                case 'object':
+                    continue 2;
+                    break;
+                case 'boolean':
+                    $vline = (true ===$value) ? "true" : "false";
+                    $vline .= ",\n";
+                    break;
+                case 'integer':
+                case 'double':
+                    $vline = "$value,\n";
+                    break;
+                case 'string':
+                    $vline = "'{$value}', \n";
+                    break;
+                case 'array':
+                    $vline = "array(\n" . 
+                             $this->printArrayBody($value, $level+1) .
+                             "$tab),\n";
+                    break;
+            }
+            $kline = (is_string($key)) ? "{$tab}'{$key}'" : $tab . $key;
+            $body .= $kline . ' => ' . $vline;    
+        }
 
-		return $body;
-	}
+        return $body;
+    }
 }

@@ -1,12 +1,9 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
- */
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Config;
 
 use InvalidArgumentException;
@@ -17,116 +14,116 @@ use InvalidArgumentException;
  */
 class ConfigRegistry
 {
-	/**
-	 * List of configuration name value pairs
-	 * @var Dictionary
-	 */
-	static protected $data = array();
+    /**
+     * List of configuration name value pairs
+     * @var Dictionary
+     */
+    static protected $data = array();
 
-	/**
-	 * @return	array
-	 */
-	static public function getAll()
-	{
-		return	self::$data;
-	}
+    /**
+     * @return    array
+     */
+    static public function getAll()
+    {
+        return    self::$data;
+    }
 
-	/**
-	 * @param	array	$params	
-	 * @return	null
-	 */
-	static public function setAll(array $list)
-	{
-		self::clear();
-		self::load($list);
-	}
+    /**
+     * @param    array    $params    
+     * @return    null
+     */
+    static public function setAll(array $list)
+    {
+        self::clear();
+        self::load($list);
+    }
 
-	/**
-	 * @param	array	$list
-	 * @return	null
-	 */
-	static public function load(array $list)
-	{
-		if (! empty($list) && $list === array_values($list)) {
-			$err = "params must be an associative arrays";
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param    array    $list
+     * @return    null
+     */
+    static public function load(array $list)
+    {
+        if (! empty($list) && $list === array_values($list)) {
+            $err = "params must be an associative arrays";
+            throw new InvalidArgumentException($err);
+        }
 
-		foreach ($list as $key => $value) {
-			self::add($key, $value);
-		}
-	}
+        foreach ($list as $key => $value) {
+            self::add($key, $value);
+        }
+    }
 
-	/**
-	 * @return null
-	 */
-	static public function clear()
-	{
-		self::$data = array();
-	}
+    /**
+     * @return null
+     */
+    static public function clear()
+    {
+        self::$data = array();
+    }
 
-	/**
-	 * @param	string	$name
-	 * @param	mixed	$value
-	 * @return	null
-	 */
-	static public function add($key, $value)
-	{
-		if (! is_string($key) || empty($key)) {
-			$err = 'config key must be a none empty string';
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   string  $name
+     * @param   mixed   $value
+     * @return  null
+     */
+    static public function add($key, $value)
+    {
+        if (! is_string($key) || empty($key)) {
+            $err = 'config key must be a none empty string';
+            throw new InvalidArgumentException($err);
+        }
 
-		self::$data[$key] = $value;
-	}
+        self::$data[$key] = $value;
+    }
 
-	/**
-	 * @param	string	$key
-	 * @return	mixed | $default when not found
-	 */
-	static public function get($key, $default = null)
-	{
-		if (! self::exists($key)) {
-			return $default;
-		}
+    /**
+     * @param   string  $key
+     * @return  mixed | $default when not found
+     */
+    static public function get($key, $default = null)
+    {
+        if (! self::exists($key)) {
+            return $default;
+        }
 
-		return self::$data[$key];
-	}
+        return self::$data[$key];
+    }
 
-	/**
-	 * @param	string	$key
-	 * @return	bool
-	 */
-	static public function exists($key)
-	{
-		if (! is_string($key) || ! array_key_exists($key, self::$data)) {
-			return false;
-		}
+    /**
+     * @param   string  $key
+     * @return  bool
+     */
+    static public function exists($key)
+    {
+        if (! is_string($key) || ! array_key_exists($key, self::$data)) {
+            return false;
+        }
 
-		return true;
-	}
-	
-	/**
-	 * Collect all the parameters in the list. List is an associative array
-	 * of key => default. Where key is the config key we are looking for and
-	 * default is the value we use when that key is not found. When default
-	 * is 'af-exclude-not-found' then that key will be omitted from the 
-	 * collection list.
-	 *
-	 * @param	array	$list
-	 * @return	array
-	 */
-	static public function collect(array $list)
-	{
-		$result = array();
-		foreach ($list as $key => $default) {
-			$value = self::get($key, $default);
-			if ('af-exclude-not-found' === $value) {
-				continue;
-			}
-			$result[$key] = $value;
-		}
+        return true;
+    }
+    
+    /**
+     * Collect all the parameters in the list. List is an associative array
+     * of key => default. Where key is the config key we are looking for and
+     * default is the value we use when that key is not found. When default
+     * is 'af-exclude-not-found' then that key will be omitted from the 
+     * collection list.
+     *
+     * @param   array   $list
+     * @return  array
+     */
+    static public function collect(array $list)
+    {
+        $result = array();
+        foreach ($list as $key => $default) {
+            $value = self::get($key, $default);
+            if ('af-exclude-not-found' === $value) {
+                continue;
+            }
+            $result[$key] = $value;
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 }

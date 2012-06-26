@@ -4,7 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Config;
+namespace Appfuel\App;
 
 use DomainException,
     RunTimeException,
@@ -20,7 +20,7 @@ use DomainException,
  * of the whole config. If section is used and an array key 'common' exists
  * the loader will try to merge common into the section. 
  */
-class ConfigLoader implements ConfigLoaderInterface
+class ConfigHandler implements ConfigHandlerInterface
 {
     /**
      * @var FileReader
@@ -28,13 +28,17 @@ class ConfigLoader implements ConfigLoaderInterface
     protected $reader = null;
 
     /**
+     * The default reader is set to accept an absolute path because the normal
+     * method of operation is to use the AppDetail to get the path to the 
+     * config build file.
+     *
      * @param   FileReaderInterface $reader
      * @return  ConfigLoader
      */
     public function __construct(FileReaderInterface $reader = null)
     {
         if (null === $reader) {
-            $reader = new FileReader(new FileFinder());
+            $reader = new FileReader(new FileFinder(null, false));
         }
 
         $this->reader = $reader;
@@ -68,18 +72,18 @@ class ConfigLoader implements ConfigLoaderInterface
      * @param   mixed   $data
      * @return  null
      */
-    public function load(array $data)
+    public function loadToRegistry(array $data)
     {
-        ConfigRegistry::load($data);
+        AppRegistry::load($data);
     }
 
     /**
      * @param   array   $data
      * @return  null
      */
-    public function set(array $data)
+    public function setToRegistry(array $data)
     {
-        ConfigRegistry::setAll($data);
+        AppRegistry::setAll($data);
     }
 
     /**
@@ -93,7 +97,7 @@ class ConfigLoader implements ConfigLoaderInterface
     {
         if (! is_string($path) || empty($path)) {
             $err = "path to config must be a none empty string";
-            throw new InvalidArgumentException($err);
+            throw new DomainException($err);
         }
 
         $reader = $this->getFileReader();
@@ -108,9 +112,14 @@ class ConfigLoader implements ConfigLoaderInterface
             }
         }
         else {
-            $data = $reader->import($path, true);
+            $data = $reader->import($path, false);
+            if (! is_array($data)) {
+                $err  = "could not find config at -($path) or the file is ";
+                $err .= "not returning the expected format of an array";
+                throw new DomainException($err);
+            }
         }
         
-        return $data;    
+        return $data;
     }
 }

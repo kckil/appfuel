@@ -1,12 +1,9 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * For complete copywrite and license details see the LICENSE file distributed   
- * with this source code.                                                        
- */
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Config;
 
 /**
@@ -15,70 +12,69 @@ namespace Appfuel\Config;
  */
 interface ConfigBuilderInterface
 {
+    /**
+     * @return  string
+     */
+    public function getMergeEnv();
 
-	/**
-	 * @return	string
-	 */
-	public function getMergeEnv();
+    /**
+     * @return  string
+     */
+    public function getCurrentEnv();
 
-	/**
-	 * @return string
-	 */
-	public function getCurrentEnv();
+    /**
+     * @param   string  $char
+     * @return  ConfigBuilder
+     */
+    public function setCurrentEnv($env);
 
-	/**
-	 * @param	string	$char
-	 * @return	ConfigBuilder
-	 */
-	public function setCurrentEnv($env);
+    /**
+     * @return  FileFinderInterface
+     */
+    public function getFileFinder();
 
-	/**
-	 * @return	FileFinderInterface
-	 */
-	public function getFileFinder();
+    /**
+     * @return  FileReaderInterface
+     */
+    public function getFileReader();
 
-	/**
-	 * @return	FileReaderInterface
-	 */
-	public function getFileReader();
+    /**
+     * @return  FileWriterInterface
+     */
+    public function getFileWriter();
 
-	/**
-	 * @return	FileWriterInterface
-	 */
-	public function getFileWriter();
+    /**
+     * @throws  RunTimeException
+     * @return  array
+     */
+    public function getCurrentEnvData();
 
-	/**
-	 * @throws	RunTimeException
-	 * @return	array
-	 */
-	public function getCurrentEnvData();
+    /**
+     * @throws  RunTimeException
+     * @return  array
+     */
+    public function getProductionData();
 
-	/**
-	 * @throws	RunTimeException
-	 * @return	array
-	 */
-	public function getProductionData();
+    /**
+     * @return  array
+     */
+    public function mergeConfigurations();
 
-	/**
-	 * @return	array
-	 */
-	public function mergeConfigurations();
+    /**
+     * @return  string
+     */
+    public function generateConfigFile();
 
-	/**
-	 * @return	string
-	 */
-	public function generateConfigFile();
+    /**
+     * @param   array   $array
+     * @return  string
+     */
+    public function printArray(array $array);
 
-	/**
-	 * @param	array	$array
-	 * @return	string
-	 */
-	public function printArray(array $array);
-
-	/**
-	 * @param	array	$array
-	 * @param	int		$level
-	 * @return	string
-	 */	
-	public function printArrayBody(array $array, $level = 0);
+    /**
+     * @param   array   $array
+     * @param   int     $level
+     * @return  string
+     */    
+    public function printArrayBody(array $array, $level = 0);
 }

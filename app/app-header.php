@@ -1,44 +1,77 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.                   
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 use Appfuel\App\AppDetail,
-    Appfuel\App\AppHandler,
-    Appfuel\Config\ConfigLoader,
-    Appfuel\Config\ConfigRegistry;
+    Appfuel\App\AppFactory,
+    Appfuel\App\ConfigHandler;
 
-$sep  = DIRECTORY_SEPARATOR;
-$base = realpath(__DIR__ . '/../');
-$src  = "$base{$sep}package";
-if (! defined('AF_BASE_PATH')) {
-    define('AF_BASE_PATH', $base);
-}
+/*
+ * base path is the absolute path to the application root, app path is the 
+ * app directory which app setting, build files and files like this are kept,
+ * it is the only directory at the root level that can not be changed. The 
+ * package directory holds all the source files for the application.
+ */
+$sep   = DIRECTORY_SEPARATOR;
+$base  = realpath(__DIR__ . '/../');
+$app   = "$base{$sep}app";
+$src   = "$base{$sep}package";
+
+/*
+ * Required constants. Appfuel will not work without these. Other contants are
+ * declared towards the end of the script. They use the AppDetail which allows
+ * you to change the directory names to suite your needs.
+ */
+define('AF_BASE_PATH', $base);
+define('AF_APP_PATH', $app);
+define('AF_CODE_PATH', $src);
 
 /*
  * Load dependent framework files into memory before the autoloader.
  * This allows the framework tasks to be run earlier and not have to 
  * depend on the autoloader to be found.
  */ 
-$file = "{$base}{$sep}app{$sep}kernel-dependencies.php";
+$file = "{$app}{$sep}kernel-dependencies.php";
 if (! file_exists($file)) {
     $err = "could not find kernel dependency file at -($file)";
-    throw new RunTimeException($err);
+    throw new LogicException($err);
 }
-$list = require $file;
+$dlist = require $file;
 
 /*
- * determine if the calling script has classes to be be manually
- * loaded into memory and add them to the end of the kernel's list
+ * Allow the calling script to append dependency classes along with the 
+ * framework dependencies. The array given must be an associative array of 
+ * qualified class name => file path (relative to AF_CODE_PATH)
  */
+if (!isset($dependAction) || !is_string($dependAction)) {
+    $dependAction = 'append';
+}
 if (isset($dependList) && is_array($dependList)) {
-    $list = array_splice($list, count($list), 0, $dependList);
+    if ($dependList === array_values($dependList)) {
+        $err  = "dependency array given by the calling script must be an ";
+        $err .= "associative array";
+        throw new LogicException($err);
+    }
+    
+    switch ($dependAction) {
+        case 'prepend':
+            $dlist = array_merge($dependList, $dlist);
+            break;
+        case 'replace':
+            $dlist = $dependList;
+            break;
+        default:
+            $dlist = array_merge($dlist, $dependList);
+            
+    }
 }
 
-foreach ($list as $class => $file) {
+/*
+ * Load dependencies into memory
+ */
+foreach ($dlist as $class => $file) {
     if (class_exists($class) || interface_exists($class, false)) {
         continue;    
     }
@@ -50,27 +83,55 @@ foreach ($list as $class => $file) {
 
     require $absolute;
 }
-unset($file, $list, $dependList, $class, $asbsolute, $err);
+unset($file, $dlist, $class, $asbsolute, $err);
 
 /*
- * load configuration data into the config registry. If the including script
- * sets $configData then don't look for a file, otherwise use the AppStructure
- * which holds the application directory structure and location of config file
- * to be loaded based on a config key
+ * Decouple the application directories from the kernel. Note: the only 
+ * directories you can not change are 'app' and 'app-build'. 
  */
-$loader = new ConfigLoader();
-$detail = new AppDetail($base);
-define('AF_CODE_PATH', $detail->getPackage());
+$paths  = ["base" => $base, "src" => "package"];
+$detail = new AppDetail($paths);
 
-if (isset($configData)) {
-    $loader->set($configData);
+$factory = new AppFactory();
+$config  = $factory->createConfigHandler();
+
+/*
+ * Allow the calling code to have control over configuration. By default if
+ * the calling script populates a variable called $settings with an array
+ * then that array will replace the original config settings.
+ */
+if (!isset($configAction) || !is_string($configAction)) {
+    $configAction = 'replace';
+}
+
+/*
+ * Allow the calling code to change the config file. Note: you must specify 
+ * the absolute path to the config file you wish to load
+ */
+if (! isset($configFile)) {
+    $configFile = $detail->getPath('config-build-settings');
+}
+
+/*
+ * Ignore normal config data when calling scripts is using its own otherwise
+ * merge the calling scripts config settings with ours
+ */
+if (isset($settings) && 'replace' === $configAction) {
+    $headSettings = $settings;
 }
 else {
-    if (! isset($configKey)) {
-        $configKey = 'web';
+    $headSettings = $config->getFileData($configFile);
+    if (isset($settings) && is_array($settings)) {
+        $headSettings = array_merge($headSettings, $settings);
     }
-    $loader->loadFile($detail->getConfigFile($configKey), true);
 }
+
+/*
+ * Add the configuration settings to the application registry. Note: this 
+ * clears out any settings already there. Use loadRegistry to append if you
+ * need to
+ */
+$config->setRegistry($headSettings);
 
 /*
  * list of framework startup tasks to be run after initialization. The 
@@ -88,26 +149,44 @@ $tasks = array(
     'Appfuel\Validate\ValidationStartupTask'
 );
 
-if (! isset($taskAction) || ! is_string($taskAction) || empty($taskAction)) {
+/*
+ * Allow the calling code to add tasks to the framework task list. You can 
+ * append the extra tasks to the list (default), prepend the tasks or even 
+ * the kernel tasks with your own.
+ */
+if (! isset($taskAction) || ! is_string($taskAction)) {
     $taskAction = 'append';
 }
 
 if (isset($fwTasks) && is_array($fwTasks)) {
     switch($taskAction) {
-        case 'append': 
-            array_splice($tasks, count($tasks), 0, $fwTasks);
-            break;
         case 'prepend':
-            array_splice($tasks, 0, 0, $fwTasks);
+            $tasks = array_merge($fwTasks, $tasks);
             break;
         case 'replace':
             $tasks = $fwTasks;
-            break;            
+            break;
+        default:
+            $tasks = array_merge($tasks, $fwTasks);
     }
 }
 
-$handler = new AppHandler($detail);
-$handler->initialize($tasks);
+if (isset($appType) && 'cli' === $appType) {
+    $handler = new CliHandler($detail, $factory);
+}
+else {
+    $handler = new WebHandler($detail, $factory);
+}
 
-unset($tasks, $detail, $loader);
+/*
+ * allow the calling code to opt out of initializing that handler
+ */
+if (isset($disableInitialize) && true === $disableInitialize) {
+    unset($tasks, $detail, $config);
+    return $handler;
+}
+
+$handler->initialize($tasks);
+unset($tasks, $detail, $config);
+
 return $handler;
