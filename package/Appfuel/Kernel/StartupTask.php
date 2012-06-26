@@ -32,12 +32,6 @@ class StartupTask implements StartupTaskInterface
     protected $keys = array();
 
     /**
-     * Status text used to indicate the result of task initialization
-     * @var string
-     */
-    protected $status = null;
-
-    /**
      * @param    array    $keys
      * @return    StartupTask
      */

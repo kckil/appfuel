@@ -6,11 +6,12 @@
  */ 
 namespace Appfuel\App;
 
-use Appfuel\DataStructure\ArrayData;
+use Appfuel\DataStructure\ArrayData,
+    Appfuel\Kernel\TaskHandlerInterface;
     
 /**
  * The applicatins global level registry. It holds general configuration data
- * and the AppDetail. 
+ * AppDetail, AppFactory and TaskHandler. 
  */
 class AppRegistry
 {
@@ -29,6 +30,11 @@ class AppRegistry
      * @var AppFactoryInterface
      */
     static protected $factory = null;
+
+    /**
+     * @var TaskHandlerInterface
+     */
+    static protected $taskHandler = null;
 
     /**
      * @return  AppDetailInterface
@@ -62,6 +68,23 @@ class AppRegistry
     static public function setAppFactory(AppFactoryInterface $factory)
     {
         self::$factory = $factory;
+    }
+
+    /**
+     * @return  TaskHandlerInterface
+     */
+    static public function getTaskHandler()
+    {
+        return self::$taskHandler;
+    }
+
+    /**
+     * @param   TaskHandlerInterface  $handler
+     * @return  null
+     */
+    static public function setTaskHandler(TaskHandlerInterface $handler)
+    {
+        self::$taskHandler = $handler;
     }
 
     /**

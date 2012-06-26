@@ -97,6 +97,7 @@ if (! isset($ctrl['paths']) || ! is_array($ctrl['paths'])) {
 }
 $detail  = new AppDetail($ctrl['paths']);
 $factory = new AppFactory();
+$taskHandler = $factory->createTaskHandler();
 
 /*
  * The detail and factory are needed globally so we set them to application 
@@ -104,6 +105,7 @@ $factory = new AppFactory();
  */
 AppRegistry::setAppDetail($detail);
 AppRegistry::setAppFactory($factory);
+AppRegistry::setTaskHandler($taskHandler);
 
 $config = $factory->createConfigHandler();
 /*
