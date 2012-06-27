@@ -158,15 +158,14 @@ AppRegistry::load($headSettings);
  * including script can append, prepend or replaces these when needed. 
  */
 $tasks = array(
-    'Appfuel\Kernel\PHPIniTask',
-    'Appfuel\Kernel\PHPErrorTask',
-    'Appfuel\Kernel\PHPPathTask',
-    'Appfuel\Kernel\PHPDefaultTimezoneTask',
-    'Appfuel\Kernel\PHPAutoloaderTask',
-    'Appfuel\Kernel\FaultHandlerTask',
-    'Appfuel\Kernel\DependencyLoaderTask',
-    'Appfuel\Kernel\RouteListTask',
-    'Appfuel\Validate\ValidationStartupTask'
+    'Appfuel\Kernel\Task\PHPIniTask',
+    'Appfuel\Kernel\Task\PHPErrorTask',
+    'Appfuel\Kernel\Task\PHPPathTask',
+    'Appfuel\Kernel\Task\PHPDefaultTimezoneTask',
+    'Appfuel\Kernel\Task\PHPAutoloaderTask',
+    'Appfuel\Kernel\Task\FaultHandlerTask',
+    'Appfuel\Kernel\Task\DependencyLoaderTask',
+    // @todo validation startup task
 );
 
 /*
