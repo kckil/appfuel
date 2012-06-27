@@ -1,12 +1,10 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.                   
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Task;
 
 use DomainException;
 
@@ -16,71 +14,24 @@ use DomainException;
 class PHPPathTask extends StartupTask
 {
     /**
-     * When no action is given paths will be appended to the existing paths
-     * @var string
+     * @var array
      */
-    protected $defaultAction = 'append';
+    protected $keys = array(
+        'php-include-path',
+        'php-include-path-action',
+        
+    );
 
     /**
-     * Set keys used to find the ini settings in the registry
-     *
-     * @return  PHPPathTask
-     */
-    public function __construct()
-    {
-        $this->setRegistryKeys(array(
-            'php-include-path' => null,
-            'php-include-path-action' => $this->getDefaultAction(),
-        ));
-    }
-
-    /**
-     * @param   string  $action
      * @return  null
      */
-    public function setDefaultAction($action)
+    public function execute()
     {
-        if (! $this->isValidAction($action)) {
-            $err  = "action must be one of the following: ";
-            $err .= "-(append, prepend, replace) case matters";
-            throw new DomainException($err);
-        }
-
-        $this->defaultAction = $action;
-    }
-
-    /**
-     * @return    string
-     */
-    public function getDefaultAction()
-    {
-        return $this->defaultAction;
-    }
-
-    /**
-     * @param   string  $action
-     * @return  bool
-     */
-    public function isValidAction($action)
-    {        
-        $valid  = array('append', 'prepend', 'replace');
-        if (! is_string($action) || ! in_array($action, $valid, true)) {
+        $params = $this->getParamData();
+        $paths  = $params->get('php-include-path');
+        if (empty($paths)) {
             return false;
         }
-
-        return true;
-    }
-
-    /**
-     * @param   array   $params
-     * @return  null
-     */
-    public function execute(array $params = null)
-    {
-        if (empty($params) || ! isset($params['php-include-path'])) {
-            return;
-        }
-        $paths = $params['php-include-path'];
 
         /* a single path was passed in */
         if (is_string($paths) && ! empty($paths)) {
@@ -92,12 +43,8 @@ class PHPPathTask extends StartupTask
             throw new DomainException($err);
         }
 
-        $action = $this->getDefaultAction();
-        if (isset($params['php-include-path-action'])) {
-            $action = $params['php-include-path-action'];
-        }
-
-        if (! $this->isValidAction($action)) {
+        $action = $params->get('php-include-path-action', 'append');
+        if (! in_array($action, array('append', 'prepend', 'replace'), true)) {
             $err = "action must be -(append, prepend, replace)";
             throw new DomainException($err);
         }
@@ -110,7 +57,6 @@ class PHPPathTask extends StartupTask
         }
 
         set_include_path($path);
-
-        $this->setStatus("include path set with -($path)");
+        return true;
     }
 }

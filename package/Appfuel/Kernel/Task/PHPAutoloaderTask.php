@@ -6,7 +6,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
  * See LICENSE file at the project root directory for details.                   
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Task;
 
 use DomainException,
     RunTimeException,
@@ -18,23 +18,17 @@ use DomainException,
 class PHPAutoloaderTask extends StartupTask
 {
     /**
-     * @return  PHPAutoLoaderTask
+     * @var array
      */
-    public function __construct()
-    {
-        $this->setRegistryKeys(array('php-autoloader' => null));
-    }
+    protected $keys = array('php-autoloader');
 
     /**
      * @param   array    $params
      * @return  null
      */
-    public function execute(array $params = null)
+    public function execute()
     {
-        if (empty($params) || ! isset($params['php-autoloader'])) {
-            return;
-        }
-
+        $params = $this->getParamData();
         if (! defined('AF_CODE_PATH')) {
             $err  = "the absolute path to the directory where all php ";
             $err .= "namespaces are found must be defined in a constant ";
@@ -42,31 +36,30 @@ class PHPAutoloaderTask extends StartupTask
             throw new RunTimeException($err);
         }
 
-        $data = $params['php-autoloader'];
-        if (is_string($data)) {
-            $loader = new $data();
-            if (! $loader instanceof AutoLoaderInterface) {
-                $err  = "loader -($data) must implement Appfuel\ClassLoader";
+        $loader = $params->get('php-autoloader');
+        if (is_string($loader)) {
+            $autoLoader = new $loader();
+            if (! $autoLoader instanceof AutoLoaderInterface) {
+                $err  = "loader -($loader) must implement Appfuel\ClassLoader";
                 $err .= "\AutoLoaderInterface";
                 throw new DomainException($err);
             }
 
             $loader->addPath(AF_CODE_PATH);
             $loader->register();
-            $this->setStatus("autoloader class  -($data) registered");
         }
-        else if (is_array($data)) {
-            $func = current($data);
+        else if (is_array($loader)) {
+            $func = current($loader);
             if (null === $func) {
                 spl_autoload_register();
             }
             else {
-                $isThrow   = (false === next($data))   ? false : true;
-                $isPrepend = (true === next($data)) ? true  : false;
+                $isThrow   = (false === next($data)) ? false : true;
+                $isPrepend = (true === next($data))  ? true  : false;
                 spl_autoload_register($func, $isThrow, $isPrepend);
             }
-
-            $this->setStatus("autoloader was manual registered");
         }
+
+        return true;
     }
 }

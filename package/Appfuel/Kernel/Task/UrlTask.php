@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Kernel\Startup;
 
@@ -16,14 +12,14 @@ namespace Appfuel\Kernel\Startup;
 class UrlTask extends StartupTask 
 {
 	/**
-	 * @param	array	$params		config params 
-	 * @return	null
+	 * @return	bool
 	 */
-	public function execute(array $params = null)
+	public function execute()
 	{
 		if (! isset($_SERVER['HTTP_HOST'])) {
 			return;
 		}
+
 		$scheme = isset($_SERVER['HTTPS']) ? 'https': 'http';
 		$host   = $_SERVER['HTTP_HOST'];
 		$url    = "{$scheme}://$host";

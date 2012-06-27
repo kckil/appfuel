@@ -1,12 +1,10 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.                   
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Task;
 
 use DomainException;
 
@@ -16,25 +14,20 @@ use DomainException;
 class PHPIniTask extends StartupTask 
 {
     /**
-     * Set keys used to find the ini settings in the registry
-     *
-     * @return    PHPIniStartup
+     * @var array
      */
-    public function __construct()
-    {
-        $this->setRegistryKeys(array('php-ini' => null));
-    }
+    protected $keys = array('php-ini');
 
     /**
-     * @param   array   $params
-     * @return  null
+     * @return bool
      */
-    public function execute(array $params = null)
+    public function execute()
     {
-        if (empty($params) || ! isset($params['php-ini'])) {
-            return;
+        $params = $this->getParamData();
+        $data = $params->get('php-ini');
+        if (empty($data)) {
+            return false;
         }
-        $data = $params['php-ini'];
 
         if (! is_array($data) || $data === array_values($data)) {
             $err = 'php ini settings must be an associative array of ';
@@ -42,7 +35,6 @@ class PHPIniTask extends StartupTask
             throw new DomainException($err);
         }
 
-        $count = 0;
         foreach ($data as $varname => $newvalue) {
             if (! is_string($varname) || empty($varname)) {
                 $err = "ini name must non empty string: at index -($count)";
@@ -55,9 +47,8 @@ class PHPIniTask extends StartupTask
             }
 
             ini_set($varname, $newvalue);
-            $count++;
         }
 
-        $this->setStatus("initialized $count php ini settings");
+        return true;
     }
 }

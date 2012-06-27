@@ -1,12 +1,10 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.                   
- */
-namespace Appfuel\Kernel;
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
+namespace Appfuel\Kernel\Task;
 
 use DomainException;
 
@@ -16,30 +14,22 @@ use DomainException;
 class PHPDefaultTimezoneTask extends StartupTask
 {
     /**
-     * @return  PHPDefaultTimezoneTask
+     * @var   array
      */
-    public function __construct()
-    {
-        $this->setRegistryKeys(array('php-default-timezone'    => null));
-    }
+    protected $keys = array('php-default-timezone');
 
     /**
-     * @param   array   $params
-     * @return  null
+     * @return  bool
      */
-    public function execute(array $params = null)
+    public function execute()
     {
-        $msg = '';
-        if (isset($params['php-default-timezone'])) {
-            $zone = $params['php-default-timezone'];
-            if (! is_string($zone) || empty($zone)) {
-                $err = 'timezone must be a non empty string';
-                throw new DomainException($err);
-            }
-            date_default_timezone_set($zone);
-            $msg = "default timezone was set to -($zone)";
+        $params = $this->getParamData();
+        $tz = $params->get('php-default-timezone');
+        if (is_string($zone) && ! empty($zone)) {
+            date_default_timezone_set($tz);
+            return true;
         }
 
-        $this->setStatus($msg);
+        return false;
     }
 }
