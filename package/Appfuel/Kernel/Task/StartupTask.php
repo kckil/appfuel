@@ -147,4 +147,13 @@ class StartupTask implements StartupTaskInterface
         $this->keys = $keys;
         return $this;
     }
+
+    /**
+     * @param   array   $data
+     * @return  ArrayData
+     */
+    protected function createArrayData(array $data = null)
+    {
+        return new ArrayData($data);
+    }
 }

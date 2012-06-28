@@ -1,15 +1,13 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.                   
- */
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Kernel\Task;
 
 use DomainException,
-    RunTimeException,
+    LogicException,
     Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
@@ -23,8 +21,7 @@ class PHPAutoloaderTask extends StartupTask
     protected $keys = array('php-autoloader');
 
     /**
-     * @param   array    $params
-     * @return  null
+     * @return  bool
      */
     public function execute()
     {
@@ -33,7 +30,7 @@ class PHPAutoloaderTask extends StartupTask
             $err  = "the absolute path to the directory where all php ";
             $err .= "namespaces are found must be defined in a constant ";
             $err .= "named AF_CODE_PATH";
-            throw new RunTimeException($err);
+            throw new LogicException($err);
         }
 
         $loader = $params->get('php-autoloader');
@@ -44,9 +41,8 @@ class PHPAutoloaderTask extends StartupTask
                 $err .= "\AutoLoaderInterface";
                 throw new DomainException($err);
             }
-
-            $loader->addPath(AF_CODE_PATH);
-            $loader->register();
+            $autoLoader->addPath(AF_CODE_PATH);
+            $autoLoader->register();
         }
         else if (is_array($loader)) {
             $func = current($loader);

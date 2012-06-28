@@ -214,15 +214,13 @@ else {
 }
 unset($detail, $config, $class);
 
-echo "\n", print_r($handler,1), "\n";exit;
 /*
  * allow the calling code to opt out of initializing that handler
  */
 if (isset($ctrl['disable-tasks']) && true === $ctrl['disable-tasks']) {
     return $handler;
 }
-
-$handler->initialize($tasks);
+$taskHandler->runTasks($tasks);
 unset($tasks);
 
 return $handler;

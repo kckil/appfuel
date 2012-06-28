@@ -25,7 +25,7 @@ class PHPDefaultTimezoneTask extends StartupTask
     {
         $params = $this->getParamData();
         $tz = $params->get('php-default-timezone');
-        if (is_string($zone) && ! empty($zone)) {
+        if (is_string($tz) && ! empty($tz)) {
             date_default_timezone_set($tz);
             return true;
         }

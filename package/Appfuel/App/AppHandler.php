@@ -40,46 +40,6 @@ class AppHandler implements AppHandlerInterface
     }
     
     /**
-     * Create the app factory and task handler and define constants
-     * 
-     * @param   array    $tasks 
-     * @return  AppHandler
-     */
-    public function initialize(array $tasks = null)
-    {
-        $default = 'Appfuel\App\AppFactory';
-        $class   = ConfigRegistry::get('app-factory-class', $default);
-        if (! is_string($class) || empty($class)) {
-            $err = "app factory class must be a non empty string";
-            throw new DomainException($err);
-        }
-
-        if (! class_exists($class, false)) {
-            $err  = "the app factory class should be added to the ";
-            $err .= "kernel dependency file because it is needed before the ";
-            $err .= "the autoloader is in use";
-            throw new LogicException($err);
-        }
-
-        $factory = new $class();
-        if (! $factory instanceof AppFactoryInterface) {
-            $err  = "app factory -($class) must implment Appfuel\Kernel";
-            $err .= "\AppFactoryInterface";
-            throw new LogicException($err);
-        }
-
-        $handler = $factory->createTaskHandler();
-        $this->factory = $factory;
-        $this->setTaskHandler($handler);
-
-        if (null !== $tasks) {
-            $this->runTasks($tasks);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return  AppFactoryInterface
      */
     public function getAppFactory()

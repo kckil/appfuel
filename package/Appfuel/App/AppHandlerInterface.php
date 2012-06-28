@@ -54,10 +54,5 @@ interface AppHandlerInterface
      */
     public function runAction(MvcContextInterface $context);
 
-    /**
-     * @param   array    $tasks
-     * @return  AppHandler
-     */
-    public function initialize(array $taks = null);
     public function runTasks(array $tasks);
 }
