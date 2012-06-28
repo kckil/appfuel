@@ -26,10 +26,10 @@ class PHPAutoloaderTask extends StartupTask
     public function execute()
     {
         $params = $this->getParamData();
-        if (! defined('AF_CODE_PATH')) {
+        if (! defined('AF_SRC_PATH')) {
             $err  = "the absolute path to the directory where all php ";
             $err .= "namespaces are found must be defined in a constant ";
-            $err .= "named AF_CODE_PATH";
+            $err .= "named AF_SRC_PATH";
             throw new LogicException($err);
         }
 
@@ -41,7 +41,7 @@ class PHPAutoloaderTask extends StartupTask
                 $err .= "\AutoLoaderInterface";
                 throw new DomainException($err);
             }
-            $autoLoader->addPath(AF_CODE_PATH);
+            $autoLoader->addPath(AF_SRC_PATH);
             $autoLoader->register();
         }
         else if (is_array($loader)) {

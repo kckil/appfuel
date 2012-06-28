@@ -37,16 +37,16 @@ class AppDetail implements AppDetailInterface
      * @var array
      */
     protected $paths = [
-        'www'                   => 'www',
-        'bin'                   => 'bin',
-        'test'                  => 'test',
-        'src'                   => 'package',
-        'resource'              => 'resource',
-        'datasource'            => 'datasource',
-        'app'                   => 'app',
-        'app-build'             => 'app/build',
-        'config-settings'       => 'app/config-settings.php',
-        'config-build-settings' => 'app/build/config.json',
+        'app-www'                   => 'www',
+        'app-bin'                   => 'bin',
+        'app-test'                  => 'test',
+        'app-src'                   => 'package',
+        'app-resource'              => 'resource',
+        'app-datasource'            => 'datasource',
+        'app-dir'                   => 'app',
+        'app-build'                 => 'app/build',
+        'app-config-settings'       => 'app/config-settings.php',
+        'app-config-build-file'     => 'app/build/config.json',
     ];
 
     /**
@@ -55,11 +55,11 @@ class AppDetail implements AppDetailInterface
      */
     public function __construct(array $spec)
     {
-        if (! isset($spec['base'])) {
+        if (! isset($spec['app-root'])) {
             $err = "base path -(base) is required and must be set";
             throw new DomainException($err);
         }
-        $this->setBasePath($spec['base']);
+        $this->setBasePath($spec['app-root']);
 
         foreach ($this->paths as $key => &$path) {
             if (!isset($spec[$key]) || 'app'===$key || 'app-build'===$key) {

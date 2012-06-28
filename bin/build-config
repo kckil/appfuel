@@ -7,13 +7,32 @@
  */
 use Appfuel\App\CliHandlerInterface;
 
+/**
+ * build-config: will generate a cached configuration file based on a 
+ * build strategy.
+ *
+ * cli args: any argument will be considered a path to a config file to 
+ *           process
+ * short opts: 
+ *  -s: [flag] single config file where enviroments are stored as keys
+ *  -m: [flag] multiple config files given to merge
+ *  -e: [opt]  name of the enviroment to build
+ *  -t: [opt]  target to build when not specified it is assumed 'prod'
+ *  -b: [opt]  location and name of the final build file, when not specified
+ *             'app/build/config.json is assumed
+ */
+$ctrl = array(
+    'paths' => array(
+        'base' => 'blah'
+    ),
+);
+echo "\n", print_r(var_dump(isset($ctrl['paths']['base'])),1), "\n";exit;
 $base   = realpath(__DIR__ . "/../");
 $header = "$base/app/app-header.php";
 if (! file_exists($header)) {
     fwrite(STDERR, "could not find app header at -($header) \n");
     exit(-1);
 }
-
 /*
  * Used to control the app-header.php script. $appType gives us cli handler
  * and configAction tells the header to replace the config data with ours.
@@ -34,12 +53,8 @@ $ctrl = array(
     ),
 );
 $handler = require $header;
-if (! $handler instanceof CliHandlerInterface) {
-	$err  = "app handler was not created or does not implement Appfuel\App";
-	$err .= "\CliHandlerInterface";
-	fwrite(STDERR, $err);
-}
-echo "\n", print_r($handler,1), "\n";exit;
+$input = $handler->createConsoleInput($_SERVER['argv']);
+echo "\n", print_r($input->getArgs(),1), "\n";exit;
 
 
 
