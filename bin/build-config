@@ -21,12 +21,6 @@ use Appfuel\App\CliHandlerInterface;
  *  -b: [opt]  location and name of the final build file, when not specified
  *             'app/build/config.json is assumed
  */
-$ctrl = array(
-    'paths' => array(
-        'base' => 'blah'
-    ),
-);
-echo "\n", print_r(var_dump(isset($ctrl['paths']['base'])),1), "\n";exit;
 $base   = realpath(__DIR__ . "/../");
 $header = "$base/app/app-header.php";
 if (! file_exists($header)) {
@@ -40,6 +34,9 @@ if (! file_exists($header)) {
  * data to be arround, so we use our own values
  */
 $ctrl = array(
+    'paths' => array(
+        'app-root' => '/some/path',
+    ),
     'app-type'          => 'cli',
     'config-action'     => 'replace',
     'config-settings'   => array(
@@ -55,7 +52,5 @@ $ctrl = array(
 $handler = require $header;
 $input = $handler->createConsoleInput($_SERVER['argv']);
 echo "\n", print_r($input->getArgs(),1), "\n";exit;
-
-
 
 exit(0);

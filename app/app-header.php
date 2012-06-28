@@ -19,30 +19,36 @@ if (! isset($ctlr)) {
 }
 
 /*
- * Base path is the absolute path to the application root. This can be changed
- * by the calling script, but it this is rare.
+ * The base path is defined as the absolute path to the root of the application
+ * this path is not configurable and is required for appfuel to function. 
  */
-if (! isset($ctrl['paths']['app-root'])) {
-    $ctrl['paths']['app-root'] = realpath(__DIR__ . '/../');
-}
+$ctrl['paths']['app-root'] = realpath(__DIR__ . '/../');
 define('AF_BASE_PATH', $ctrl['paths']['app-root']);
 
 /*
- * You can not override the app path. it must also be this directory 
- * relative to the base path
+ * The app path is defined as the directory where all app configuration, 
+ * mapping and build files are kept. Like base path it is not configurable
+ * and is required for appfuel to function. All other directories can be
+ * configured
  */
 define('AF_APP_PATH', AF_BASE_PATH . DIRECTORY_SEPARATOR . 'app');
 $ctrl['paths']['app-dir'] = AF_APP_PATH;
 
+/*
+ * The src path is defined as the directory that holds all the source code
+ * for the application. Currently appfuel expects all source to live 
+ * namespaced under a single directory, because it greatly simplifies the 
+ * task of auto loading.
+ */
 if (! isset($ctrl['paths']['app-src'])) {
     $ctrl['paths']['app-src'] = AF_BASE_PATH . DIRECTORY_SEPARATOR . 'package';
 }
 define('AF_SRC_PATH', $ctrl['paths']['app-src']);
 
 /*
- * Load dependent framework files into memory before the autoloader.
- * This allows the framework tasks to be run earlier and not have to 
- * depend on the autoloader to be found.
+ * Kernel dependencies are a list of files the need to be in memory before the
+ * autoloader. This could be because of classes used before the autoloader 
+ * task is execute or simply for effeciency.
  */ 
 $dlist = require AF_APP_PATH . DIRECTORY_SEPARATOR . "kernel-dependencies.php";
 
@@ -76,7 +82,7 @@ if (isset($ctrl['depend-list']) && is_array($ctrl['depend-list'])) {
 }
 
 /*
- * Load dependencies into memory
+ * Actually load the files list as dependencies into memory.
  */
 foreach ($dlist as $class => $file) {
     if (class_exists($class) || interface_exists($class, false)) {
@@ -87,23 +93,27 @@ foreach ($dlist as $class => $file) {
 }
 unset($file, $dlist, $dependList, $class, $asbsolute, $err);
 
+/*
+ * AppDetail allows you to decouple directory names (except app-root a.k.a 
+ * base path and app-dir)
+ */
 $detail  = new AppDetail($ctrl['paths']);
 $factory = new AppFactory();
 $taskHandler = $factory->createTaskHandler();
 
 /*
- * The detail and factory are needed globally so we set them to application 
- * registry where all globals for the app are kept
+ * Make this important object available to the application globally through
+ * the AppRegistry
  */
 AppRegistry::setAppDetail($detail);
 AppRegistry::setAppFactory($factory);
 AppRegistry::setTaskHandler($taskHandler);
 
 $config = $factory->createConfigHandler();
+
 /*
- * Allow the calling code to have control over configuration. By default if
- * the calling script populates a variable called $settings with an array
- * then that array will replace the original config settings.
+ * Override normal configuration by using $ctrl['config-settings'] for manual
+ * config data and use $ctrl['config-action'] to replace or merge that data.
  */
 if (! isset($ctrl['config-action']) || ! is_string($ctrl['config-action'])) {
     $ctrl['config-action'] = 'replace';
