@@ -16,18 +16,20 @@ interface StartupTaskInterface
      */
     public function __construct($data = null);
 
+    /**                                                                          
+     * @param   array   $data                                                    
+     * @param   MvcContextInterface $context                                     
+     * @return  bool                                                             
+     */                                                                          
+    public function executeTask(array $data = null,
+                                MvcContextInterface $context = null);
     /**
      * @param   array   $params
      * @param   MvcContextInterface $context 
      * @return  bool
      */
-    public function execute(array $p = null, MvcContextInterface $c = null);
+    public function execute();
    
-    /**
-     * @return  bool
-     */
-    public function executeTask();
-
     /**
      * @return  array
      */

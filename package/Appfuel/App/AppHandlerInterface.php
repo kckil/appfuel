@@ -60,9 +60,4 @@ interface AppHandlerInterface
      */
     public function initialize(array $taks = null);
     public function runTasks(array $tasks);
-
-    /**
-     * @return    TaskHandlerInterface
-     */
-    public function getTaskHandler();
 }

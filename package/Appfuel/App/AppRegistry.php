@@ -7,7 +7,7 @@
 namespace Appfuel\App;
 
 use Appfuel\DataStructure\ArrayData,
-    Appfuel\Kernel\TaskHandlerInterface;
+    Appfuel\Kernel\Task\TaskHandlerInterface;
     
 /**
  * The applicatins global level registry. It holds general configuration data

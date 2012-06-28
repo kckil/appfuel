@@ -6,7 +6,7 @@
  */
 namespace Appfuel\Kernel\Task;
 
-use DomainException,
+use DomainException;
 
 /**
  * Used when you want a more readable interface for setting php error level

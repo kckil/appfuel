@@ -1,12 +1,10 @@
 <?php
-/**                                                                              
- * Appfuel                                                                       
- * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
- *                                                                               
- * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
- * See LICENSE file at the project root directory for details.   
- */ 
-namespace Appfuel\Kernel;
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */
+namespace Appfuel\Kernel\Task;
 
 use DomainException,
     Appfuel\ClassLoader\ManualClassLoader;
@@ -16,31 +14,21 @@ use DomainException,
  */
 class DependencyLoaderTask extends StartupTask
 {
-    /**
-     * @return    PHPIniStartup
-     */
-    public function __construct()
-    {
-        $this->setRegistryKeys(array(
-            'depend-files'    => array(),
-            'depend-classes'=> array(),
-            'depend-lib-classes' => array()
-        ));
-    }
+    protected $keys = array(
+        'depend-files'    => array(),
+        'depend-classes'=> array(),
+        'depend-lib-classes' => array()
+    );
 
     /**
-     * @param   array   $params 
-     * @return  null
+     * @return  bool
      */
-    public function execute(array $params = null)
+    public function execute()
     {
-        if (empty($params)) {
-            return;
-        }
-        
-        $msg = '';
-        if (isset($params['depend-files'])) {
-            $list = $params['depend-files'];
+        $result = false;
+        $params = $this->getParamData(); 
+        if ($params->exists('depend-files')) {
+            $list = $params->get('depend-files');
             if (! is_array($list)) {
                 $err  = "a dependency file list was declared but was not ";
                 $err .= "an array";
@@ -69,13 +57,11 @@ class DependencyLoaderTask extends StartupTask
                 $full = AF_BASE_PATH . DIRECTORY_SEPARATOR . $file;
                 ManualClassLoader::loadCollectionFromFile($full, $isPkgPath);
             }
-
-            $nbr = count($list);
-            $msg = "$nbr files were proccessed as dependency lists: ";
+            $result = true;
         }
 
-        if (isset($params['depend-pkg-classes'])) {
-            $list = $params['depend-pkg-classes'];
+        if ($params->exists('depend-pkg-classes')) {
+            $list = $params->get('depend-pkg-classes');
             if (! is_array($list)) {
                 $err  = "list of dependency classes was declared but is not ";
                 $err .= "an array";
@@ -86,12 +72,11 @@ class DependencyLoaderTask extends StartupTask
                 ManualClassLoader::loadClass($className, $path);                
             }
 
-            $nbr = count($list);
-            $msg .= "$nbr lib classes were proccessed as dependencies: ";
+            $result = true;
         }
 
-        if (isset($params['depend-classes'])) {
-            $list = $params['depend-classes'];
+        if ($params->exists('depend-classes')) {
+            $list = $params->get('depend-classes');
             if (! is_array($list)) {
                 $err  = "list of dependency classes was declared but is not ";
                 $err .= "an array";
@@ -101,11 +86,9 @@ class DependencyLoaderTask extends StartupTask
             foreach ($list as $className => $path) {
                 ManualClassLoader::loadClass($className, $path, false);                
             }
-
-
-            $msg .= "$nbr classes were proccessed as dependencies: ";
+            $result = true;
         }
 
-        $this->setStatus($msg);
+        return $result;
     }
 }

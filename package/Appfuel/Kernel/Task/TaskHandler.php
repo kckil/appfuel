@@ -6,8 +6,7 @@
  */
 namespace Appfuel\Kernel\Task;
 
-use RunTimeException,
-	InvalidArgumentException,
+use DomainException,
 	Appfuel\App\AppRegistry,
 	Appfuel\Kernel\Mvc\MvcContextInterface;
 
@@ -36,7 +35,7 @@ class TaskHandler implements TaskHandlerInterface
     {
         if (! is_string($key) || empty($key)) {
             $err = "Registry key must be a non empty string";
-            throw new DOmainException($err);
+            throw new DomainException($err);
         }
 
         $this->registryKey = $key;
@@ -93,7 +92,7 @@ class TaskHandler implements TaskHandlerInterface
         else {
             $keys   = $task->getRegistryKeys();
             $params = AppRegistry::collect($keys, false);
-            $task->setParamData($params)
+            $task->setParamData($params);
         }
 
         if (null !== $context) {
@@ -122,34 +121,5 @@ class TaskHandler implements TaskHandlerInterface
 		}
 
 		return $task;
-	}
-
-	/**
-	 * Collects data keys out of the configuration registry and uses them to
-	 * execute the task. This is a way to run the task without needing to have
-	 * access to the route or context.
-	 *
-	 * @param	StartupTaskInterface $task
-	 * @return	null
-	 */
-	public function runTask(StartupTaskInterface $task)
-	{
-		$data = null;
-		$keys = $task->getRegistryKeys();
-		if (! empty($keys)) {
-			$data = $this->collectFromRegistry($keys);
-		}
-
-		$task->execute($data);
-		$this->addTaskStatus(get_class($task), $task->getStatus());
-	}
-
-	/**
-	 * @param	array	$list
-	 * @return	array
-	 */
-	public function collectFromRegistry(array $list)
-	{
-		return ConfigRegistry::collect($list);
 	}
 }

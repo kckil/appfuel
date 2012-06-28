@@ -1,56 +1,52 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Task;
 
-use Appfuel\Kernel\Mvc\MvcContextInterface,
-	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
+use Appfuel\Kernel\Mvc\MvcContextInterface;
 
-/**
- * Runs a list tasks or an individual tasks. Task list and parameters are all
- * accessed from the configuration registry. 
- */
 interface TaskHandlerInterface
 {
+    /**
+     * @return  string
+     */
+    public function getStartupTasksKey();
+
+    /**
+     * @param   string  $key
+     * @return  TaskHandler
+     */
+    public function setStartupTasksKey($key);
+
+    /**
+     * @param   MvcContextInterface $context 
+     * @return  array
+     */
+    public function runTasksUsingRegistry(MvcContextInterface $context = null);
+
 	/**
+	 * @param	array	$tasks
+     * @param   MvcContextInterface $context
 	 * @return	array
 	 */
-	public function getTasksFromRegistry();
+	public function runTasks(array $tasks, MvcContextInterface $context = null);
+
+    /**
+     * @param   string  $class
+     * @param   array   $params 
+     * @param   MvcContextInterface $context
+     * @return  bool
+     */    
+    public function runTask($class, 
+                            array $params = null,
+                            MvcContextInterface $context = null);
 
 	/**
-	 * @param	array	$list
-	 * @return	array
+	 * @param	string	$className
+	 * @return	StartupTaskInterface | false
 	 */
-	public function collectFromRegistry(array $list);
-
-	/**
-	 * Used by the startup system to execute tasks from a list of class names
-	 * stored in the configuration registry. The route and context is passed 
-	 * into each task as way of injecting framework information into each task
-	 * allowing the task to make decisions based on routing information or 
-	 * user input (found in the context).
-	 *
-	 * @param	MvcRouteDetailInterface $route
-	 * @param	MvcContextInterface $context
-	 * @return	null
-	 */
-	public function kernelRunTasks(MvcRouteDetailInterface $route, 
-								   MvcContextInterface $context);
-
-	/**
-	 * Collects data keys out of the configuration registry and uses them to
-	 * execute the task. This is a way to run the task without needing to have
-	 * access to the route or context.
-	 *
-	 * @param	StartupTaskInterface $task
-	 * @return	null
-	 */
-	public function runTask(StartupTaskInterface $task);
+	public function createTask($className);
 }

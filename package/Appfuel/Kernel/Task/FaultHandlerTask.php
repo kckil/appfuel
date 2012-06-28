@@ -1,14 +1,10 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Task;
 
 use DomainException,
 	Appfuel\Kernel\FaultHandlerInterface;
@@ -18,30 +14,23 @@ use DomainException,
  */
 class FaultHandlerTask extends StartupTask
 {
-	/**
-	 * @return	PHPIniStartup
-	 */
-	public function __construct()
-	{
-		$this->setRegistryKeys(array(
-			'php-error-handler'		=> null,
-			'php-exception-handler' => null,
-			'fault-handler-class'	=> null
-		));
-	}
+    /**
+     * @var array
+     */
+    protected $keys = array(
+	    'php-error-handler',
+		'php-exception-handler',
+		'fault-handler-class',
+    );
 
 	/**
-	 * @param	array	$params		config params 
-	 * @return	null
+	 * @return  bool
 	 */
-	public function execute(array $params = null)
+	public function execute()
 	{
-		if (empty($params)) {
-			return;
-		}
-		
-		if (isset($params['fault-handler-class'])) {
-			$class = $params['fault-handler-class'];
+	    $params = $this->getParamData();	
+		if ($params->exists('fault-handler-class')) {
+			$class = $params->get('fault-handler-class');
 			if (! is_string($class) || empty($class)) {
 				$err = "fault-handler-class must be a non empty string";
 				throw new DomainException($err);
@@ -56,12 +45,12 @@ class FaultHandlerTask extends StartupTask
 			
             set_error_handler(array($handler, 'handleError'));
             set_exception_handler(array($handler, 'handleException'));
-			$this->setStatus("fault handler registered is -($class)");
-			return;
+			return true;
 		}
 
-		if (isset($params['php-error-handler'])) {
-			$data = $params['php-error-handler'];
+        $result = false;
+		if ($params->exists('php-error-handler')) {
+			$data = $params->get('php-error-handler');
 			if (! is_array($data)) {
 				$err  = "error handler data must be an array of at most ";
 				$err .= "two items: 1) callable handler 2) bitwise mask ";
@@ -77,20 +66,19 @@ class FaultHandlerTask extends StartupTask
 			else {
 				set_error_handler($func);
 			}
-
-			$this->setStatus("error handler was manual registered");
+            $result = true;
 		}
 
-		if (isset($params['php-exception-handler'])) {
-			$func = $params['php-exception-handler'];
+		if ($params->exists('php-exception-handler')) {
+			$func = $params->get('php-exception-handler');
 			if (! is_callable($func)) {
 				$err  = "exception handler data must be callable";
 				throw new DomainException($err);
 			}
-
 			set_error_handler($func);
-
-			$this->setStatus("exception handler was manual registered");
+            $result = true;
 		}
+
+        return $result;
 	}
 }
