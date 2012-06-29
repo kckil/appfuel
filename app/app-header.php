@@ -116,7 +116,7 @@ $config = $factory->createConfigHandler();
  * config data and use $ctrl['config-action'] to replace or merge that data.
  */
 if (! isset($ctrl['config-action']) || ! is_string($ctrl['config-action'])) {
-    $ctrl['config-action'] = 'replace';
+    $ctrl['config-action'] = 'append';
 }
 
 /*
@@ -129,7 +129,6 @@ if (isset($ctrl['config-build-file'])) {
 else {
     $configFile = $detail->getPath('app-config-build-file');
 }
-
 $settings = null;
 if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {
     $settings = $ctrl['config-settings'];
@@ -141,19 +140,19 @@ if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {
  * if settings has data then merge with it.
  */
 if (null !== $settings && 'replace' === $ctrl['config-action']) {
-    $headSettings = $settings;
+    $headerSettings = $settings;
 }
 else {
-    $headSettings = $config->getFileData($configFile);
+    $headerSettings = $config->getFileData($configFile);
     if (null !== $settings) {
-        $headSettings = array_merge($headSettings, $settings);
+        $headerSettings = array_replace_recursive($headerSettings, $settings);
     }
 }
 
 /*
  * Load the configuration settings to the application registry.
  */
-AppRegistry::load($headSettings);
+AppRegistry::load($headerSettings);
 
 /*
  * list of framework startup tasks to be run after initialization. The 

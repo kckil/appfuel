@@ -6,17 +6,10 @@
  */
 use Appfuel\App\AppHandlerInterface;
 
-$header = realpath(__DIR__ . '/../app/app-header.php');
-if (! file_exists($header)) {
-    $err = "could not find the app header script";
-    throw new RunTimeException($err);
-}
-
 $ctrl = array(
-    'app-type' => 'cli'
+    'app-type'        => 'cli',
+    'config-settings' => array(
+        'php-include-path-action' => 'append'
+    ),
 );
-require $header;
-if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
-    $err  = "app handler was not created or does not implement Appfuel\Kernel";    $err .= "\AppHandlerInterface";    throw new LogicException($err);
-}
-
+$handler = require realpath(__DIR__ . '/../app/app-header.php');

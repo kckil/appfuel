@@ -29,7 +29,7 @@ class RouteCollectorTest extends BaseTestCase
         /*
          * code path is derived from this constant which must be set 
          */
-        $this->assertTrue(defined('AF_CODE_PATH'));
+        $this->assertTrue(defined('AF_SRC_PATH'));
         
         $collector = $this->createRouteCollector();
         $interface = 'Appfuel\Kernel\Route\RouteCollectorInterface';
@@ -91,7 +91,7 @@ class RouteCollectorTest extends BaseTestCase
      */
     public function collect(RouteCollector $collector)
     {
-        $path = AF_CODE_PATH . '/Testfuel/Functional/Action';
+        $path = AF_SRC_PATH . '/Testfuel/Functional/Action';
         $result = $collector->collect(array($path));
         $this->assertInternalType('array', $result);
         $this->assertArrayHasKey('welcome', $result);

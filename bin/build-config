@@ -51,11 +51,9 @@ $ctrl = array(
     ),
 );
 $handler = require "{$base}/app/app-header.php";
-$input = $handler->createConsoleInput($_SERVER['argv']);
 
-$factory = AppRegistry::getAppFactory();
-$detail  = AppRegistry::getAppDetail();
-$builder = $factory->createConfigBuilder();
+$input = $handler->createConsoleInput($_SERVER['argv']);
+$detail = AppRegistry::getAppDetail();
 
 $env = $input->getCliOpt('env', 'e');
 if (! $env) {
