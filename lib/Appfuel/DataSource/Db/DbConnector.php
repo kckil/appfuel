@@ -143,8 +143,8 @@ class DbConnector implements DbConnectorInterface
 	protected function shutdownSlave()
 	{
 		if ($this->isSlave()) {
-			$this->master->close();
-			$this->master = null;
+			$this->slave->close();
+			$this->slave = null;
 		}
 	}
 }

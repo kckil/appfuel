@@ -198,7 +198,7 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		}
 
 		$sql = $this->loadSql($key, $criteria); 
-		$request = $this->createRequest($sql, $type, $strategy, $values);
+        $request = $this->createRequest($sql, $type, $strategy, $values);
 
 		if (null !== $callback) {
 			if (! is_callable($callback) && is_string($callback)) {
