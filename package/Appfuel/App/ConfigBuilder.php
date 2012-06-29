@@ -4,28 +4,19 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */ 
-namespace Appfuel\Config;
+namespace Appfuel\App;
 
-use InvalidArgumentException,
+use DomainException,
     Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileReader,
     Appfuel\Filesystem\FileWriter,
-    Appfuel\Filesystem\FileFinderInterface,
     Appfuel\Filesystem\FileReaderInterface,
     Appfuel\Filesystem\FileWriterInterface;
 
 /**
- * Build a config file from merging two enviroment specific config files 
- * togather
  */
 class ConfigBuilder implements ConfigBuilderInterface
 {
-    /**
-     * Used to find the config files on disk
-     * @var FileFinderInterface
-     */
-    protected $fileFinder = null;
-
     /**
      * Used to read the config file data
      * @var FileReaderInterface
@@ -39,98 +30,49 @@ class ConfigBuilder implements ConfigBuilderInterface
     protected $fileWriter = null;
 
     /**
-     * Current environment config we are building for
-     * @var string
+     * List of environments to merge
+     * @var array
      */
-    protected $currentEnv = ' ';
-    
-    /**
-     * Env we will be merge to
-     * @var string
-     */
-    protected $mergeEnv = 'prod';
+    protected $envList = array();
 
     /**
-     * FileType
-     * The file type for the resulting config file
-     * @var string
+     * List of config files that will be processed and turned into a single
+     * config file
+     * @var array
      */
-    protected $fileType = 'php';
+    protected $files = array();
 
     /**
-     * File Name
-     * The resulting filename that the builder created.  This is for
-     * external programs to inspect, not alter.
-     * @var string
+     * Flag used to determine that only a single config file will be processed
+     * @var bool
      */
-    protected $fileName = null;
+    protected $isSingleFile = true;
 
     /**
-     * @param    string    $env
-     * @param    FileFinderInterface    $finder
+     * Flag used to determine if a config file has sections to be processed
+     * @var bool
+     */
+    protected $isSections = false;
+
+    /**
      * @param    FileReaderInterface $reader
      * @param    FileWriterInterface $writer
      * @return  ConfigBuilder
      */
-    public function __construct($env, 
-                                FileFinderInterface $finder = null,
-                                FileReaderInterface $reader = null,
+    public function __construct(FileReaderInterface $reader = null,
                                 FileWriterInterface $writer = null)
     {
-        $this->setCurrentEnv($env);
-        if (null === $finder) {
-            $finder = new FileFinder('app/config');
-        }
-        $this->finder = $finder;
 
+        $finder = new FileFinder(null, false);
         if (null === $reader) {
-            $reader = new FileReader($this->finder);
+            $reader = new FileReader($finder);
         }
         $this->reader = $reader;
 
         if (null === $writer) {
-            $writer = new FileWriter($this->finder);
+            $writer = new FileWriter($finder);
         }
         $this->writer = $writer;
-    }
-
-    /**
-     * @return  string
-     */
-    public function getMergeEnv()
-    {
-        return $this->mergeEnv;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurrentEnv()
-    {
-        return $this->currentEnv;
-    }
-
-    /**
-     * @param   string  $char
-     * @return  ConfigBuilder
-     */
-    public function setCurrentEnv($env)
-    {
-        if (! is_string($env) || empty($env)) {
-            $err = 'current environment name must be a non empty string';
-            throw new InvalidArgumentException($err);
-        }
-
-        $this->currentEnv = $env;
-        return $this;
-    }
-
-    /**
-     * @return  FileFinderInterface
-     */
-    public function getFileFinder()
-    {
-        return $this->finder;
     }
 
     /**
@@ -150,50 +92,197 @@ class ConfigBuilder implements ConfigBuilderInterface
     }
 
     /**
-     * @param   string  $fileType
      * @return  ConfigBuilder
      */
-    public function setFileType($fileType)
+    public function useSingleFile()
     {
-        $validFileTypes = array(
-            'php',
-            'json',
-        );
-        if (! in_array($fileType, $validFileTypes)) {
-            throw new DomainException(
-                'Unsupported file type requested'
-            );
-        }
-        $this->fileType = $fileType;
-    }
-    
-    /**
-     * @return  string
-     */
-    public function getFileType()
-    {
-        return $this->fileType;
-    }
-
-    /**
-     * @param   string  $fileName
-     * @return  ConfigBuilder
-     */
-    protected function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
+        $this->isSingleFile = true;
         return $this;
     }
 
     /**
-     * @return  string
+     * @return  ConfigBuilder
      */
-    public function getFileName()
+    public function useMultipleFiles()
     {
-        return $this->fileName;
+        $this->isSingleFile = false;
+        return $this;
     }
 
     /**
+     * @return  bool
+     */
+    public function isSingleFile()
+    {
+        return $this->isSingleFile;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isSections()
+    {
+        return $this->isSections;
+    }
+
+    /**
+     * @return ConfigBuilder
+     */
+    public function enableSections()
+    {
+        $this->isSections = true;
+        return $this;
+    }
+
+    /**
+     * @return ConfigBuilder
+     */
+    public function disableSections()
+    {
+        $this->isSections = false;
+        return $this;
+    }
+
+    /**
+     * @return  array
+     */
+    public function getEnvList()
+    {
+        return $this->envList;
+    }
+
+    /**
+     * The list can be a single string (one env) or a space separated string
+     * (many envs) or and array of envs
+     *
+     * @param   mixed string | array
+     * @return  ConfigBuilder
+     */
+    public function setEnvList($list)
+    {
+        if (is_string($list) && ! empty($list)) {
+            $list = explode(' ', trim($list));
+        }
+        else if (! is_array($list)) {
+            $err  = "the evn list most be a string (space separated for multi ";
+            $err .= "envs) or an array";
+            throw new DomainException($err);
+        }
+
+        foreach ($list as $env) {
+            if (! is_string($env) || empty($env)) {
+                $err = "each env must be a non empty string";
+                throw new DomainException($err);
+            }
+        }
+
+        $this->envList = $list;
+        return $this;
+    }
+
+    /**
+     * @return  array
+     */
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * @return  array   $files
+     * @return  ConfigBuilder
+     */
+    public function setFiles(array $files)
+    {
+        foreach ($files as $file) {
+            if (! is_string($file) || empty($file)) {
+                $err = "path to config file must be a non empty string";
+                throw new DomainException($err);
+            }
+        }
+
+        $this->files = $files;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function build()
+    {
+        if ($this->isSingleFile()) {
+            $settings = $this->buildSingleFile();
+        }
+        else {
+            $settings = $this->buildMultipleFiles();
+        }
+
+        return $settings;    
+    }
+
+    /**
+     * @param   string  $file
+     * @param   array   $envList
+     * @return  array
+     */
+    public function buildSingleFile()
+    {
+        $files = $this->getFiles();
+        if (empty($files)) {
+            $err = "must set a file before you can build it";
+            throw new DomainException($err);
+        }
+        $file = current($files);
+        $reader = $this->getFileReader();
+        if (false !== strpos('.json', $file)) {
+            $data = $reader->decodeJsonAt($file);
+        }
+        else {
+            $data = $reader->import($file);
+        }
+
+        $envList = $this->getEnvList();
+        if (empty($envList)) {
+            $err = "must have at least one env specified";
+            throw new DomainException($err);
+        }
+
+        $settings = array();
+        foreach ($envList as $env) {
+            if (! isset($data[$env])) {
+                $err = "env -($env) could not be found in -($file)";
+                throw new DomainException($err);
+            }
+
+            $envSettings = $data[$env];
+            if (! is_array($envSettings)) {
+                $err = "env -($env) config data must be an array ";
+                throw new DomainException($err);
+            }
+            $settings = array_replace_recursive($settings, $envSettings);
+        }
+
+        return $settings;
+    }
+
+    /**
+     * @param   array   $settings
+     * @param   string  $file
+     * @return  
+     */
+    public function writeJsonData(array $settings, $file)
+    {
+        if (! is_string($file) || empty($file)) {
+            $err = "path to build file must be a non empty string";
+            throw new DomainException($err);
+        }
+
+        $data = json_encode($settings);
+        $writer = $this->getFileWriter();
+        return $writer->putContent($data, $file);
+    }
+
+   /**
      * @throws  RunTimeException
      * @return  array
      */

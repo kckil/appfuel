@@ -61,9 +61,14 @@ class ConsoleHandler extends AppHandler implements ConsoleHandlerInterface
                     ->createConsoleInput($data);
     }
 
+    /**
+     * @param   string  $text
+     * @return  null
+     */
     public function outputErrorToConsole($text)
     {
-
+        $this->getConsoleOutput()
+             ->renderError($text);
     }
 
     public function outputToConsole($data)

@@ -148,7 +148,21 @@ class AppInput implements AppInputInterface
 
         return $this->params['args']['cmd'];
     }
-    
+  
+    /**
+     * @return  bool
+     */ 
+    public function isArgs()
+    {
+        if (! isset($this->params['args']['list']) ||
+            ! is_array($this->params['args']['list']) ||
+            empty($this->params['args']['list'])) {
+            return false;
+        }
+
+        return true;
+    }
+ 
     /**
      * @return    array
      */
@@ -171,6 +185,23 @@ class AppInput implements AppInputInterface
             ! isset($this->params['short']) || 
             ! isset($this->params['short'][$opt]) ||
             true !== $this->params['short'][$opt]) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Used to determine if a short option has been set
+     * 
+     * @param   string  $opt
+     * @return  bool
+     */
+    public function isShortOpt($opt)
+    {
+        if (! is_string($opt) || 
+            ! isset($this->params['short']) ||
+            ! array_key_exists($opt, $this->params['short'])) {
             return false;
         }
 
@@ -210,6 +241,23 @@ class AppInput implements AppInputInterface
     }
 
     /**
+     * Used to determine if a long option has been set
+     * 
+     * @param   string  $opt
+     * @return  bool
+     */
+    public function isLongOpt($opt)
+    {
+        if (! is_string($opt) || 
+            ! isset($this->params['long']) ||
+            ! array_key_exists($opt, $this->params['long'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param    string    $opt
      * @param    mixed    $default
      * @return    mixed
@@ -224,6 +272,43 @@ class AppInput implements AppInputInterface
 
         return $this->params['long'][$opt];
     }
+
+    /**
+     * @param   string  $short
+     * @param   string  $long
+     * @return  bool
+     */
+    public function isCliOpt($long = null, $short = null)
+    {
+        if (null !== $long && $this->isLongOpt($long)) {
+            return true;
+        }
+
+        if (null !== $short && $this->isShortOpt($short)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param   string  $short
+     * @param   string  $long
+     * @return  bool
+     */
+    public function getCliOpt($long = null, $short = null, $default = null)
+    {
+        if (null !== $long && $this->isLongOpt($long)) {
+            return $this->getLongOpt($long);
+        }
+
+        if (null !== $short && $this->isShortOpt($short)) {
+            return $this->getShortOpt($short);
+        }
+
+        return $default;
+    }
+
 
     /**
      * The params member is a general array that holds any or all of the

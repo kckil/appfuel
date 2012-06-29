@@ -33,6 +33,14 @@ class AppFactory implements AppFactoryInterface
     {
         return new ConfigHandler();
     }
+
+    /**
+     * @return  ConfigBuilder
+     */
+    public function createConfigBuilder()
+    {
+        return new ConfigBuilder();
+    }
    
     /**
      * @param   ConsoleOutputInterface  $output

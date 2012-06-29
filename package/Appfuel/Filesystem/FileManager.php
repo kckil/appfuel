@@ -121,11 +121,17 @@ class FileManager implements FileManagerInterface
      * @param   FileFinderInterface $finder
      * @return  null
      */
-    protected function setSourceFinder($src)
+    public function setSourceFinder($src, $isBase = true)
     {
         if (is_string($src)) {
-
+            $src = new FileFinder($src, $isBase);
         }
+        else if (! $src instanceof FileFinderInterface) {
+            $err  = "source path must be a string or an object that implments ";
+            $err .= "Appfuel\\Filesystem\\FileFinderInterface";
+            throw new DomainException($err);
+        }
+
         $this->srcFinder = $src;
     }
 }

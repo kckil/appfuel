@@ -5,7 +5,10 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-use Appfuel\App\CliHandlerInterface;
+use Appfuel\App\AppRegistry,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileReader,
+    Appfuel\Filesystem\FileWriter;
 
 /**
  * build-config: will generate a cached configuration file based on a 
@@ -13,20 +16,21 @@ use Appfuel\App\CliHandlerInterface;
  *
  * cli args: any argument will be considered a path to a config file to 
  *           process
- * short opts: 
- *  -s: [flag] single config file where enviroments are stored as keys
- *  -m: [flag] multiple config files given to merge
- *  -e: [opt]  name of the enviroment to build
- *  -t: [opt]  target to build when not specified it is assumed 'prod'
- *  -b: [opt]  location and name of the final build file, when not specified
- *             'app/build/config.json is assumed
+ *  options: 
+ *  -e, --env [required]
+ *      name of the enviroment to build
+ * 
+ *  -t, --target-env [default: production]
+ *      name of the target you want to merge with
+ * 
+ *  -c, --config-file [default: <base-path>/app/config-settings.php]
+ *      absolute path to the config file to be processed
+ *
+ *  -b, --build-file [default: <base-path>/app/build/config.json]  
+ *      absolute path to the generated config file
  */
-$base   = realpath(__DIR__ . "/../");
-$header = "$base/app/app-header.php";
-if (! file_exists($header)) {
-    fwrite(STDERR, "could not find app header at -($header) \n");
-    exit(-1);
-}
+$base = realpath(__DIR__ . "/../");
+
 /*
  * Used to control the app-header.php script. $appType gives us cli handler
  * and configAction tells the header to replace the config data with ours.
@@ -34,9 +38,6 @@ if (! file_exists($header)) {
  * data to be arround, so we use our own values
  */
 $ctrl = array(
-    'paths' => array(
-        'app-root' => '/some/path',
-    ),
     'app-type'          => 'cli',
     'config-action'     => 'replace',
     'config-settings'   => array(
@@ -49,8 +50,66 @@ $ctrl = array(
 	    'php-default-timezone'		=> 'America/Los_Angeles'
     ),
 );
-$handler = require $header;
+$handler = require "{$base}/app/app-header.php";
 $input = $handler->createConsoleInput($_SERVER['argv']);
-echo "\n", print_r($input->getArgs(),1), "\n";exit;
 
+$factory = AppRegistry::getAppFactory();
+$detail  = AppRegistry::getAppDetail();
+$builder = $factory->createConfigBuilder();
+
+$env = $input->getCliOpt('env', 'e');
+if (! $env) {
+    $err = "environment -(env|e) is required and not set\n";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+$targetEnv = $input->getCliOpt('target-env', 't');
+if (! $targetEnv) {
+    $targetEnv = 'production';
+}
+
+$file = $input->getCliOpt('config-file', 'c');
+if (! $file) {
+    $file = $detail->getPath('app-config-settings');
+}
+
+$buildFile = $input->getCliOpt('build-file', 'c');
+if (! $buildFile) {
+    $buildFile = $detail->getPath('app-config-build-file');
+}
+
+$finder = new FileFinder(null, false);
+$reader = new FileReader($finder);
+if (false !== strpos('.json', $file)) {                                  
+    $data = $reader->decodeJsonAt($file);                                
+}                                                                        
+else {                                                                   
+    $data = $reader->import($file);                                      
+}
+
+if (! isset($data[$env]) || ! is_array($data[$env])) {
+    fwrite(STDERR, "could not find -($env) or is not an array  in -($file)\n");
+    exit(1);
+}
+
+if (true === $targetEnv) {
+    $settings = $data[$env];
+}
+elseif (isset($data[$targetEnv]) && is_array($data[$targetEnv])){
+    $settings = array_replace_recursive($data[$targetEnv], $data[$env]);
+}
+else {
+    $err  = "target env -($targetEnv) was not found or was not an array in ";
+    $err .= "-($file) \n";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+$writer = new FileWriter($finder);
+$result = $writer->putContent(json_encode($settings), $buildFile);
+if (! $result) {
+    fwrite(STDERR, "could not write to file -($buildFile)\n");
+    exit(1);
+}
 exit(0);
