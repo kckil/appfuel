@@ -98,7 +98,7 @@ unset($file, $dlist, $dependList, $class, $asbsolute, $err);
  * AppDetail allows you to decouple directory names (except app-root a.k.a 
  * base path and app-dir)
  */
-$appPath = new AppPath($ctrl['paths']);
+$path = new AppPath($ctrl['paths']);
 $factory = new AppFactory();
 $taskHandler = $factory->createTaskHandler();
 
@@ -106,7 +106,7 @@ $taskHandler = $factory->createTaskHandler();
  * Make this important object available to the application globally through
  * the AppRegistry
  */
-AppRegistry::setAppPath($appPath);
+AppRegistry::setAppPath($path);
 AppRegistry::setAppFactory($factory);
 AppRegistry::setTaskHandler($taskHandler);
 
@@ -128,7 +128,7 @@ if (isset($ctrl['config-build-file'])) {
     $configFile = $ctrl['config-build-file'];
 }
 else {
-    $configFile = $appPath->getPath('app-config-build');
+    $configFile = $path->get('app-config-build');
 }
 $settings = null;
 if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {

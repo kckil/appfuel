@@ -41,5 +41,5 @@ interface AppPathInterface
      * @param   string  $name
      * @return  string | false
      */
-    public function getPath($name, $isAbsolute = true);
+    public function get($name, $isAbsolute = true);
 }

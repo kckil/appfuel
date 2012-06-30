@@ -60,7 +60,7 @@ class AppPath implements AppPathInterface
 
     /**
      * @param   string  $basePath
-     * @return  AppDetail
+     * @return  AppPath
      */
     public function __construct(array $spec)
     {
@@ -75,7 +75,7 @@ class AppPath implements AppPathInterface
             if (in_array($key, $reserved, true)) {
                 continue;
             }
-            $this->addPath($key, $path);
+            $this->add($key, $path);
         }
     }
 
@@ -117,7 +117,7 @@ class AppPath implements AppPathInterface
      * @param   string  $name
      * @return  string | false
      */
-    public function getPath($name, $isAbsolute = true)
+    public function get($name, $isAbsolute = true)
     {
         if (! is_string($name) || ! isset($this->paths[$name])) {
             if (! $this->isStrict()) {
@@ -155,7 +155,7 @@ class AppPath implements AppPathInterface
         $this->base = $path;
     }
 
-    protected function addPath($key, $path)
+    protected function add($key, $path)
     {
         if (! is_string($key) || empty($key)) {
             $err = "path key must be a non empty string";

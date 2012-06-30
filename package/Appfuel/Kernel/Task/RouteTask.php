@@ -7,6 +7,7 @@
 namespace Appfuel\Kernel\Task;
 
 use DomainException,
+    Appfuel\App\AppRegistry,
     Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileReader,
     Appfuel\Kernel\Route\RouteRegistry;
@@ -18,7 +19,9 @@ class RouteTask extends StartupTask
      */
     public function execute()
     {
-        $finder = new FileFinder('app/build');
+        $path = AppRegistry::getAppPath();
+        echo "<pre>", print_r($path, 1), "</pre>";exit;
+        $finder = new FileFinder();
         $reader = new FileReader($finder);
         $routes = $reader->decodeJsonAt('routes.json');
         if (! $routes) {
