@@ -10,8 +10,15 @@ use DomainException,
     Appfuel\App\AppRegistry,
     Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileReader,
+    Appfuel\Kernel\Route\RouteFactory,
     Appfuel\Kernel\Route\RouteRegistry;
 
+/**
+ * Ensure all routes specifications, all patterns, and url group map have 
+ * been added to the registry. The RoutePatternSpec (pattern) is added in
+ * two places because its stored as a spec and it is needed to create a 
+ * categorized list of route patterns based on url groups.
+ */
 class RouteTask extends StartupTask
 {
     /**
@@ -20,12 +27,39 @@ class RouteTask extends StartupTask
     public function execute()
     {
         $path = AppRegistry::getAppPath();
-        echo "<pre>", print_r($path, 1), "</pre>";exit;
-        $finder = new FileFinder();
-        $reader = new FileReader($finder);
-        $routes = $reader->decodeJsonAt('routes.json');
+        
+        $finder = new FileFinder(null, false);
+        $reader = new FileReader(new FileFinder(null, false));
+        $groups = $reader->import($path->get('url-groups', true, true));
+        if (is_array($groups)) {
+            RouteRegistry::setGroupMap($groups);
+        }
+
+        $routes = $reader->decodeJsonAt($path->get('routes-build', true, true));
         if (! $routes) {
-    
+            $err = $reader->getLastJsonError();
+            throw new DomainException("route startup task: $err"); 
+        }
+
+        $specList = array(
+            'access'            => 'access',
+            'action'            => 'action',
+            'input-validation'  => 'inputValidation',
+            'intercept-filter'  => 'interceptFilter',
+            'startup'           => 'startup',
+            'view'              => 'view'
+        );
+
+        foreach ($routes as $key => $spec) {
+            $spec['route-key'] = $key;
+            $list = RouteFactory::createRouteSpecs($specList, $spec);
+            foreach ($list as $cat => $routeSpec) {
+                RouteRegistry::addRouteSpec($key, $cat, $routeSpec);
+            }
+
+            $pattern = RouteFactory::createRouteSpec('pattern', $spec);
+            RouteRegistry::addRouteSpec($key, 'pattern', $pattern);
+            RouteRegistry::addPattern($pattern);            
         }
     }
 }

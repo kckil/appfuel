@@ -128,7 +128,7 @@ if (isset($ctrl['config-build-file'])) {
     $configFile = $ctrl['config-build-file'];
 }
 else {
-    $configFile = $path->get('app-config-build');
+    $configFile = $path->get('config-build');
 }
 $settings = null;
 if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {

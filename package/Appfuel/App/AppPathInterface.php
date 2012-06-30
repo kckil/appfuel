@@ -18,21 +18,6 @@ interface AppPathInterface
     public function __construct(array $spec);
 
     /**
-     * @return  bool
-     */
-    public function isStrict();
-
-    /**
-     * @return  AppPathInterface
-     */
-    public function enableStrictMode();
-
-    /**
-     * @return  AppPathInterface
-     */
-    public function disableStrictMode();
-
-    /**
      * @return  string
      */
     public function getBasePath();
@@ -41,5 +26,5 @@ interface AppPathInterface
      * @param   string  $name
      * @return  string | false
      */
-    public function get($name, $isAbsolute = true);
+    public function get($name, $isAbsolute = true, $isStrict = true);
 }

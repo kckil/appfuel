@@ -21,6 +21,21 @@ use Exception,
 class RouteFactory
 {
     /**
+     * @param   array   $types
+     * @param   array   $spec
+     * @return  array
+     */
+    static public function createRouteSpecs(array $types, array $spec)
+    {
+        $list = array();
+        foreach ($types as $key => $strategy) {
+            $list[$key] = self::createRouteSpec($strategy, $spec); 
+        }
+
+        return $list;
+    }
+
+    /**
      * @param   string  $cat
      * @param   array   $data
      * @return  mixed
@@ -34,7 +49,7 @@ class RouteFactory
         
         $classKey  = 'route-' . strtolower($strategy) . '-spec-override';
         $strategy  = ucfirst($strategy);
-        $class     = "Route{$strategy}Spec";
+        $class     = __NAMESPACE__ . "\\Route{$strategy}Spec";
         $interface = "{$class}Interface";
 
         /*

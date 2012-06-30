@@ -66,8 +66,13 @@ class RouteRegistry
             throw new DomainException($err);    
         }
 
-        $strategy = ucfirst($cat);
-        $interface = "Route{$strategy}SpecInterface";
+        $parts = explode('-', $cat);
+        $strategy = '';
+        foreach ($parts as $name) {
+            $strategy .= ucfirst($name);
+        } 
+        
+        $interface = __NAMESPACE__ . "\\Route{$strategy}SpecInterface";
         if (! $spec instanceof $interface) {
             $type  = gettype($spec);
             $class = get_class($spec);
@@ -142,7 +147,7 @@ class RouteRegistry
     /**
      * @return  array
      */
-    public function getGroupMap()
+    static public function getGroupMap()
     {
         return self::$groupMap;
     }
@@ -151,7 +156,7 @@ class RouteRegistry
      * @param   array   $groups
      * @return  null
      */
-    public function setGroupMap(array $groups)
+    static public function setGroupMap(array $groups)
     {
         foreach($groups as $pattern => $groupName) {
             if (! is_string($pattern) || empty($pattern)) {
