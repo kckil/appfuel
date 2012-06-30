@@ -47,7 +47,8 @@ class RouteTask extends StartupTask
             'input-validation'  => 'inputValidation',
             'intercept-filter'  => 'interceptFilter',
             'startup'           => 'startup',
-            'view'              => 'view'
+            'view'              => 'view',
+            'pattern'           => 'pattern',
         );
 
         foreach ($routes as $key => $spec) {
@@ -57,7 +58,7 @@ class RouteTask extends StartupTask
                 RouteRegistry::addRouteSpec($key, $cat, $routeSpec);
             }
 
-            $pattern = RouteFactory::createRouteSpec('pattern', $spec);
+            $pattern = $list['pattern'];
             RouteRegistry::addRouteSpec($key, 'pattern', $pattern);
             RouteRegistry::addPattern($pattern);            
         }

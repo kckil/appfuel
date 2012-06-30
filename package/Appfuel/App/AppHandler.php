@@ -11,9 +11,7 @@ use LogicException,
     RunTimeException,
     InvalidArgumentException,
     Appfuel\View\ViewInterface,
-    Appfuel\Filesystem\FileFinder,
-    Appfuel\Filesystem\FileReader,
-    Appfuel\Config\ConfigRegistry,
+    Appfuel\Kernel\Route\Router,
     Appfuel\Kernel\Mvc\RequestUriInterface,
     Appfuel\Kernel\Mvc\AppInputInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface,
@@ -25,32 +23,6 @@ use LogicException,
  */
 class AppHandler implements AppHandlerInterface
 {
-    /**
-     * @var FileReaderInterface
-     */
-    protected $reader = null;
-
-    /**
-     * @param   FileReaderInterface $reader 
-     * @return  AppHandler
-     */
-    public function __construct(FileReaderInterface $reader = null)
-    {
-        if (null === $reader) {
-            $reader = new FileReader(new FileFinder());
-        }
-
-        $this->reader = $reader;
-    }
-
-    /**
-     * @return  FileReaderInterface
-     */
-    public function getFileReader()
-    {
-        return $this->reader;
-    }
-
     /**
      * @return  AppPathInterface
      */
@@ -66,68 +38,14 @@ class AppHandler implements AppHandlerInterface
     {
         return AppRegistry::getAppFactory();
     }
-
-    public function resolveRoute($uri, $urlFile = null)
-    {
-        $group = $this->resolveRouteGroup($uri, $urlFile);
-        $patterns = RouteRegistry::getPatterns($group);
-        echo "<pre>", print_r('insert here', 1), "</pre>";exit;
-    }
-
+    
     /**
-     * @param   array    $tasks
-     * @return  RouteDetailInterface
+     * @param   string  $uri
+     * @return  array | false
      */
-    public function resolveRouteGroup($uri, $urlFile = null)
+    public function findRoute($uri)
     {
-        if (! is_string($uri)) {
-            throw new DomainException("uri must be a string");
-        }
-        $uri = ltrim($uri, '/'); 
-        if (null === $urlFile) {
-            $urlFile = 'app/url-groups.php';
-        }
-        $reader = $this->getFileReader();
-        $finder = $reader->getFileFinder();
-        $groups = array();
-        if ($finder->fileExists($urlFile)) {
-            $groups = $reader->import($urlFile);
-        }
-        
-        if (! is_array($groups)) {
-            $err = "url groups must be an array";
-        }
-        
-        $matches = array();
-        $group = null;
-        foreach($groups as $pattern => $groupName) {
-            if (! is_string($pattern) || empty($pattern)) {
-                $err = 'group pattern must be a non empty string';
-                throw new DomainException($err);
-            }
-            
-            $isMatched = preg_match($pattern, $uri, $matches);
-            if ($isMatched) {
-                $group = $groupName;
-                break;
-            }
-            $matches = array();
-        }
-
-        if (! $isMatched) {
-            return false;
-        }
-
-        $matched = array_shift($matches);
-        $pos = strpos($uri, $matched) + strlen($matched);
-        $newUri = ltrim(substr($uri, $pos), '/');
-        return array(
-            'original-uri' => $uri,
-            'matched'      => $matched,
-            'group'        => $group,
-            'uri'          => $newUri,
-            'captured'     => $matches
-        );
+        return Router::findRoute($uri);
     }
 
     /**
@@ -226,23 +144,5 @@ class AppHandler implements AppHandlerInterface
              ->runTasks($tasks);
 
         return $this;
-    }
-
-    /**
-     * @return    TaskHandlerInterface
-     */
-    public function getTaskHandler()
-    {
-        return $this->taskHandler;
-    }
-
-    /**
-     * @param   TaskHandlerInterface $handler
-     * @return  AppHandler
-     */
-    public function setTaskHandler(TaskHandlerInterface $handler)
-    {
-        $this->taskHandler = $handler;
-        return $this;    
     }
 }

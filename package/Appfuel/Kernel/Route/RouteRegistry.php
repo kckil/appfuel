@@ -16,6 +16,13 @@ use Exception,
 class RouteRegistry
 {
     /**
+     * Indicated the very first route resolved. All internal calls will be
+     * logged to the current route to form a route call stack.
+     * @var MatchedRouteInterface
+     */
+    protected $currentRoute = null;
+
+    /**
      * List of routes stored as an associative array route key => detail
      * @var array
      */
@@ -26,13 +33,30 @@ class RouteRegistry
      * any successful match will point to the route key its associated with
      * @var array
      */ 
-    static protected $patternMap = array();
+    static protected $patterns = array();
 
     /**
      * Associative array of goup regexes to match top level urls
      * @var array
      */
-    static protected $groupMap = array();
+    static protected $groups = array();
+
+    /**
+     * @return  MatchedRouteInterface
+     */
+    public function getCurrentRoute()
+    {
+        return self::$currentRoute;
+    }
+
+    /**
+     * @param   MatchedRouteInterface   $route
+     * @return  null
+     */
+    public function setCurrentRoute(MatchedRouteInterface $route)
+    {
+        self::$currentRoute = $route;
+    }
 
     /**
      * @param   string  $cat
@@ -99,9 +123,9 @@ class RouteRegistry
     /**
      * @return  null
      */
-    static public function clearPatternMap()
+    static public function clearPatterns()
     {
-        self::$patternMap = array();
+        self::$patterns = array();
     }
 
     /**
@@ -109,21 +133,21 @@ class RouteRegistry
      */
     static public function getPatternMap()
     {
-        return self::$patternMap;
+        return self::$patterns;
     }
     
     /**
      * @param   string  $group
      * @return  array
      */
-    public function getPatterns($group = null)
+    static public function getPatterns($group = null)
     {
         if (null === $group) {
             $group = 'no-group';
         }
 
-        if (isset(self::$pattern[$group])) {
-            return self::$pattern[$group];
+        if (isset(self::$patterns[$group])) {
+            return self::$patterns[$group];
         }
 
         return array();
@@ -141,7 +165,7 @@ class RouteRegistry
             $group = 'no-group';
         }
         $key = $pattern->getRouteKey();
-        self::$patternMap[$group][$key] = $pattern->getRegEx();
+        self::$patterns[$group][$key] = $pattern->getRegEx();
     }
 
     /**
@@ -149,7 +173,7 @@ class RouteRegistry
      */
     static public function getGroupMap()
     {
-        return self::$groupMap;
+        return self::$groups;
     }
 
     /**
@@ -165,6 +189,6 @@ class RouteRegistry
             }
         }
 
-        self::$groupMap = $groups;
+        self::$groups = $groups;
     }
 }
