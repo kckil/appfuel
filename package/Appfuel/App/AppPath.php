@@ -24,7 +24,7 @@ use DomainException;
  * Allows the application dir structure change without changing the
  * kernel code.
  */
-class AppDetail implements AppDetailInterface
+class AppPath implements AppPathInterface
 {
     /**
      * Absolute path to the root directory of the application

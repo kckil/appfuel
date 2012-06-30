@@ -52,8 +52,8 @@ $ctrl = array(
 );
 $handler = require "{$base}/app/app-header.php";
 
-$input = $handler->createConsoleInput($_SERVER['argv']);
-$detail = AppRegistry::getAppDetail();
+$input   = $handler->createConsoleInput($_SERVER['argv']);
+$appPath = AppRegistry::getAppPath();
 
 $env = $input->getCliOpt('env', 'e');
 if (! $env) {
@@ -69,12 +69,12 @@ if (! $targetEnv) {
 
 $file = $input->getCliOpt('config-file', 'c');
 if (! $file) {
-    $file = $detail->getPath('app-config-settings');
+    $file = $appPath->getPath('app-config-settings');
 }
 
 $buildFile = $input->getCliOpt('build-file', 'c');
 if (! $buildFile) {
-    $buildFile = $detail->getPath('app-config-build-file');
+    $buildFile = $appPath->getPath('app-config-build');
 }
 
 $finder = new FileFinder(null, false);

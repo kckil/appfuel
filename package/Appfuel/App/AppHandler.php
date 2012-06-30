@@ -52,11 +52,11 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @return  AppDetailInterface
+     * @return  AppPathInterface
      */
-    public function getAppDetail()
+    public function getAppPath()
     {
-        return AppRegistry::getAppDetail();
+        return AppRegistry::getAppPath();
     }
     
     /**

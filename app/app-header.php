@@ -4,7 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-use Appfuel\App\AppDetail,
+use Appfuel\App\AppPath,
     Appfuel\App\AppFactory,
     Appfuel\App\AppRegistry,
     Appfuel\App\ConfigHandler,
@@ -98,7 +98,7 @@ unset($file, $dlist, $dependList, $class, $asbsolute, $err);
  * AppDetail allows you to decouple directory names (except app-root a.k.a 
  * base path and app-dir)
  */
-$detail  = new AppDetail($ctrl['paths']);
+$appPath = new AppPath($ctrl['paths']);
 $factory = new AppFactory();
 $taskHandler = $factory->createTaskHandler();
 
@@ -106,7 +106,7 @@ $taskHandler = $factory->createTaskHandler();
  * Make this important object available to the application globally through
  * the AppRegistry
  */
-AppRegistry::setAppDetail($detail);
+AppRegistry::setAppPath($appPath);
 AppRegistry::setAppFactory($factory);
 AppRegistry::setTaskHandler($taskHandler);
 
@@ -128,7 +128,7 @@ if (isset($ctrl['config-build-file'])) {
     $configFile = $ctrl['config-build-file'];
 }
 else {
-    $configFile = $detail->getPath('app-config-build');
+    $configFile = $appPath->getPath('app-config-build');
 }
 $settings = null;
 if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {

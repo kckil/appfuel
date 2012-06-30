@@ -42,7 +42,7 @@ class AppFactory implements AppFactoryInterface
     {
         return new ConfigBuilder();
     }
-   
+
     /**
      * @param   ConsoleOutputInterface  $output
      * @return  ConsoleHandlerInterface

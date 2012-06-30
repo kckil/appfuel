@@ -6,8 +6,8 @@
  */
 
 return array(
-    '\Appfuel\App\AppDetailInterface'                   => 'Appfuel/App/AppDetailInterface.php',
-    '\Appfuel\App\AppDetail'                            => 'Appfuel/App/AppDetail.php',
+    '\Appfuel\App\AppPathInterface'                     => 'Appfuel/App/AppPathInterface.php',
+    '\Appfuel\App\AppPath'                              => 'Appfuel/App/AppPath.php',
     '\Appfuel\App\AppHandlerInterface'                  => 'Appfuel/App/AppHandlerInterface.php',
     '\Appfuel\App\AppHandler'                           => 'Appfuel/App/AppHandler.php',
     '\Appfuel\App\ConsoleHandlerInterface'              => 'Appfuel/App/ConsoleHandlerInterface.php',

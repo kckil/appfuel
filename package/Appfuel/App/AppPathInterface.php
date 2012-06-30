@@ -9,13 +9,28 @@ namespace Appfuel\App;
 /**
  * Allows the app dir structure to change without changing the kernel code.
  */
-interface AppDetailInterface
+interface AppPathInterface
 {
     /**
      * @param   string  $basePath
      * @return  AppDetail
      */
     public function __construct(array $spec);
+
+    /**
+     * @return  bool
+     */
+    public function isStrict();
+
+    /**
+     * @return  AppPathInterface
+     */
+    public function enableStrictMode();
+
+    /**
+     * @return  AppPathInterface
+     */
+    public function disableStrictMode();
 
     /**
      * @return  string

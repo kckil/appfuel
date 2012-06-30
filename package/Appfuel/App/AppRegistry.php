@@ -22,9 +22,9 @@ class AppRegistry
     static protected $data = null;
     
     /**
-     * @var AppDetailInterface
+     * @var AppPathInterface
      */
-    static protected $detail = null;
+    static protected $path = null;
 
     /**
      * @var AppFactoryInterface
@@ -39,18 +39,18 @@ class AppRegistry
     /**
      * @return  AppDetailInterface
      */
-    static public function getAppDetail()
+    static public function getAppPath()
     {
-        return self::$detail;
+        return self::$path;
     }
 
     /**
-     * @param   AppDetailInterface  $detail
+     * @param   AppPathInterface  $path
      * @return  null
      */
-    static public function setAppDetail(AppDetailInterface $detail)
+    static public function setAppPath(AppPathInterface $path)
     {
-        self::$detail = $detail;
+        self::$path = $path;
     }
 
     /**
