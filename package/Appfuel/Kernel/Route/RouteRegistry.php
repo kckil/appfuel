@@ -32,19 +32,16 @@ class RouteRegistry
      * Associative array of goup regexes to match top level urls
      * @var array
      */
-    static protected $groupPatternMap = array();
+    static protected $groupMap = array();
 
     /**
      * @param   string  $cat
      * @param   string  $key
      * @return  object
      */
-    static public function getRouteObject($cat, $key)
+    static public function getRouteSpec($cat, $key)
     {
-        if (! is_string($cat) || 
-            ! isset(self::$routes[$cat]) ||
-            ! is_string($key) ||
-            ! isset(self::$routes[$cat][$key])) {
+        if (! is_string($cat) || ! isset(self::$routes[$cat][$key])) {
             return false;
         }
 
@@ -53,11 +50,11 @@ class RouteRegistry
 
     /**
      * @param   string  $key
-     * @param   string  $type
-     * @param   object  $valueObject
+     * @param   string  $cat
+     * @param   object  $spec
      * @return  null
      */
-    static public function addRouteObject($key, $cat, $object)
+    static public function addRouteSpec($key, $cat, $spec)
     {
         if (! is_string($key) || empty($key)) {
             $err = "route key must be a non empty string";
@@ -71,9 +68,9 @@ class RouteRegistry
 
         $strategy = ucfirst($cat);
         $interface = "Route{$strategy}SpecInterface";
-        if (! $object instanceof $interface) {
-            $type  = gettype($object);
-            $class = get_class($object);
+        if (! $spec instanceof $interface) {
+            $type  = gettype($spec);
+            $class = get_class($spec);
             $err   = "route object given is a -($type, $class) and does not ";
             $err  .= "implement -($interface)";
             throw new DomainException($err);
@@ -83,7 +80,15 @@ class RouteRegistry
             self::$routes[$cat] = array();
         }
 
-        self::$routes[$cat][$key] = $object;
+        self::$routes[$cat][$key] = $spec;
+    }
+
+    /**
+     * @return  null
+     */
+    static public function clearRouteSpecs()
+    {
+        self::$routes = array();
     }
 
     /**
@@ -101,26 +106,22 @@ class RouteRegistry
     {
         return self::$patternMap;
     }
-
+    
     /**
-     * @param   array   $map
-     * @return  null
+     * @param   string  $group
+     * @return  array
      */
-    static public function setPatternMap(array $map)
+    public function getPatterns($group = null)
     {
-        self::clearPatternMap();
-        self::loadPatternMap($map);
-    }
-
-    /**
-     * @param   array   $map
-     * @return  null
-     */
-    static public function loadPatternMap(array $map)
-    {
-        foreach ($map as $pattern) {
-            self::addPattern($pattern);
+        if (null === $group) {
+            $group = 'no-group';
         }
+
+        if (isset(self::$pattern[$group])) {
+            return self::$pattern[$group];
+        }
+
+        return array();
     }
 
     /**
@@ -128,144 +129,37 @@ class RouteRegistry
      * @param   string  $pattern
      * @return  null
      */
-    static public function addPattern($pattern)
+    static public function addPattern(RoutePatternSpecInterface $pattern)
     {    
-        if (is_array($pattern)) {
-            $pattern = self::createRoutePattern($pattern);
-        }
-        else if (! $pattern instanceof RoutePatternInterface) {
-            $err  = "route pattern must be an array of pattern data or an ";
-            $err .= "object that implements Appfuel\Kernel\Mvc\\RoutePattern";
-            $err .= "Interface";
-            throw new DomainException($err);
-        }
-
         $group = $pattern->getGroup();
+        if (null === $group) {
+            $group = 'no-group';
+        }
         $key = $pattern->getRouteKey();
-        self::$patternMap[$group][$key] = $pattern;
-    }
-
-    /**
-     * @param   array   $data
-     * @return  RoutePattern
-     */
-    static public function createPattern(array $data)
-    {
-        return new RoutePattern($data);
-    }
-
-    /**
-     * @return  null
-     */
-    static public function clearRoutes()
-    {
-        self::$routes = array();
+        self::$patternMap[$group][$key] = $pattern->getRegEx();
     }
 
     /**
      * @return  array
      */
-    static public function getRoutes()
+    public function getGroupMap()
     {
-        return self::$routes;
+        return self::$groupMap;
     }
 
     /**
-     * @param   array  $list
+     * @param   array   $groups
      * @return  null
      */
-    static public function setRoutes(array $list)
+    public function setGroupMap(array $groups)
     {
-        self::clearRoutes();
-        self::loadRoutes($list);
-    }
-
-    /**
-     * @param   array   $list
-     * @return  null
-     */
-    static public function loadRoutes(array $list)
-    {
-        foreach ($list as $route) {
-            self::addRoute($route);
-        }
-    }
-
-    /**
-     * @param   string  $key
-     * @return  bool
-     */
-    static public function isRoute($key)
-    {
-        if (! is_string($key) || ! isset(self::$routes[$key])) {
-            return false;
+        foreach($groups as $pattern => $groupName) {
+            if (! is_string($pattern) || empty($pattern)) {
+                $err = 'group pattern must be a non empty string';
+                throw new DomainException($err);
+            }
         }
 
-        return true;
-    }
-
-    /**
-     * @throws  DomainException
-     * @param   array | MvcRouteDetailInterface
-     * @return  null
-     */
-    static public function addRoute($route)
-    {
-        if (is_array($route)) {
-            $route = self::createRoute($route);
-        }
-        else if (! $route instanceof RouteInterface) {
-            $err  = "route detail must be an array (detail spec) or an oject ";
-            $err .= "that implements -(Appfuel\Kernel\Mvc\\RouteInterface)";
-            throw new DomainException($err);
-        }
-
-        $key = $route->getKey();
-        if (self::isRoute($key)) {
-            $err = "can not add route -($key) because it has already exists";
-            throw new DomainException($err);
-        }
-
-        self::$routes[$key] = $route;
-
-        if (! self::isPatternMatching() || ! $route->isPattern()) {
-            return;
-        }
-
-        self::addPattern($route->getPattern(), $key, $route->getPatternGroup());
-    }
-
-    /**
-     * @param   array   $data
-     * @return  MvcRouteDetailInterface
-     */
-    static public function createRoute(array $data)
-    {
-        if (! isset($data['route-class'])) {
-            return new Route($data);
-        }
-            
-        $class = $data['route-class'];
-        if (! is_string($class) || empty($class)) {
-            $err  = "class declared by -(route-detail-class) must be ";
-            $err .= "non empty string";
-            throw new DomainException($err);
-        }
-        
-        try {
-            $route = new $class($data);
-        }
-        catch (Exception $e) {
-            $err = "could not instantiate route detail -($class)";
-            throw new DomainException($err);
-        }
-    
-        if (! $route instanceof RouteInterface) {
-            $err  = "route detail -($class) does not implement -(Appfuel";
-            $err .= "\Kernel\Mvc\\RouteInterface)";
-            throw new DomainException($err);
-        }
-
-        return $route;
+        self::$groupMap = $groups;
     }
 }

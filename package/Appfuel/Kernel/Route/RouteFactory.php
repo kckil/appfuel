@@ -25,7 +25,7 @@ class RouteFactory
      * @param   array   $data
      * @return  mixed
      */
-    static public function createRouteObject($strategy, array $spec)
+    static public function createRouteSpec($strategy, array $spec)
     {
         if (! is_string($strategy) || empty($strategy)) {
             $err = "route strategy must be a non empty string";

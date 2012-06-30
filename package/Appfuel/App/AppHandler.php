@@ -11,9 +11,9 @@ use LogicException,
     RunTimeException,
     InvalidArgumentException,
     Appfuel\View\ViewInterface,
-    Appfuel\ClassLoader\ManualClassLoader,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileReader,
     Appfuel\Config\ConfigRegistry,
-    Appfuel\Kernel\TaskHandlerInterface,
     Appfuel\Kernel\Mvc\RequestUriInterface,
     Appfuel\Kernel\Mvc\AppInputInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface,
@@ -26,10 +26,30 @@ use LogicException,
 class AppHandler implements AppHandlerInterface
 {
     /**
-     * Used to run individual startup startegies
-     * @var TaskHandlerInterface
+     * @var FileReaderInterface
      */
-    protected $taskHandler = null;
+    protected $reader = null;
+
+    /**
+     * @param   FileReaderInterface $reader 
+     * @return  AppHandler
+     */
+    public function __construct(FileReaderInterface $reader = null)
+    {
+        if (null === $reader) {
+            $reader = new FileReader(new FileFinder());
+        }
+
+        $this->reader = $reader;
+    }
+
+    /**
+     * @return  FileReaderInterface
+     */
+    public function getFileReader()
+    {
+        return $this->reader;
+    }
 
     /**
      * @return  AppDetailInterface
@@ -47,31 +67,67 @@ class AppHandler implements AppHandlerInterface
         return AppRegistry::getAppFactory();
     }
 
+    public function resolveRoute($uri, $urlFile = null)
+    {
+        $group = $this->resolveRouteGroup($uri, $urlFile);
+        $patterns = RouteRegistry::getPatterns($group);
+        echo "<pre>", print_r('insert here', 1), "</pre>";exit;
+    }
 
     /**
      * @param   array    $tasks
      * @return  RouteDetailInterface
      */
-    public function findRoute($key, $format = null)
+    public function resolveRouteGroup($uri, $urlFile = null)
     {
-        $factory = $this->getAppFactory();
-
-        if ($key instanceof RequestUriInterface) {
-            $format = $key->getRouteFormat();
-            $key    = $key->getRouteKey();
+        if (! is_string($uri)) {
+            throw new DomainException("uri must be a string");
         }
-        else if (! is_string($key)) {
-            $err  = 'first param must be a string or an object that ';
-            $err .= 'implments Appfuel\Kernel\Mvc\RequestUriInterface';
-            throw new DomainException($err);
+        $uri = ltrim($uri, '/'); 
+        if (null === $urlFile) {
+            $urlFile = 'app/url-groups.php';
+        }
+        $reader = $this->getFileReader();
+        $finder = $reader->getFileFinder();
+        $groups = array();
+        if ($finder->fileExists($urlFile)) {
+            $groups = $reader->import($urlFile);
+        }
+        
+        if (! is_array($groups)) {
+            $err = "url groups must be an array";
+        }
+        
+        $matches = array();
+        $group = null;
+        foreach($groups as $pattern => $groupName) {
+            if (! is_string($pattern) || empty($pattern)) {
+                $err = 'group pattern must be a non empty string';
+                throw new DomainException($err);
+            }
+            
+            $isMatched = preg_match($pattern, $uri, $matches);
+            if ($isMatched) {
+                $group = $groupName;
+                break;
+            }
+            $matches = array();
         }
 
-        $route = $factory->createRouteDetail($key);
-        if (! empty($format)) {
-            $route->setFormat($format);
+        if (! $isMatched) {
+            return false;
         }
 
-        return $route;
+        $matched = array_shift($matches);
+        $pos = strpos($uri, $matched) + strlen($matched);
+        $newUri = ltrim(substr($uri, $pos), '/');
+        return array(
+            'original-uri' => $uri,
+            'matched'      => $matched,
+            'group'        => $group,
+            'uri'          => $newUri,
+            'captured'     => $matches
+        );
     }
 
     /**
@@ -145,48 +201,6 @@ class AppHandler implements AppHandlerInterface
         }
     
         return $result;
-    }
-
-    /**
-     * @param   MvcRouteDetailInterface $route
-     * @param   MvcContextInterface $context
-     * @param   bool    $isHttp
-     * @return  null
-     */
-    public function outputHttpContext(MvcRouteDetailInterface $route, 
-                                      MvcContextInterface $context,
-                                      $version = '1.1')
-    {
-        $content = $this->composeView($route, $context);
-        $status  = $context->getExitCode();
-        $headers = $context->get('http-headers', null); 
-        if (! is_array($headers) || empty($headers)) {
-                $headers = null;
-        }
-        $factory = $this->getAppFactory();
-        $response = $factory->createHttpResponse(
-            $content, 
-            $status, 
-            $version, 
-            $headers
-        );
-
-        $output = $factory->createHttpOutput();
-        $output->render($response);
-    }
-
-    /**
-     * @param    MvcContextInterface $context
-     * @return    null
-     */
-    public function outputConsoleContext(MvcRouteDetailInterface $route,
-                                         MvcContextInterface $context)
-    {
-        $content = $this->composeView($route, $context);
-        $output  = $this->getAppFactory()
-                        ->createConsoleOutput();
-        
-        $output->render($content);
     }
 
     /**

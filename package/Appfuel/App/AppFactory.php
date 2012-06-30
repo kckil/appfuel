@@ -8,6 +8,7 @@ namespace Appfuel\App;
 
 use RunTimeException,
     Appfuel\Http\HttpOutput,
+    Appfuel\Http\HttpOutputInterface,
     Appfuel\Http\HttpResponse,
     Appfuel\Console\ArgParser,
     Appfuel\Console\ConsoleOutput,
@@ -49,6 +50,15 @@ class AppFactory implements AppFactoryInterface
     public function createConsoleHandler(ConsoleOutputInterface $output = null)
     {
         return new ConsoleHandler($output);
+    }
+
+    /**
+     * @param   HttpOutputInterface
+     * @return  WebHandlerInterface
+     */
+    public function createWebHandler(HttpOutputInterface $output = null)
+    {
+        return new WebHandler($output);
     }
 
     /**

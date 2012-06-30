@@ -28,26 +28,35 @@ class AppDetail implements AppDetailInterface
 {
     /**
      * Absolute path to the root directory of the application
-     * @param   string
+     * @var   string
      */
     protected $base = null;
+
+    /**
+     * Flag used to determine if an exception will be thrown when a path is
+     * not found when a call to getPath is used.
+     * @var bool
+     */
+    protected $isStrict = true;
 
     /**
      * List of all the main directories and files used by appfuel
      * @var array
      */
-    protected $paths = [
-        'app-www'                   => 'www',
-        'app-bin'                   => 'bin',
-        'app-test'                  => 'test',
-        'app-src'                   => 'package',
-        'app-resource'              => 'resource',
-        'app-datasource'            => 'datasource',
-        'app-dir'                   => 'app',
-        'app-build'                 => 'app/build',
-        'app-config-settings'       => 'app/config-settings.php',
-        'app-config-build-file'     => 'app/build/config.json',
-    ];
+    protected $paths = array(
+        'app-www'               => 'www',
+        'app-bin'               => 'bin',
+        'app-test'              => 'test',
+        'app-src'               => 'package',
+        'app-resource'          => 'resource',
+        'app-datasource'        => 'datasource',
+        'app-dir'               => 'app',
+        'app-build'             => 'app/build',
+        'app-config-settings'   => 'app/config-settings.php',
+        'app-config-build'      => 'app/build/config.json',
+        'app-routes-build'      => 'app/build/routes.json',
+        'app-url-groups'        => 'app/url-groups.php',
+    );
 
     /**
      * @param   string  $basePath
@@ -61,15 +70,12 @@ class AppDetail implements AppDetailInterface
         }
         $this->setBasePath($spec['app-root']);
 
-        foreach ($this->paths as $key => &$path) {
-            if (!isset($spec[$key]) || 'app'===$key || 'app-build'===$key) {
+        $reserved = array('app-root', 'app-dir', 'app-build');
+        foreach ($spec as $key => $path) {
+            if (in_array($key, $reserved, true)) {
                 continue;
             }
-            $specPath = $spec[$key];
-            if (! $this->isValid($specPath)) {
-                throw new DomainException("-($key) is not a valid path");
-            }
-            $path = $specPath;
+            $this->addPath($key, $path);
         }
     }
 
@@ -82,13 +88,44 @@ class AppDetail implements AppDetailInterface
     }
 
     /**
+     * @return  bool
+     */
+    public function isStrict()
+    {
+        return $this->isStrict;
+    }
+
+    /**
+     * @return  AppPath
+     */
+    public function enableStrictMode()
+    {
+        $this->isStrict = true;
+        return $this;
+    }
+
+    /**
+     * @return  AppPath
+     */
+    public function disableStrictMode()
+    {
+        $this->isStrict = false;
+        return $this;
+    }
+
+    /**
      * @param   string  $name
      * @return  string | false
      */
     public function getPath($name, $isAbsolute = true)
     {
         if (! is_string($name) || ! isset($this->paths[$name])) {
-            return false;
+            if (! $this->isStrict()) {
+                return false;
+            }
+            $type = gettype($name);
+            $name = ('string' !== $type) ? $name : "<can not display>";
+            throw new DomainException("path -($name, $type) was not found");
         }
 
         $base = '';
@@ -105,7 +142,7 @@ class AppDetail implements AppDetailInterface
      */
     protected function setBasePath($path)
     {
-        if (! $this->isValid($path)) {
+        if (! is_string($path)) {
             $err = "base path must be a non empty string";
             throw new DomainException($err);
         }
@@ -118,16 +155,25 @@ class AppDetail implements AppDetailInterface
         $this->base = $path;
     }
 
-    /**
-     * @param   string  $path
-     * @return  bool
-     */
-    protected function isValid($path)
+    protected function addPath($key, $path)
     {
-        if (! is_string($path) || empty($path)) {
-            return false;
+        if (! is_string($key) || empty($key)) {
+            $err = "path key must be a non empty string";
+            throw new DomainException($err);
         }
 
-        return true;
+        if (! is_string($path) || empty($path)) {
+            $err = "path for -($key) must be a non empty string";
+            throw new DomainException($err);
+        }
+
+        $base = $this->getBasePath();
+        if (DIRECTORY_SEPARATOR === $path{0}) {
+            $err  = "path for -($key) must not be  absolute, since all paths ";
+            $err .= "are to be under the app-root -($base)";
+            throw new DomainException($err);
+        }
+
+        $this->paths[$key] = $path;
     }
 }

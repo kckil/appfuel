@@ -32,7 +32,7 @@ define('AF_BASE_PATH', $ctrl['paths']['app-root']);
  * configured
  */
 define('AF_APP_PATH', AF_BASE_PATH . DIRECTORY_SEPARATOR . 'app');
-$ctrl['paths']['app-dir'] = AF_APP_PATH;
+$ctrl['paths']['app-dir'] = 'app';
 
 /*
  * The src path is defined as the directory that holds all the source code
@@ -41,9 +41,10 @@ $ctrl['paths']['app-dir'] = AF_APP_PATH;
  * task of auto loading.
  */
 if (! isset($ctrl['paths']['app-src'])) {
-    $ctrl['paths']['app-src'] = AF_BASE_PATH . DIRECTORY_SEPARATOR . 'package';
+    $ctrl['paths']['app-src'] = 'package';
 }
-define('AF_SRC_PATH', $ctrl['paths']['app-src']);
+define('AF_SRC_PATH', 
+        AF_BASE_PATH . DIRECTORY_SEPARATOR . $ctrl['paths']['app-src']);
 
 /*
  * Kernel dependencies are a list of files the need to be in memory before the
@@ -127,7 +128,7 @@ if (isset($ctrl['config-build-file'])) {
     $configFile = $ctrl['config-build-file'];
 }
 else {
-    $configFile = $detail->getPath('app-config-build-file');
+    $configFile = $detail->getPath('app-config-build');
 }
 $settings = null;
 if (isset($ctrl['config-settings']) && is_array($ctrl['config-settings'])) {
@@ -166,6 +167,7 @@ $tasks = array(
     'Appfuel\Kernel\Task\PHPAutoloaderTask',
     'Appfuel\Kernel\Task\FaultHandlerTask',
     'Appfuel\Kernel\Task\DependencyLoaderTask',
+    'Appfuel\Kernel\Task\RouteTask',
     // @todo validation startup task
 );
 
