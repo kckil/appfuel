@@ -26,8 +26,8 @@ class WelcomeAction extends MvcAction
         $data->add('foo', 'bar');
         
         $format = $context->getViewFormat();
-        //$view = $this->composeView($format, $data);
-
-        $context->setView('i am a view');
+        $view = $this->composeView($format, $data);
+        
+        $context->setView($view);
     }
 }
