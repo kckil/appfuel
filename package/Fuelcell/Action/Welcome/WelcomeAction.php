@@ -8,7 +8,8 @@
  */
 namespace Fuelcell\Action\Welcome;
 
-use Appfuel\Kernel\Mvc\MvcAction;
+use Appfuel\Kernel\Mvc\MvcAction,
+    Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * Fuelcell's welcome page.
@@ -21,12 +22,12 @@ class WelcomeAction extends MvcAction
      */
     public function process(MvcContextInterface $context)
     {
-        $view = $context->getView();
-        $data = ['foo' => 'bar'];
+        $data = $context->getViewData();
+        $data->add('foo', 'bar');
+        
+        $format = $context->getViewFormat();
+        //$view = $this->composeView($format, $data);
 
-
-        if ($this->isViewTemplate($view)) {
-            $view->load($data);
-        }
+        $context->setView('i am a view');
     }
 }

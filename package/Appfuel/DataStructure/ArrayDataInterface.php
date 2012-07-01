@@ -108,7 +108,7 @@ interface ArrayDataInterface
      * @param   mixed string|object  $type   type that thing should be
      * @return  bool
      */
-    public function existsAs($key, $type);
+    public function existAs($key, $type);
 
     /**                                                                          
      * @return  ViewTemplate                                                     

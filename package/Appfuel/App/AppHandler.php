@@ -8,12 +8,9 @@ namespace Appfuel\App;
 
 use LogicException,
     DomainException,
-    RunTimeException,
-    InvalidArgumentException,
     Appfuel\View\ViewInterface,
     Appfuel\Kernel\Route\Router,
-    Appfuel\Kernel\Mvc\RequestUriInterface,
-    Appfuel\Kernel\Mvc\AppInputInterface,
+    Appfuel\Kernel\Route\RouteRegistry,
     Appfuel\Kernel\Mvc\MvcContextInterface,
     Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
     Appfuel\Kernel\Mvc\MvcFactoryInterface;
@@ -38,7 +35,17 @@ class AppHandler implements AppHandlerInterface
     {
         return AppRegistry::getAppFactory();
     }
-    
+   
+    /**
+     * @param   string  $cat
+     * @param   string  $key    route key
+     * @return  object | false 
+     */ 
+    public function getRouteSpec($cat, $key)
+    {
+        return RouteRegistry::getRouteSpec($cat, $key);
+    }
+
     /**
      * @param   string  $uri
      * @return  array | false
@@ -49,55 +56,79 @@ class AppHandler implements AppHandlerInterface
     }
 
     /**
-     * @param   string $key
-     * @param   AppInputInterface   $input
-     * @return  MvcContextInterface
+     * @param   MvcContextInterface $context
+     * @return  null
      */
-    public function createContext($key, AppInputInterface $input)
+    public function runStartupTasks(MvcContextInterface $context)
     {
-        return $this->getAppFactory()
-                    ->createContext($key, $input);
-    }
-
-    /**
-     * @param   MvcRouteDetailInterface    $route
-     * @param   MvcContextInterface        $context
-     * @return  AppHandler
-     */
-    public function initializeApp(MvcRouteDetailInterface $route, 
-                                  MvcContextInterface $context)
-    {
-        $handler = $this->loadTaskHandler();
-        $handler->kernelRunTasks($route, $context);
-        return $this;
-    }
-
-    /**
-     * @param   MvcRouteDetailInterface    $route
-     * @param   MvcContextInterface        $context
-     * @param   string                    $format
-     * @return  AppRunner
-     */
-    public function setupView(MvcRouteDetailInterface $route, 
-                              MvcContextInterface $context, 
-                              $format = null)
-    {
-
-        if (empty($format)) {
-            $format = $route->getFormat();
+        $key  = $context->getRouteKey();
+        $spec = $this->getRouteSpec('startup', $key);
+        if (! $spec) {
+            $err = "route startup specification was not found for -($key)";
+            throw new DomainException($err);
         }
 
-        $this->getAppFactory()
-             ->createViewBuilder()
-             ->setupView($context, $route, $format);
+        if ($spec->isStartupDisabled()) {
+            return;
+        }
+
+        $tasks = array();
+        if (! $spec->isIgnoreConfigStartupTasks()) {
+            $tasks = AppRegistry::get('startup-tasks', array());
+            if (! is_array($tasks)) {
+                $err  = "tasks saved in the app registry -(startup-tasks) ";
+                $err .= "must be any array";
+                throw new DomainException($err);
+            }
+            
+            if ($spec->isExcludedStartupTasks()) {
+                $excluded = $route->getExcludedStartupTasks();
+                foreach ($excluded as $exclude) {
+                    foreach ($tasks as $index => $target) {
+                        if ($exclude === $target) {
+                            unset($tasks[$index]);
+                        }
+                    }
+                }
+                $tasks = array_values($tasks);
+            }
+        }
+
+        if ($spec->isStartupTasks()) {
+            $routeTasks = $spec->getStartupTasks();
+            if ($spec->isPrependStartupTasks()) {
+                $tasks = array_merge($routeTasks, $tasks);
+            }
+            else {
+                $task = array_merge($tasks, $routeTasks);
+            }
+        }
+
+        $handler = AppRegistry::getTaskHandler();
+        $handler->runTasks($tasks, $context);
+    }
+
+    /**
+     * @param    array    $tasks
+     * @return    AppRunner
+     */
+    public function runTasks(array $tasks)
+    {
+        $this->getTaskHandler()
+             ->runTasks($tasks);
 
         return $this;
     }
 
-    public function composeView(MvcRouteDetailInterface $route,
-                                MvcContextInterface $context)
+    /**
+     * @throws  DomainException
+     * @param   MvcContextInterface $context
+     * @return  string
+     */
+    public function composeView(MvcContextInterface $context)
     {
-        if ($route->isViewDisabled()) {
+        $spec = $this->getRouteSpec('view', $context->getRouteKey());
+        if ($spec->isViewDisabled()) {
             return '';
         }
 
@@ -127,22 +158,24 @@ class AppHandler implements AppHandlerInterface
      */
     public function runAction(MvcContextInterface $context)
     {
-        $context = $this->getAppFactory()
-                        ->createFront()
-                        ->run($context);
-
-        return $context;
+        $front = $this->createFrontController();
+        return $front->run($context);
     }
 
-    /**
-     * @param    array    $tasks
-     * @return    AppRunner
-     */
-    public function runTasks(array $tasks)
+    public function createFrontController()
     {
-        $this->getTaskHandler()
-             ->runTasks($tasks);
-
-        return $this;
+        $factory = $this->getAppFactory();
+        
+        $default  = array();
+        $filters  = AppRegistry::getWhen('pre-filters', 'array', $default);
+        $preChain = $factory->createInterceptChain();
+        $preChain->loadFilters($filters);
+        
+        $filters   = AppRegistry::getWhen('post-filters', 'array', $default);
+        $postChain = $factory->createInterceptChain();
+        $postChain->loadFilters($filters);
+        
+        return $factory->createFrontController($preChain, $postChain);
     }
+
 }

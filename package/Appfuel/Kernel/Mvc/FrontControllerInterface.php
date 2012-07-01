@@ -1,13 +1,13 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Kernel\Mvc;
+
+use Appfuel\Kernel\Route\RouteRegistry,
+    Appfuel\Kernel\Route\RouteInterceptFilterSpecInterface;
 
 /**
  * The front controller is used build the intialize context, run the pre
@@ -16,11 +16,6 @@ namespace Appfuel\Kernel\Mvc;
  */
 interface FrontControllerInterface
 {    
-    /**
-     * @return    MvcActionDispatcherInterface
-     */
-    public function getDispatcher();
-
     /**
      * @return    InterceptChainInterface
      */
@@ -39,11 +34,11 @@ interface FrontControllerInterface
     public function run(MvcContextInterface $context);
 
     /**
-     * @param    MvcRouteDetailInterface $detail
+     * @param   RouteInterceptFilterSpecInterface  $spec
      * @param   MvcContextInterface     $context
      * @return  MvcContextInterface
      */
-    public function runPreFilters(MvcRouteDetailInterface $detail,
+    public function runPreFilters(RouteInterceptFilterSpecInterface $spec,
                                   MvcContextInterface $context);
 
     /**
@@ -51,6 +46,6 @@ interface FrontControllerInterface
      * @param    MvcContextInterface        $context
      * @return    MvcContextInterface
      */
-    public function runPostFilters(MvcRouteDetailInterface $detail,
+    public function runPostFilters(RouteInterceptFilterSpecInterface $spec,
                                    MvcContextInterface $context);
 }

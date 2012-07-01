@@ -7,17 +7,13 @@
 namespace Appfuel\App;
 
 use InvalidArgumentException,
-    Appfuel\DataStructure\Dictionary,
+    Appfuel\DataStructure\ArrayData,
+    Appfuel\DataStructure\ArrayDataInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
- * The app context holds the input (get, post, argv etc..), handles errors and 
- * is a dictionary that can hold hold key value pairs allowing custom objects
- * specific to the application to be added without having to extends the 
- * context. The context is passed into each intercepting filter and then into
- * the action controllers process method.
  */
-class AppContext extends Dictionary implements MvcContextInterface
+class AppContext extends ArrayData implements MvcContextInterface
 {
     /**
      * Actual route key used in user request
@@ -46,6 +42,12 @@ class AppContext extends Dictionary implements MvcContextInterface
     protected $view = '';
 
     /**
+     * Data structure used to hold all the view assignments
+     * @var ArrayDataInterface
+     */
+    protected $viewData = null;
+
+    /**
      * View format as determined by encoded route information. ex) route.json
      * @var string
      */
@@ -62,10 +64,26 @@ class AppContext extends Dictionary implements MvcContextInterface
      * @param    AppInputInterface    $input
      * @return    AppContext
      */
-    public function __construct($key, AppInputInterface $input)
+    public function __construct($key,
+                                AppInputInterface $input, 
+                                $viewData = null)
     {
         $this->setRouteKey($key);
         $this->setInput($input);
+        if (null === $viewData) {
+            $viewData = new ArrayData();
+        }
+        else {
+            if (is_array($viewData)) {
+                $viewData = new ArrayData($viewData);
+            }
+            else if (! $viewData instanceof ArrayDataInterface) {
+                $err  = "view data must be an array or an object that -(";
+                $err .= "implements Appfuel\DataStructure\ArrayDataInterface)";
+                throw new DomainException($err);
+            }
+        }
+        $this->setViewData($viewData);
     }
 
     /**
@@ -142,6 +160,24 @@ class AppContext extends Dictionary implements MvcContextInterface
         }
 
         $this->view = $view;
+        return $this;
+    }
+
+    /**
+     * @return  ArrayDataInterface
+     */
+    public function getViewData()
+    {
+        return $this->viewData;
+    }
+
+    /**
+     * @param   ArrayDataInterface $data
+     * @return  AppContext
+     */
+    public function setViewData(ArrayDataInterface $data)
+    {
+        $this->viewData = $data;
         return $this;
     }
 

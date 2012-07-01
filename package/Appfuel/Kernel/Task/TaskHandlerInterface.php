@@ -10,23 +10,6 @@ use Appfuel\Kernel\Mvc\MvcContextInterface;
 
 interface TaskHandlerInterface
 {
-    /**
-     * @return  string
-     */
-    public function getStartupTasksKey();
-
-    /**
-     * @param   string  $key
-     * @return  TaskHandler
-     */
-    public function setStartupTasksKey($key);
-
-    /**
-     * @param   MvcContextInterface $context 
-     * @return  array
-     */
-    public function runTasksUsingRegistry(MvcContextInterface $context = null);
-
 	/**
 	 * @param	array	$tasks
      * @param   MvcContextInterface $context

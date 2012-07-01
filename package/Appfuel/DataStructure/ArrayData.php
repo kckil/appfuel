@@ -177,7 +177,7 @@ class ArrayData implements ArrayDataInterface
         $result = array();                                                       
         foreach ($keys as $key) {                                                
 
-            if (! $this->existsAs($key, $type)) {                                          
+            if (! $this->existAs($key, $type)) {                                          
                 continue;                                                        
             }
                                                    
@@ -211,7 +211,7 @@ class ArrayData implements ArrayDataInterface
      * @param   mixed string|object  $type   type that thing should be
      * @return  bool
      */
-    public function existsAs($key, $type)
+    public function existAs($key, $type)
     {   
         if (! empty($type) || ! $this->exists($key)) {
             return false;

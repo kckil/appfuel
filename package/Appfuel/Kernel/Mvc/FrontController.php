@@ -1,13 +1,13 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Kernel\Mvc;
+
+use Appfuel\Kernel\Route\RouteRegistry,
+    Appfuel\Kernel\Route\RouteInterceptFilterSpecInterface;
 
 /**
  * Dispatch a context based on information found in the route detail and 
@@ -16,13 +16,6 @@ namespace Appfuel\Kernel\Mvc;
  */
 class FrontController implements FrontControllerInterface
 {    
-    /**
-     * Used to create the action based on the route and dispatch the context
-     * into that action
-     * @var MvcActionDispatcher
-     */
-    protected $dispatcher = null;
-
     /**
      * Apply Intercept filter logic before mvc action is dispatched
      * @var FilterChainInterface
@@ -36,26 +29,15 @@ class FrontController implements FrontControllerInterface
     protected $postChain = null;
 
     /**
-     * @param   DispatcherInterface $dispatcher
      * @param   InterceptChainInterface $preChain
      * @param   InterceptChainInterface $postChain
      * @return  FrontController
      */
-    public function __construct(DispatcherInterface $dispatcher,
-                                InterceptChainInterface $preChain,
+    public function __construct(InterceptChainInterface $preChain,
                                 InterceptChainInterface $postChain)
     {
-        $this->dispatcher = $dispatcher;
         $this->preChain = $preChain;
         $this->postChain = $postChain;
-    }
-
-    /**
-     * @return  DispatcherInterface
-     */
-    public function getDispatcher()
-    {
-        return $this->dispatcher;
     }
 
     /**
@@ -81,40 +63,37 @@ class FrontController implements FrontControllerInterface
      */
     public function run(MvcContextInterface $context)
     {
-        $routeKey = $context->getRouteKey();
-        /*
-         * Mark this as the current route. Allows you to tell the difference
-         * between the initial route and one called by an mvc action
-         */
-        $this->setCurrentRoute($routeKey);
-        $detail = $this->getRouteDetail($routeKey);
+        $key = $context->getRouteKey();
+        $filterSpec = $this->getRouteSpec('intercept-filter', $key); 
 
-        if ($detail->isPreFilteringEnabled()) {
-            $context = $this->runPreFilters($detail, $context);
+        if ($filterSpec->isPreFilteringEnabled()) {
+            $context = $this->runPreFilters($filterSpec, $context);
         }
 
         /*
-         * Only dispatch a context if its exit code is within the range of 
-         * success. Note console and html, ajax and api all follow http status
-         * codes.
+         * only dispatch to the proper http reponse codes. This allows pre 
+         * filters to use http codes to control dispatching.
          */
         $exitCode = $context->getExitCode();
         if ($exitCode >= 200 && $exitCode < 300) {
-            $dispatcher = $this->getDispatcher();
-            $dispatcher->dispatch($context);
-
+            
             /*
              * PreFilters have the ability to change the current route
-             * so we grab it again just incase 
+             * so we lets refresh the route key before getting any more specs
              */
-            $tmpRouteKey = $context->getRouteKey();
-            if ($tmpRouteKey !== $routeKey) {
-                $this->setCurrentRoute($tmpRouteKey);
-                $detail = $this->getRouteDetail($tmpRouteKey);
+            $key = $context->getRouteKey();
+            $filterSpec = $this->getRouteSpec('intercept-filter',$key);
+            $accessSpec = $this->getRouteSpec('access', $key);
+            
+            if ($accessSpec->isInternalOnlyAccess()) {
+                $err = "Access to this route is denied: internal use only";
+                throw new LogicException($err, 401);
             }
 
-            if ($detail->isPostFilteringEnabled()) {
-                $context = $this->runPostFilters($detail, $context);
+            Dispatcher::dispatch($context);
+
+            if ($filterSpec->isPostFilteringEnabled()) {
+                $context = $this->runPostFilters($filterSpec, $context);
             }
         }
 
@@ -122,50 +101,52 @@ class FrontController implements FrontControllerInterface
     }
 
     /**
+     * @param   RouteInterceptFilterSpecInterface   $spec
      * @param   MvcContextInterface $context
      * @return  MvcContextInterface
      */
-    public function runPreFilters(MvcRouteDetailInterface $detail,
+    public function runPreFilters(RouteInterceptFilterSpecInterface $spec,
                                   MvcContextInterface $context)
     {
-        $chain  = $this->getPreChain();
-
-        if ($detail->isExcludedPreFilters()) {
-            $chain->removeFilters($detail->getExcludedPreFilters());
+        $chain = $this->getPreChain();
+        if ($spec->isExcludedPreFilters()) {
+            $chain->removeFilters($spec->getExcludedPreFilters());
         }
 
-        if ($detail->isPreFilters()) {
-            $chain->loadFilters($detail->getPreFilters());    
+        if ($spec->isPreFilters()) {
+            $chain->loadFilters($spec->getPreFilters());    
         }
 
         return $chain->applyFilters($context);
     }
 
     /**
+     * @param   RouteInterceptFilterSpecInterface   $spec
      * @param   MvcContextInterface $context
      * @return  MvcContextInterface
      */
-    public function runPostFilters(MvcRouteDetailInterface $detail,
+    public function runPostFilters(RouteInterceptFilterSpecInterface $spec,
                                    MvcContextInterface $context)
     {
-        $chain  = $this->getPostChain();
-
-        if ($detail->isExcludedPostFilters()) {
-            $chain->removeFilters($detail->getExcludedPostFilters());
+        $chain = $this->getPostChain();
+        if ($spec->isExcludedPostFilters()) {
+            $chain->removeFilters($spec->getExcludedPostFilters());
         }
 
-        if ($detail->isPostFilters()) {
-            $chain->loadFilters($detail->getPostFilters());    
+        if ($spec->isPostFilters()) {
+            $chain->loadFilters($spec->getPostFilters());    
         }
 
         return $chain->applyFilters($context);
     }
 
     /**
-     * @return  MvcRouteDetail
+     * @param   string  $cat
+     * @param   string  $key    route key
+     * @return  object | false 
      */
-    protected function getRouteDetail($key)
+    protected function getRouteSpec($cat, $key)
     {
-        return MvcRouteManager::getRouteDetail($key);
+        return RouteRegistry::getRouteSpec($cat, $key);
     }
 }

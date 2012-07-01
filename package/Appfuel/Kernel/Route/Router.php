@@ -33,7 +33,7 @@ class Router
      * @param   string  $uri
      * @return  array | false
      */
-    static public function findRoute($uri)
+    static public function findRoute($uri, $isFormatCheck = true)
     {
         if (! is_string($uri)) {
             $err = "request uri must be a string";
@@ -41,6 +41,13 @@ class Router
         }
 
         $uri = ltrim($uri, "/");
+        $format = null;
+        if (true === $isFormatCheck) {
+            $result = self::resolveFormat($uri);
+            $uri    = current($result);
+            $format = next($result);
+        }
+        
         $group = self::resolveGroup($uri);
         $patterns = RouteRegistry::getPatterns($group['group']);
         
@@ -60,6 +67,7 @@ class Router
         }
 
         return array(
+            'format'        => $format,
             'uri'           => $uri,
             'group'         => $group['group'],
             'group-match'   => $group['matched'],
@@ -68,6 +76,24 @@ class Router
             'route-match'   => array_shift($matches),
             'route-capture' => $matches
         );        
+    }
+
+    static public function resolveFormat($uri)
+    {
+         if (! is_string($uri)) {
+            $err = "request uri must be a string";
+            throw new DomainException($err);
+        }
+    
+        $matches = array();
+        $flags = PREG_OFFSET_CAPTURE;
+        if (preg_match('/\.[-+a-zA-Z0-9_]+$/i', $uri, $matches, $flags)) {
+            $matches = current($matches);
+            $format  = ltrim($matches[0], '.');
+            return array(substr($uri, 0, $matches[1]), $format);
+        }
+
+        return array($uri, null);
     }
 
     /**

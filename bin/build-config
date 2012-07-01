@@ -64,17 +64,17 @@ if (! $env) {
 
 $targetEnv = $input->getCliOpt('target-env', 't');
 if (! $targetEnv) {
-    $targetEnv = 'production';
+    $targetEnv = 'prod';
 }
 
 $file = $input->getCliOpt('config-file', 'c');
 if (! $file) {
-    $file = $appPath->getPath('app-config-settings');
+    $file = $appPath->get('config-settings');
 }
 
 $buildFile = $input->getCliOpt('build-file', 'c');
 if (! $buildFile) {
-    $buildFile = $appPath->getPath('app-config-build');
+    $buildFile = $appPath->get('config-build');
 }
 
 $finder = new FileFinder(null, false);

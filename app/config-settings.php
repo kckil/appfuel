@@ -19,7 +19,7 @@ return array(
 		'php-display-errors'	    => 'off',
 		'php-error-level'		    => 'all, strict',
 		'db'					    => array(),
-		'startup-tasks'		        => array('Appfuel\View\ViewStartupTask'),
+		'startup-tasks'		        => array(),
 		'pre-filters'		        => array(),
 		'post-filters'		        => array(),
     ),
