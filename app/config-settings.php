@@ -22,6 +22,7 @@ return array(
 		'startup-tasks'		        => array(),
 		'pre-filters'		        => array(),
 		'post-filters'		        => array(),
+        'action-dirs'               => array('Fuelcell/Action')
     ),
     'dev' => array(
 		'php-display-errors'	    => 'on',

@@ -9,6 +9,9 @@ namespace Appfuel\View;
 use DomainException,
     RunTimeException,
     InvalidArgumentException,
+    Appfuel\DataStructure\ArrayData,
+    Appfuel\DataStructure\ArrayDataInterface,
+    Appfuel\Html\HtmlPage,
     Appfuel\Html\Resource\PkgName,
     Appfuel\Html\Resource\PkgNameInterface,
     Appfuel\Html\Resource\AppViewManifest,
@@ -29,6 +32,24 @@ class ViewCompositor implements ViewCompositorInterface
      */
     static private $finder = null;
 
+    /**
+     * @param   ArrayDataInterface | array  $data
+     * @param   string  $page   
+     * @param   array   $config
+     * @return  string
+     */
+    static public function composeHtmlPage($data, array $spec)
+    {
+        if (is_array($data)) {
+            $data = new ArrayData($data);
+        }
+        else if (! $data instanceof ArrayDataInterface) {
+            $err  = "view data must be an array or an object that implements ";
+            $err .= "-(Appfuel\DataStructure\ArrayDataInterface)";
+            throw new DomainException($err);
+        }
+        
+    }
     
     /**
      * @param   string    $file    

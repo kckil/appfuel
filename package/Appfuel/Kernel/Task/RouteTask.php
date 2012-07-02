@@ -38,7 +38,8 @@ class RouteTask extends StartupTask
         $routes = $reader->decodeJsonAt($path->get('routes-build', true, true));
         if (! $routes) {
             $err = $reader->getLastJsonError();
-            throw new DomainException("route startup task: $err"); 
+            //throw new DomainException("route startup task: $err"); 
+            return;
         }
 
         $specList = array(

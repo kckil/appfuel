@@ -6,7 +6,7 @@
  */ 
 namespace Appfuel\Kernel\Mvc;
 
-interface MvcActionInterface extends ExecutableInterface
+interface MvcControllerInterface extends ExecutableInterface
 {
     /**
      * @param   string  $key
@@ -15,17 +15,9 @@ interface MvcActionInterface extends ExecutableInterface
     public function getRepository($key, $source = 'db');
 
     /**
-     * Must be implemented by concrete class
-     *
-     * @param   AppContextInterface $context
-     * @return  null
-     */
-    public function process(MvcContextInterface $context);
-
-    /**
      * @param   string              $routeKey
      * @param   MvcContextInterface $context
      * @return  MvcContextInterface
      */
-    public function callWithContext($key, MvcContextInterface $context);
+    public function call($key, MvcContextInterface $context);
 }

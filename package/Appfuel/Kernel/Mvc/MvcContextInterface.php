@@ -31,23 +31,6 @@ interface MvcContextInterface extends DictionaryInterface
     public function getView();
 
     /**
-     * @param   mixed   $view
-     * @return  bool
-     */
-    public function isValidView($view);
-
-    /**
-     * @return  bool
-     */
-    public function isContextView();
-
-    /**
-     * @param   ViewTemplateInterface $template
-     * @return  AppContext
-     */
-    public function setView($view);
-
-    /**
      * @return  array
      */
     public function getAclCodes();

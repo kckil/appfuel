@@ -33,7 +33,7 @@ class Dispatcher implements DispatcherInterface
 
         $spec   = self::getRouteSpec('action', $key);
         $action = $spec->createAction($method);
-        if (! ($action instanceof MvcActionInterface)) {
+        if (! ($action instanceof ExecutableInterface)) {
             $err  = "failed to dispatch to -($key) mvc action does not ";
             $err .= "implement Appfuel\Kernel\Mvc\MvcActionInterface";
             throw new DomainException($err, 404);
@@ -56,7 +56,7 @@ class Dispatcher implements DispatcherInterface
             }
         }
 
-        $action->process($context);
+        $action->execute($context);
     }
 
     /**

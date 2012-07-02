@@ -6,11 +6,12 @@
  */
 namespace Fuelcell\Action\Welcome;
 
-return [
-    'welcome' => [
+return array(
+    'welcome' => array(
         'is-public' => true,
         'pattern'   => '/^welcome/',
         'action'    => 'WelcomeAction',
         'namespace' => __NAMESPACE__,
-    ]
-];
+        'view-pkg'  => 'fuelcell:page.welcome'
+    )
+);

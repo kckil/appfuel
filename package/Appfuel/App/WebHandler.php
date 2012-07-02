@@ -61,19 +61,50 @@ class WebHandler extends AppHandler implements WebHandlerInterface
             $err = 'route key is required but not found';
             throw new DomainException($err);
         }
-        $key = $route['route-key'];
-        $viewSpec = $this->getRouteSpec('view', $key);
-        if (! $viewSpec) {
-            $err = "route view specification could not be found for -($key)";
-            throw new DomainException($err);
-        }
 
-        $format = $viewSpec->getDefaultFormat();
+        $key = $route['route-key'];
+        $format = null;
         if (isset($route['format'])) {
             $format = $route['format'];
-            unset($route['format']);
         }
-        $method = $this->getRequestMethod();
+        $view    = $this->createAppView($key, $format);
+
+        $factory = $this->getAppFactory();
+        $method  = $this->getRequestMethod();
+        $params  = $this->createWebInputParams($method, array('route'=>$route));
+        $input   = $factory->createInput($method, $params);
+        $context = $factory->createContext($route['route-key'], $input);
+        $context->setView($view);        
+        
+        return $context;
+    }
+
+    /**
+     * @param   string  $key    route key
+     * @return  MvcViewInterface
+     */
+    public function createAppView($key, $format = null)
+    {
+        $spec = $this->getRouteSpec('view', $key);
+        if (null === $format) {
+            $format = $spec->getDefaultFormat();
+        }
+
+        $data = array('format' => $format);
+        if ($spec->isViewPackage()) {
+            $data['pkg'] = $spec->getViewPackage();
+        }        
+    
+        $factory = $this->getAppFactory();
+        return $factory->createAppView($data);
+    }
+
+    /**
+     * @param   array   $data
+     * @return  array
+     */
+    public function createWebInputParams($method, array $data)
+    {
         $valid  = array('get', 'put', 'post', 'delete');
         if (! in_array($method, $valid, true)) {
             $err  = "invalid http method: must be one of the following ";
@@ -112,18 +143,9 @@ class WebHandler extends AppHandler implements WebHandlerInterface
             'files'   => $files, 
             'cookie'  => $cookies, 
             'session' => $session, 
-            'route'   => $route, 
         );
-    
-        $factory = $this->getAppFactory();
-        $input = $factory->createInput($method, $params);
-        $context = $factory->createContext($route['route-key'], $input);
-        
-        if (is_string($format)) {
-            $context->setViewFormat($format);
-        }
 
-        return $context;
+        return array_merge($params, $data);
     }
 
     /**

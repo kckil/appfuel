@@ -69,6 +69,15 @@ class AppFactory implements AppFactoryInterface
     }
 
     /**
+     * @param   array   $spec
+     * @return  AppView
+     */
+    public function createAppView(array $spec = null)
+    {
+        return new AppView($spec);
+    }
+
+    /**
      * @return  CliParser
      */
     public function createCliArgParser()

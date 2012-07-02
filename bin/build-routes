@@ -10,14 +10,8 @@ use Appfuel\App\AppRegistry,
     Appfuel\Filesystem\FileWriter,
     Appfuel\Kernel\Route\RouteCollector;
 
-$appType = 'cli';
-$header  = realpath(__DIR__ . '/../')  . "/app/app-header.php";
-if (! file_exists($header)) {
-	$err = "could not find app header at -($header)" . PHP_EOL;
-	fwrite(STDERR, $header);
-	exit(1);
-}
-$handler = require $header;
+$ctrl['app-type'] = 'cli';
+$handler = require realpath(__DIR__ . '/../')  . "/app/app-header.php";
 $input = $handler->createConsoleInput($_SERVER['argv']);
 
 /*
@@ -37,13 +31,12 @@ foreach ($dirs as &$dir) {
         fwrite(STDERR, $err);
         exit(-1);   
     }
-    $dir = AF_CODE_PATH . DIRECTORY_SEPARATOR . $dir;
+    $dir = AF_SRC_PATH . DIRECTORY_SEPARATOR . $dir;
 }
 
 $collector = new RouteCollector();
 $routes = $collector->collect($dirs);
 $routes = json_encode($routes, JSON_PRETTY_PRINT);
-
 $finder = new FileFinder('app/build');
 $writer = new FileWriter($finder);
 $writer->putContent($routes, 'routes.json');

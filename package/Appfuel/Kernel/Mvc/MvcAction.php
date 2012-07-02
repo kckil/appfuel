@@ -9,12 +9,7 @@ namespace Appfuel\Kernel\Mvc;
 use Appfuel\Orm\OrmManager;
 
 /**
- * The mvc action is the controller in mvc. The front controller always 
- * dispatches a context to be processed by the mvc action based on a 
- * route (obtained via request uri, generally) that maps to that mvc action.
- * Every mvc action can also dispatch calls (process context) to any other
- * mvc action based on route (and context building), which always mvc actions
- * to be used rather than duplicated. 
+ * @deprecated  no longer under development use MvcController
  */
 class MvcAction implements MvcActionInterface
 {
@@ -39,13 +34,45 @@ class MvcAction implements MvcActionInterface
     }
 
     /**
-     * @param   string              $routeKey
+     * Allow this deprecated controller to be dispatched by the dispatcher
+     *
+     * @param   MvcContextInterface     $context
+     * @return  null
+     */
+    public function execute(MvcContextInterface $context)
+    {
+        return $this->process($context);
+    }
+
+    /**
+     * @param   string  $routeKey
      * @param   MvcContextInterface $context
      * @return  MvcContextInterface
      */
-    public function call($key, MvcContextInterface $context)
+    public function callWithContext($routeKey, MvcContextInterface $context)
     {
-        return $context->merge($this->dispatch($context->clone($key)));
+        $tmp = $this->getMvcFactory()
+                    ->createContext($routeKey, $context->getInput());
+
+        if ($context->isContextView()) {
+            $tmp->setView($context->getView());
+        }
+
+        $tmp->load($context->getAll());
+        if ('' !== trim($context->getViewFormat())) {
+            $tmp->setViewFormat($context->getViewFormat());
+        }
+        $this->dispatch($tmp);
+
+        /* transfer all assignments made by mvc action */
+        $context->load($tmp->getAll());
+        $view = $tmp->getView();
+        if (! empty($view)) {
+            $context->setView($view);
+        }
+        $context->setExitCode($tmp->getExitCode());
+
+        return $context;
     }
 
     /**

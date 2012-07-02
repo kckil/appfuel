@@ -9,6 +9,7 @@ namespace Appfuel\App;
 use InvalidArgumentException,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface,
+    Appfuel\Kernel\Mvc\MvcViewInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
@@ -37,21 +38,9 @@ class AppContext extends ArrayData implements MvcContextInterface
 
     /**
      * Used to hold a string or object that implements __toString
-     * @var mixed
+     * @var MvcAppViewInterface
      */
-    protected $view = '';
-
-    /**
-     * Data structure used to hold all the view assignments
-     * @var ArrayDataInterface
-     */
-    protected $viewData = null;
-
-    /**
-     * View format as determined by encoded route information. ex) route.json
-     * @var string
-     */
-    protected $format = null;
+    protected $view = null;
 
     /**
      * The exit code is used by the framework to provide an exit status code
@@ -66,24 +55,15 @@ class AppContext extends ArrayData implements MvcContextInterface
      */
     public function __construct($key,
                                 AppInputInterface $input, 
-                                $viewData = null)
+                                MvcViewInterface $view = null)
     {
         $this->setRouteKey($key);
         $this->setInput($input);
-        if (null === $viewData) {
-            $viewData = new ArrayData();
+        if (null === $view) {
+            $view = new AppView();
         }
-        else {
-            if (is_array($viewData)) {
-                $viewData = new ArrayData($viewData);
-            }
-            else if (! $viewData instanceof ArrayDataInterface) {
-                $err  = "view data must be an array or an object that -(";
-                $err .= "implements Appfuel\DataStructure\ArrayDataInterface)";
-                throw new DomainException($err);
-            }
-        }
-        $this->setViewData($viewData);
+            
+        $this->setView($view);
     }
 
     /**
@@ -99,7 +79,8 @@ class AppContext extends ArrayData implements MvcContextInterface
      */
     public function getViewFormat()
     {
-        return $this->format;
+        return $this->getView()
+                    ->getFormat();
     }
 
     /**
@@ -108,12 +89,9 @@ class AppContext extends ArrayData implements MvcContextInterface
      */
     public function setViewFormat($format)
     {
-        if (! is_string($format)) {
-            $err = 'view format must be a string';
-            throw new InvalidArgumentException($err);
-        }
+        $this->getView()
+             ->setFormat($format);
 
-        $this->format = $format;
         return $this;
     }
 
@@ -126,58 +104,12 @@ class AppContext extends ArrayData implements MvcContextInterface
     }
 
     /**
-     * @param    mixed    $view
-     * @return    bool
-     */
-    public function isValidView($view)
-    {
-        if (is_scalar($view) ||
-            (is_object($view) && is_callable(array($view, '__toString')))) {
-            return true;
-        }
-    
-        return false;
-    }
-
-    /**
-     * @return    bool
-     */
-    public function isContextView()
-    {
-        return $this->isValidView($this->view);
-    }
-
-    /**
-     * @param    ViewTemplateInterface $template
-     * @return    AppContext
-     */
-    public function setView($view)
-    {
-        if (! $this->isValidView($view)) {
-            $err  = 'view must be a scalar value or an object that ';
-            $err .= 'implements __toString';
-            throw new InvalidArgumentException($err);
-        }
-
-        $this->view = $view;
-        return $this;
-    }
-
-    /**
-     * @return  ArrayDataInterface
-     */
-    public function getViewData()
-    {
-        return $this->viewData;
-    }
-
-    /**
-     * @param   ArrayDataInterface $data
+     * @param   MvcViewInterface $view
      * @return  AppContext
      */
-    public function setViewData(ArrayDataInterface $data)
+    public function setView(MvcViewInterface $view)
     {
-        $this->viewData = $data;
+        $this->view = $view;
         return $this;
     }
 
@@ -264,15 +196,9 @@ class AppContext extends ArrayData implements MvcContextInterface
         }
 
         $context = new self($key, $input);
-        if ($this->isContextView()) {                              
-            $context->setView($this->getView());
-        }
-
+        $context->setView($this->getView());
         $context->load($this->getAll());
-        $format = $this->getViewFormat();
-        if (is_string($format)) {
-            $context->setViewFormat($format);
-        }
+        $context->setExitCode($this->getExitCode());
 
         return $context;
     }
