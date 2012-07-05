@@ -25,6 +25,15 @@ use RunTimeException,
 class AppFactory implements AppFactoryInterface
 {
     /**
+     * @param   array   $paths
+     * @return  AppPath
+     */
+    public function createAppPath(array $paths)
+    {
+        return new AppPath($paths);
+    }
+
+    /**
      * @return ConfigHandler
      */    
     public function createConfigHandler()

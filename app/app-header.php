@@ -94,12 +94,26 @@ foreach ($dlist as $class => $file) {
 }
 unset($file, $dlist, $dependList, $class, $asbsolute, $err);
 
+if (isset($ctrl['app-factory'])) {
+    $factory = $ctrl['app-factory'];
+    if (is_string($factory)) {
+        $factory = new $factory();
+    }
+    else if (! $factory instanceof AppFactoryInterface) {
+        $err  = "-(app-factory) must be a string, class name, or an object ";
+        $err .= "that implement Appfuel\App\AppFactoryInterface";
+        throw new DomainException($err);
+    }
+}
+else {
+    $factory = new AppFactory();
+}
+
 /*
  * AppDetail allows you to decouple directory names (except app-root a.k.a 
  * base path and app-dir)
  */
-$path = new AppPath($ctrl['paths']);
-$factory = new AppFactory();
+$path = $factory->createAppPath($ctrl['paths']);
 $taskHandler = $factory->createTaskHandler();
 
 /*

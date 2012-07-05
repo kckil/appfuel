@@ -4,8 +4,14 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
+$header = realpath(dirname(__FILE__) . '/../app/app-header.php');
+if (! file_exists($header)) {
+    $err = "appfuel's app-header script is required but not found -($header)";
+    throw new LogicException($err);
+}
+
 $ctrl['app-type'] = 'web';
-$handler = require realpath(dirname(__FILE__) . '/../app/app-header.php');
+$handler = require $header;
 
 $uri = $handler->getRequestUri();
 $method = $handler->getRequestMethod(); 
