@@ -107,7 +107,7 @@ class AppHandler implements AppHandlerInterface
                 $tasks = array_merge($routeTasks, $tasks);
             }
             else {
-                $task = array_merge($tasks, $routeTasks);
+                $tasks = array_merge($tasks, $routeTasks);
             }
         }
 
