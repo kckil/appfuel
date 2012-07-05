@@ -36,7 +36,7 @@ interface DbTableMapInterface
 	 * @param	string	$member
 	 * @return	string | false when not found
 	 */
-	public function mapColumn($member);
+	public function mapColumn($member, $isAlias = false);
 
 	/**
 	 * @param	string	$member
@@ -47,7 +47,7 @@ interface DbTableMapInterface
 	/**
 	 * @return	array
 	 */
-	public function getAllColumns();
+	public function getAllColumns($isAlias = false);
 
 	/**
 	 * @return	array

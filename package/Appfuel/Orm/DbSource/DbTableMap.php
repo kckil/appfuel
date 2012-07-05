@@ -122,13 +122,18 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$member
 	 * @return	string | false when not found
 	 */
-	public function mapColumn($member)
+	public function mapColumn($member, $isAlias = false)
 	{
 		if (! is_string($member) || ! isset($this->columns[$member])) {
 			return false;
 		}
 
-		return $this->columns[$member];
+		$result = $this->columns[$member];
+        if (true === $isAlias) {
+            $result = "{$this->getTableAlias()}.{$result}";
+        }
+
+        return $result;
 	}
 
 	/**
@@ -147,9 +152,19 @@ class DbTableMap implements DbTableMapInterface
 	/**
 	 * @return	array
 	 */
-	public function getAllColumns()
+	public function getAllColumns($isAlias = false)
 	{
-		return array_values($this->columns);
+        $columns = array_values($this->columns);
+        if (! $isAlias) {
+		    return $columns;
+        }
+
+        $alias = $this->getTableAlias();
+        foreach ($columns as $index => &$column) {
+            $column = "{$alias}.{$column}";
+        }
+
+        return $columns;
 	}
 
 	/**
