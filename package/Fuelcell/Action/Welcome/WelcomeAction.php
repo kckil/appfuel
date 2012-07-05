@@ -21,6 +21,6 @@ class WelcomeAction extends MvcController
     public function execute(MvcContextInterface $context)
     {
         $view = $context->getView();
-        $view->setContent('welcome to appfuel');
+        $view->setContent("welcome to appfuel");
     }
 }

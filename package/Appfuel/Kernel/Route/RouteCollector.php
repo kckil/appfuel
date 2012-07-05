@@ -42,9 +42,19 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function collect(array $dirs)
     {
-        $master = array();
+        $collection = array();
         $finder = new FileFinder(null, false);
         $reader = new FileReader($finder);
+
+        $specList = array(
+            'access'            => 'access',
+            'action'            => 'action',
+            'input-validation'  => 'inputValidation',
+            'intercept-filter'  => 'interceptFilter',
+            'startup'           => 'startup',
+            'view'              => 'view',
+            'uri'               => 'uri',
+        );
 
         $filename = $this->getFilename();
         foreach ($dirs as $dir) {
@@ -75,12 +85,12 @@ class RouteCollector implements RouteCollectorInterface
                         $err = "route spec -($key) must be an assoc array";
                         throw new LogicException($err);
                     }
-                    $master[$key] = $spec;
+                    $collection[$key] = $spec;
                 }
             }
         }
 
-        return $master;
+        return $collection;
     }
 
     /**

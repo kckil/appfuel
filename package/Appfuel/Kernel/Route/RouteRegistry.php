@@ -154,18 +154,12 @@ class RouteRegistry
     }
 
     /**
-     * @param   string  $key
-     * @param   string  $pattern
+     * @param   RouteUriSpecInterface   $uri 
      * @return  null
      */
-    static public function addPattern(RoutePatternSpecInterface $pattern)
+    static public function addPattern(RoutePatternSpecInterface $uri)
     {    
-        $group = $pattern->getGroup();
-        if (null === $group) {
-            $group = 'no-group';
-        }
-        $key = $pattern->getRouteKey();
-        self::$patterns[$group][$key] = $pattern->getRegEx();
+        self::$patterns[$uri->getGroup()][] = $uri->getRouteKey();
     }
 
     /**

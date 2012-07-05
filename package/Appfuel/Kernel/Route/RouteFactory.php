@@ -21,6 +21,15 @@ use Exception,
 class RouteFactory
 {
     /**
+     * @param   array   $data   details about he regex match
+     * @return  MatchedRoute
+     */
+    static public function createMatchedRoute(array $data)
+    {
+        return new MatchedRoute($data);
+    }
+
+    /**
      * @param   array   $types
      * @param   array   $spec
      * @return  array

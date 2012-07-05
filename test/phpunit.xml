@@ -37,6 +37,9 @@
 	<file>../package/TestFuel/Unit/Html/Resource/PagePkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/HtmlDocPkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/ResourceFactoryTest.php</file>
+
+
+    <file>../package/TestFuel/Unit/Regex/RegexFilterTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

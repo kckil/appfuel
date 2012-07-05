@@ -8,14 +8,15 @@ namespace Appfuel\App;
 
 use LogicException,
     DomainException,
-    Appfuel\Kernel\Mvc\MvcContextInterface;
+    Appfuel\Kernel\Mvc\MvcContextInterface,
+    Appfuel\Kernel\Route\MatchedRouteInterface;
 
 class WebHandler extends AppHandler implements WebHandlerInterface
 {
     /**
      * @return string
      */
-    public function createRequestUri()
+    public function getRequestUri()
     {
         if (! isset($_SERVER['REQUEST_URI'])) {
             $err = "The request uri has not be set in the server super global";
@@ -55,25 +56,21 @@ class WebHandler extends AppHandler implements WebHandlerInterface
      * @param   array $routeData
      * @return  MvcContext
      */
-    public function createWebContext(array $route)
+    public function createWebContext(MatchedRouteInterface $route, $method)
     {
-        if (! isset($route['route-key'])) {
-            $err = 'route key is required but not found';
-            throw new DomainException($err);
-        }
-
-        $key = $route['route-key'];
+        $key = $route->getRouteKey();
         $format = null;
-        if (isset($route['format'])) {
-            $format = $route['format'];
+        if ($route->isFormat()) {
+            $format = $route->getFormat();
         }
-        $view    = $this->createAppView($key, $format);
+        
+        $view = $this->createAppView($key, $format);
 
         $factory = $this->getAppFactory();
-        $method  = $this->getRequestMethod();
-        $params  = $this->createWebInputParams($method, array('route'=>$route));
+        $params  = $this->createWebInputParams($method);
+        $params['route'] = $route->getCaptures();
         $input   = $factory->createInput($method, $params);
-        $context = $factory->createContext($route['route-key'], $input);
+        $context = $factory->createContext($key, $input);
         $context->setView($view);        
         
         return $context;
@@ -103,7 +100,7 @@ class WebHandler extends AppHandler implements WebHandlerInterface
      * @param   array   $data
      * @return  array
      */
-    public function createWebInputParams($method, array $data)
+    public function createWebInputParams($method)
     {
         $valid  = array('get', 'put', 'post', 'delete');
         if (! in_array($method, $valid, true)) {
@@ -123,7 +120,7 @@ class WebHandler extends AppHandler implements WebHandlerInterface
         $files   = (isset($_FILES))   ? $_FILES   : array();
         $cookies = (isset($_COOKIE))  ? $_COOKIE  : array();
         $session = (isset($_SESSION)) ? $_SESSION : array();
-        
+
         $put    = array();
         $delete = array();
         if ('put' === $method) {
@@ -136,16 +133,16 @@ class WebHandler extends AppHandler implements WebHandlerInterface
         }
 
         $params = array(
-            'get'     => $get, 
-            'post'    => $post, 
-            'put'     => $put, 
-            'delete'  => $delete, 
-            'files'   => $files, 
-            'cookie'  => $cookies, 
-            'session' => $session, 
+            'get'       => $get, 
+            'post'      => $post, 
+            'put'       => $put, 
+            'delete'    => $delete, 
+            'files'     => $files, 
+            'cookie'    => $cookies, 
+            'session'   => $session,
         );
 
-        return array_merge($params, $data);
+        return $params;
     }
 
     /**

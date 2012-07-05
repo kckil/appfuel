@@ -50,6 +50,7 @@ class RouteTask extends StartupTask
             'startup'           => 'startup',
             'view'              => 'view',
             'pattern'           => 'pattern',
+            'uri'               => 'uri'
         );
 
         foreach ($routes as $key => $spec) {
@@ -59,9 +60,9 @@ class RouteTask extends StartupTask
                 RouteRegistry::addRouteSpec($key, $cat, $routeSpec);
             }
 
-            $pattern = $list['pattern'];
-            RouteRegistry::addRouteSpec($key, 'pattern', $pattern);
-            RouteRegistry::addPattern($pattern);            
+            $uri = $list['pattern'];
+            RouteRegistry::addRouteSpec($key, 'pattern', $uri);
+            RouteRegistry::addPattern($uri);  
         }
     }
 }

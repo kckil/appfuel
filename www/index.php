@@ -7,13 +7,14 @@
 $ctrl['app-type'] = 'web';
 $handler = require realpath(dirname(__FILE__) . '/../app/app-header.php');
 
-$uri = $handler->createRequestUri();
-$route = $handler->findRoute($uri);
-if (false === $route) {
+$uri = $handler->getRequestUri();
+$method = $handler->getRequestMethod(); 
+$route = $handler->findRoute($uri, $method);
+if (! $handler->isMatchedRoute($route)) {
     $err = "your request to this application could not be resolved for $uri";
     throw new DomainException($err, 404);
 }
-$context = $handler->createWebContext($route);
+$context = $handler->createWebContext($route, $method);
 
 $handler->runStartupTasks($context);
 $context = $handler->runAction($context);

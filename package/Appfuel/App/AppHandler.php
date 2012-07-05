@@ -10,14 +10,12 @@ use LogicException,
     DomainException,
     Appfuel\View\ViewInterface,
     Appfuel\Kernel\Route\Router,
+    Appfuel\Kernel\Route\MatchedRouteInterface,
     Appfuel\Kernel\Route\RouteRegistry,
     Appfuel\Kernel\Mvc\MvcContextInterface,
     Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
     Appfuel\Kernel\Mvc\MvcFactoryInterface;
 
-/**
- * 
- */
 class AppHandler implements AppHandlerInterface
 {
     /**
@@ -50,9 +48,18 @@ class AppHandler implements AppHandlerInterface
      * @param   string  $uri
      * @return  array | false
      */
-    public function findRoute($uri)
+    public function findRoute($uri, $method)
     {
-        return Router::findRoute($uri);
+        return Router::findRoute($uri, $method);
+    }
+
+    /**
+     * @param   mixed   $route
+     * @return  bool
+     */
+    public function isMatchedRoute($route)
+    {
+        return $route instanceof MatchedRouteInterface;
     }
 
     /**
