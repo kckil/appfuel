@@ -51,7 +51,7 @@ define('AF_SRC_PATH',
  * autoloader. This could be because of classes used before the autoloader 
  * task is execute or simply for effeciency.
  */ 
-$dlist = require AF_APP_PATH . DIRECTORY_SEPARATOR . "kernel-dependencies.php";
+$dlist = require AF_APP_PATH . DIRECTORY_SEPARATOR . "dependencies.php";
 
 /*
  * Allow the calling script to append dependency classes along with the 

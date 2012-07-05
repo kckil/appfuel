@@ -4,7 +4,6 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-
 return array(
     '\Appfuel\App\AppPathInterface'                     => 'Appfuel/App/AppPathInterface.php',
     '\Appfuel\App\AppPath'                              => 'Appfuel/App/AppPath.php',
