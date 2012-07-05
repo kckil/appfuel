@@ -1,46 +1,40 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Orm\DbSource;
 
-use RunTimeException,
-	InvalidArgumentException,
-	Appfuel\View\FileTemplate,
-	Appfuel\Filesystem\FileFinder;
+use DomainException,
+    InvalidArgumentException,
+    Appfuel\View\FileTemplate,
+    Appfuel\Filesystem\FileFinder;
 
-/**
- */
 class SqlTemplate extends FileTemplate
 {
-	/**
-	 * @param	mixed	$file 
-	 * @param	DbMapInterface $map
-	 * @param	PathFinderInterface	$pathFinder
-	 * @return	FileViewTemplate
-	 */
-	public function __construct($file, DbMapInterface $dbMap = null)
-	{
-		if (null !== $dbMap) {
-			$this->setDbMap($dbMap);
-		}
-		
-		parent::__construct($file);
-	}
+    /**
+     * @param    mixed    $file 
+     * @param    DbMapInterface $map
+     * @param    PathFinderInterface    $pathFinder
+     * @return    FileViewTemplate
+     */
+    public function __construct($file, DbMapInterface $dbMap = null)
+    {
+        if (null !== $dbMap) {
+            $this->setDbMap($dbMap);
+        }
+        
+        parent::__construct($file);
+    }
 
-	/**
-	 * @return	DbMapInterface
-	 */
-	public function getDbMap()
-	{
-		return $this->dbMap;
-	}
+    /**
+     * @return    DbMapInterface
+     */
+    public function getDbMap()
+    {
+        return $this->dbMap;
+    }
 
     /**
      * Build the template file indicated by key into string. Use data in
@@ -52,7 +46,7 @@ class SqlTemplate extends FileTemplate
      */
     public function build()
     {   
-		$file = $this->getFile();
+        $file = $this->getFile();
         $finder = new FileFinder('resource');
 
         $absolute = $finder->getPath($file);
@@ -61,19 +55,19 @@ class SqlTemplate extends FileTemplate
             throw new DomainException($err, 404);
         }
 
-		$data = $this->getAll();
+        $data = $this->getAll();
         $compositor = new SqlFileCompositor();
-		$compositor->setDbMap($this->getDbMap());
-		return $compositor->compose($absolute, $data);
+        $compositor->setDbMap($this->getDbMap());
+        return $compositor->compose($absolute, $data);
     }
 
-	/**
-	 * @param 	DbMapInterface	$map
-	 * @return	null
-	 */
-	protected function setDbMap(DbMapInterface $map)
-	{
-		$this->dbMap = $map;
-		return $this;
-	}
+    /**
+     * @param     DbMapInterface    $map
+     * @return    null
+     */
+    protected function setDbMap(DbMapInterface $map)
+    {
+        $this->dbMap = $map;
+        return $this;
+    }
 }

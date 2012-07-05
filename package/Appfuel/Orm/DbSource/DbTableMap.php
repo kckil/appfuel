@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Orm\DbSource;
 
@@ -17,23 +13,23 @@ use InvalidArgumentException;
  */
 class DbTableMap implements DbTableMapInterface
 {
-	/**
-	 * List of db column name to domain member mappings
-	 * @var array
-	 */
-	protected $columns = array();
+    /**
+     * List of db column name to domain member mappings
+     * @var array
+     */
+    protected $columns = array();
 
-	/**
-	 * Name name of the table this map corresponds to
-	 * @var string
-	 */
-	protected $table = null;
+    /**
+     * Name name of the table this map corresponds to
+     * @var string
+     */
+    protected $table = null;
 
-	/**
-	 * Alias used in sql expressions
-	 * @var string
-	 */
-	protected $alias = null;
+    /**
+     * Alias used in sql expressions
+     * @var string
+     */
+    protected $alias = null;
 
     /**
      * Primary Key
@@ -49,41 +45,41 @@ class DbTableMap implements DbTableMapInterface
      */
     protected $isAutoIncrement = false;
 
-	/**
-	 * @param	array  $data
-	 * @return	DbMap
-	 */
-	public function __construct(array $data)
-	{
-		if (isset($data['column-map'])) {
-			$this->setColumnMap($data['column-map']);
-		}
+    /**
+     * @param   array  $data
+     * @return  DbMap
+     */
+    public function __construct(array $data)
+    {
+        if (isset($data['column-map'])) {
+            $this->setColumnMap($data['column-map']);
+        }
 
-		if (isset($data['table'])) {
-			$this->setTableName($data['table']);
-		}
+        if (isset($data['table'])) {
+            $this->setTableName($data['table']);
+        }
 
-		if (isset($data['alias'])) {
-			$this->setTableAlias($data['alias']);
-		}
+        if (isset($data['alias'])) {
+            $this->setTableAlias($data['alias']);
+        }
 
         if (isset($data['primary-key'])) {
             $this->setPrimaryKey($data['primary-key']);
         }
-	
+    
         if (isset($data['is-auto-increment']) && 
-			true === $data['is-auto-increment']) {
-			$this->enableAutoIncrement();	
+            true === $data['is-auto-increment']) {
+            $this->enableAutoIncrement();    
         }
     }
 
-	/**
-	 * @return	string
-	 */
-	public function getTableName()
-	{
-		return $this->table;
-	}
+    /**
+     * @return  string
+     */
+    public function getTableName()
+    {
+        return $this->table;
+    }
 
     /**
      * @return  array
@@ -102,61 +98,61 @@ class DbTableMap implements DbTableMapInterface
     }
 
 
-	/**
-	 * @return	array
-	 */
-	public function getColumnMap()
-	{
-		return $this->columns;
-	}
+    /**
+     * @return  array
+     */
+    public function getColumnMap()
+    {
+        return $this->columns;
+    }
 
-	/**
-	 * @return	return	string
-	 */
-	public function getTableAlias()
-	{
-		return $this->alias;
-	}
+    /**
+     * @return   string
+     */
+    public function getTableAlias()
+    {
+        return $this->alias;
+    }
 
-	/**
-	 * @param	string	$member
-	 * @return	string | false when not found
-	 */
-	public function mapColumn($member, $isAlias = false)
-	{
-		if (! is_string($member) || ! isset($this->columns[$member])) {
-			return false;
-		}
+    /**
+     * @param   string  $member
+     * @return  string | false when not found
+     */
+    public function mapColumn($member, $isAlias = false)
+    {
+        if (! is_string($member) || ! isset($this->columns[$member])) {
+            return false;
+        }
 
-		$result = $this->columns[$member];
+        $result = $this->columns[$member];
         if (true === $isAlias) {
             $result = "{$this->getTableAlias()}.{$result}";
         }
 
         return $result;
-	}
+    }
 
-	/**
-	 * @param	string	$member
-	 * @return	string | false when not found
-	 */
-	public function mapMember($column)
-	{
-		if (! is_string($column)) {
-			return false;
-		}
+    /**
+     * @param   string    $member
+     * @return  string | false when not found
+     */
+    public function mapMember($column)
+    {
+        if (! is_string($column)) {
+            return false;
+        }
 
-		return array_search($column, $this->columns, true);
-	}
+        return array_search($column, $this->columns, true);
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function getAllColumns($isAlias = false)
-	{
+    /**
+     * @return  array
+     */
+    public function getAllColumns($isAlias = false)
+    {
         $columns = array_values($this->columns);
         if (! $isAlias) {
-		    return $columns;
+            return $columns;
         }
 
         $alias = $this->getTableAlias();
@@ -165,65 +161,65 @@ class DbTableMap implements DbTableMapInterface
         }
 
         return $columns;
-	}
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function getAllMembers()
-	{
-		return array_keys($this->columns);
-	}
+    /**
+     * @return  array
+     */
+    public function getAllMembers()
+    {
+        return array_keys($this->columns);
+    }
 
-	/**
-	 * @param	array	$columns
-	 * @return	null
-	 */
-	protected function setColumnMap(array $columns)
-	{
-		if ($columns === array_values($columns)) {
-			$err  = 'column map must be an associative array of ';
-			$err .= 'db column to domain member';
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   array   $columns
+     * @return  null
+     */
+    protected function setColumnMap(array $columns)
+    {
+        if ($columns === array_values($columns)) {
+            $err  = 'column map must be an associative array of ';
+            $err .= 'db column to domain member';
+            throw new InvalidArgumentException($err);
+        }
 
-		foreach ($columns as $column => $member) {
-			if (! is_string($column) || empty($column) ||
-				! is_string($member) || empty($member)) {
-				$err = 'column and member names must be non empty strings';
-				throw new InvalidArgumentException($err);
-			}
-		}
-		$this->columns = $columns;
-	}
+        foreach ($columns as $column => $member) {
+            if (! is_string($column) || empty($column) ||
+                ! is_string($member) || empty($member)) {
+                $err = 'column and member names must be non empty strings';
+                throw new InvalidArgumentException($err);
+            }
+        }
+        $this->columns = $columns;
+    }
 
-	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	protected function setTableName($name)
-	{
-		if (! is_string($name) || empty($name)) {
-			$err = 'table name must be a none empty string';
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   string  $name
+     * @return  null
+     */
+    protected function setTableName($name)
+    {
+        if (! is_string($name) || empty($name)) {
+            $err = 'table name must be a none empty string';
+            throw new InvalidArgumentException($err);
+        }
 
-		$this->table = $name;
-	}
+        $this->table = $name;
+    }
 
-	/**
-	 * @param	string	$alias
-	 * @return	null
-	 */
-	protected function setTableAlias($alias)
-	{
-		if (! is_string($alias)){
-			$err = 'table alias must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   string  $alias
+     * @return  null
+     */
+    protected function setTableAlias($alias)
+    {
+        if (! is_string($alias)){
+            $err = 'table alias must be a non empty string';
+            throw new InvalidArgumentException($err);
+        }
 
-		$this->alias = $alias;
-	}
+        $this->alias = $alias;
+    }
 
     /**
      * @param   array   $primaryKey
@@ -231,21 +227,21 @@ class DbTableMap implements DbTableMapInterface
      */
     protected function setPrimaryKey($key)
     {
-		if (is_string($key)) {
-			$key = array($key);
-		}
-		else if (! is_array($key)) {
-			$err  = 'primary key must be a string (for single key) or an ';
-			$err .= 'array of strings for compound keys';
-			throw new InvalidArgumentException($err);
-		}
+        if (is_string($key)) {
+            $key = array($key);
+        }
+        else if (! is_array($key)) {
+            $err  = 'primary key must be a string (for single key) or an ';
+            $err .= 'array of strings for compound keys';
+            throw new InvalidArgumentException($err);
+        }
 
-		foreach ($key as $column) {
-			if (! is_string($column) || empty($column)) {
-				$err = "primary key must be a non empty string";
-				throw new InvalidArgumentException($err);
-			}
-		}
+        foreach ($key as $column) {
+            if (! is_string($column) || empty($column)) {
+                $err = "primary key must be a non empty string";
+                throw new InvalidArgumentException($err);
+            }
+        }
 
         $this->primaryKey = $key;
     }
