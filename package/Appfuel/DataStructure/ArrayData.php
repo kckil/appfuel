@@ -213,7 +213,7 @@ class ArrayData implements ArrayDataInterface
      */
     public function existAs($key, $type)
     {   
-        if (! empty($type) || ! $this->exists($key)) {
+        if (empty($type) || ! $this->exists($key)) {
             return false;
         }
 
