@@ -12,8 +12,10 @@ namespace Fuelcell\Action\Welcome;
 return array(
     'welcome' => array(
         'is-public'     => true,
-        'pattern'       => '^welcome',
+        'pattern'       => '^welcome/(\d+)$',
         'uri-static'    => 'welcome',
+        'uri-params'    => array('projectId:8', 'folderId', 'assetId:5'),
+        'uri-generator' => 'Appfuel\Kernel\Route\UrlGenerator',
         'action'    => 'WelcomeAction',
         'namespace' => __NAMESPACE__,
         'view-pkg'  => 'fuelcell:page.welcome'

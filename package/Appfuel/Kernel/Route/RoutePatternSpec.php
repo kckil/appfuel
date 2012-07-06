@@ -71,6 +71,10 @@ class RoutePatternSpec implements RoutePatternSpecInterface
             $err .= "inorder to complete the url specification";
             throw new OutofBoundsException($err);
         }
+
+        if (isset($data['pattern-group'])) {
+            $this->setGroup($data['pattern-group']);
+        }
     }
 
     /**
