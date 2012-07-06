@@ -15,9 +15,9 @@ use DomainException,
 class DependencyLoaderTask extends StartupTask
 {
     protected $keys = array(
-        'depend-files'    => array(),
-        'depend-classes'=> array(),
-        'depend-lib-classes' => array()
+        'depend-files',
+        'depend-classes',
+        'depend-lib-classes'
     );
 
     /**
