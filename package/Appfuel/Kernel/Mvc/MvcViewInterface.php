@@ -16,7 +16,7 @@ use InvalidArgumentException,
  * A View Compositor will use a this to compose the view based on the data
  * and format then assign the result back to its content.
  */
-interface MvcViewInterface extends ArrayDataInterface
+interface MvcViewInterface
 {
     /**
      * @return    string

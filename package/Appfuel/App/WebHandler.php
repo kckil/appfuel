@@ -56,7 +56,7 @@ class WebHandler extends AppHandler implements WebHandlerInterface
      * @param   array $routeData
      * @return  MvcContext
      */
-    public function createWebContext(MatchedRouteInterface $route, $method)
+    public function createWebContext($key, $method, $view = null)
     {
         $key = $route->getRouteKey();
         $format = null;
@@ -64,14 +64,16 @@ class WebHandler extends AppHandler implements WebHandlerInterface
             $format = $route->getFormat();
         }
         
-        $view = $this->createAppView($key, $format);
-
         $factory = $this->getAppFactory();
-        $params  = $this->createWebInputParams($method);
+        $params = $this->createWebInputParams($method);
         $params['route'] = $route->getCaptures();
-        $input   = $factory->createInput($method, $params);
+        
+        $input = $factory->createInput($method, $params);
         $context = $factory->createContext($key, $input);
-        $context->setView($view);        
+
+        if (null !== $view) {
+            $context->setView($view);
+        }
         
         return $context;
     }
