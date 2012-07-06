@@ -206,6 +206,25 @@ class Router
         $matches = array();
         $group   = null;
         foreach($groups as $pattern => $name) {
+
+            /*
+             * the uri spec can hold a pattern as string or an array where
+             * the first elmement is the pattern and the second is the regex
+             * modifier string
+             */
+            $modifiers = null;
+            if (is_array($pattern)) {
+                $modifiers = isset($pattern[1]) ? $pattern[1] : null;
+                $pattern = current($pattern);
+            }
+            
+            /*
+             * No pattern for this request method, move onto the next pattern
+             */
+            if (! is_string($pattern)) {
+                continue;
+            }
+            $pattern = '#' . $pattern . "#{$modifiers}";
             if (preg_match($pattern, $uri, $matches)) {
                 $group = $name;
                 break;
