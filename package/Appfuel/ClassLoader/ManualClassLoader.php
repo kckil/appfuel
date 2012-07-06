@@ -52,7 +52,7 @@ class ManualClassLoader
         }
 
         if (true === $isPkgPath) {
-            if (! defined('AF_CODE_PATH')) {
+            if (! defined('AF_SRC_PATH')) {
                 $err = 'lib path is needed but not defined';
                 throw new LogicException($err);
             }
