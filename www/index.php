@@ -72,6 +72,5 @@ if (! is_array($headers) || empty($headers)) {
     $headers = null;
 }
 
-$status = $context->getExitCode();
-$handler->outputHttp($content, $status, $headers);
+$handler->outputHttp($content, $context->getExitCode(), $headers);
 exit(0);
