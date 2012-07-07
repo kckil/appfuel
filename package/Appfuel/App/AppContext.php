@@ -104,12 +104,25 @@ class AppContext extends ArrayData implements MvcContextInterface
     }
 
     /**
+     * @param   mixed   $view
+     * @return  bool
+     */
+    public function isValidView($view)
+    {
+        if (! $view instanceof MvcViewInterface) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param   MvcViewInterface $view
      * @return  AppContext
      */
     public function setView($view)
     {
-        if (! $view instanceof MvcViewInterface) {
+        if (! $this->isValidView($view)) {
             $err = "view must implement Appfuel\Kernel\Mvc\MvcViewInterface";
             throw new DomainException($err);
         }
