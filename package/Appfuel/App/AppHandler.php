@@ -41,18 +41,45 @@ class AppHandler implements AppHandlerInterface
      */ 
     public function getRouteSpec($cat, $key)
     {
-        return RouteRegistry::getRouteSpec($cat, $key);
+        if (! $spec = RouteRegistry::getRouteSpec($cat, $key)) {
+            $err = "route specificiation -($cat) was not found for -($key)";
+            throw new LogicException($err);
+        }
+
+        return $spec;
     }
 
     /**
      * @param   string  $uri
      * @return  array | false
      */
-    public function findRoute($uri, $method)
+    public function matchRoute($uri, $method, $isStrict = true)
     {
-        return Router::findRoute($uri, $method);
+        $route = Router::matchRoute($uri, $method);
+        if (false === $isStrict) {
+            return $route;
+        }
+
+        return $this->validateRoute($route);
     }
 
+    /**
+     * @throws  DomainException by default
+     * @param   strin   $key
+     * @param   string  $format
+     * @param   bool    $isStrict
+     * @return  MatchedRouteInterface
+     */
+    public function findRoute($key, $format = null, $isStrict = true)
+    {
+        $route = Router::findRoute($key, $format);
+        if (false === $isStrict) {
+            return $route;
+        }
+
+        return $this->validateRoute($route);
+    }
+    
     /**
      * @param   mixed   $route
      * @return  bool
@@ -183,6 +210,21 @@ class AppHandler implements AppHandlerInterface
         $postChain->loadFilters($filters);
         
         return $factory->createFrontController($preChain, $postChain);
+    }
+
+    /**
+     * @throws  DomainException
+     * @param   MatchedRouteInterface $route
+     * @return  MatchedRouteInterface
+     */
+    protected function validateRoute($route)
+    {
+        if (! $this->isMatchedRoute($route)) {
+            $err = "Request to this application could not be resolved for $uri";
+            throw new DomainException($err, 404);
+        }
+
+        return $route;
     }
 
 }

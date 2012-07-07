@@ -14,6 +14,60 @@ use LogicException,
 class WebHandler extends AppHandler implements WebHandlerInterface
 {
     /**
+     * @throws  DomainException when strict
+     * @param   bool    $isStrict
+     * @return  MatchedRouteInterface | false
+     */
+    public function lookupRouteInQueryString($isStrict = true)
+    {
+        $key = $this->getRouteKeyFromHttpGet();
+        $format = $this->getRouteFormatFromHttpGet();
+        if (false === $format) {
+            $format = null;
+        }
+       
+        return $this->findRoute($key, $format, $isStrict);
+    }
+
+    /**
+     * @return  string | false
+     */
+    public function getRouteKeyFromHttpGet()
+    {
+        if (! isset($_GET['routekey'])) {
+            return false;
+        }
+
+        return filter_input(INPUT_GET, 'routekey', FILTER_SANITIZE_STRING);
+    }
+
+    /**
+     * @return  string | false
+     */
+    public function getRouteFormatFromHttpGet()
+    {
+        if (! isset($_GET['routeformat'])) {
+            return false;
+        }
+
+        return filter_input(INPUT_GET, 'routeformat', FILTER_SANITIZE_STRING);
+    }
+
+
+    /**
+     * @return  bool
+     */
+    public function isQueryString()
+    {
+        $key = 'QUERY_STRING';
+        if (isset($_SERVER[$key]) && ! empty($_SERVER[$key])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @return string
      */
     public function getRequestUri()
@@ -53,27 +107,36 @@ class WebHandler extends AppHandler implements WebHandlerInterface
     }
 
     /**
-     * @param   array $routeData
-     * @return  MvcContext
+     * @param   MatchedRouteInterface   $route
+     * @param   string  $method
+     * @return  AppInputInterface
      */
-    public function createWebContext($key, $method, $view = null)
+    public function createWebInput($method, array $additional = null)
     {
-        $key = $route->getRouteKey();
-        $format = null;
-        if ($route->isFormat()) {
-            $format = $route->getFormat();
-        }
-        
         $factory = $this->getAppFactory();
-        $params = $this->createWebInputParams($method);
-        $params['route'] = $route->getCaptures();
-        
-        $input = $factory->createInput($method, $params);
-        $context = $factory->createContext($key, $input);
+        $params  = $this->createWebInputParams($method);
+        if (null !== $additional) {
+            $params  = array_merge($params, $additional);
+        }
+        return $factory->createInput($method, $params);
+    }
 
+    /**
+     * @param   string  $key,
+     * @param   AppInputInterface   $input
+     * @param   mixed   $view
+     * @return  MvcContextInterface
+     */
+    public function createWebContext($key, 
+                                    AppInputInterface $input, 
+                                    $view = null)
+    {
+        $factory = $this->getAppFactory();
+        $context = $factory->createContext($key, $input);
+        
         if (null !== $view) {
             $context->setView($view);
-        }
+        }     
         
         return $context;
     }
@@ -82,12 +145,11 @@ class WebHandler extends AppHandler implements WebHandlerInterface
      * @param   string  $key    route key
      * @return  MvcViewInterface
      */
-    public function createAppView($key, $format = null)
+    public function createAppView(MatchedRouteInterface $route)
     {
-        $spec = $this->getRouteSpec('view', $key);
-        if (null === $format) {
-            $format = $spec->getDefaultFormat();
-        }
+        $spec = $this->getRouteSpec('view', $route->getRouteKey());
+        $format = ($route->isFormat()) ? 
+                    $route->getFormat() : $spec->getDefaultFormat();
 
         $data = array('format' => $format);
         if ($spec->isViewPackage()) {

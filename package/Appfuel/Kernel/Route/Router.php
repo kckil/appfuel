@@ -15,17 +15,6 @@ use LogicException,
  * 'no-group' will be assigned. During the build, all routes are compiled into
  * a list of groups and those having no groups into 'no-group'. Once grouping
  * is resolved a list of route patterns is collected and matched against. 
- * when a match is found the following array is returned other it will be false
- * 
- * Route: array(
- *  'uri'           => [string: the original uri],
- *  'group'         => [string: name of the group],
- *  'group-match'   => [string: text matched with url group regex],
- *  'group-captures'=> [array: list of regex captures for group],
- *  'route-key'     => [string: resolved route key],
- *  'route-match'   => [string: text matched with route regex],
- *  'route-captures'=> [array: list of regex captures for route],
- * );
  */
 class Router
 {
@@ -47,10 +36,41 @@ class Router
     );
 
     /**
+     * @param   string  $routeKey    route key
+     * @param   string  $format
+     * @return  MatchedRoute
+     */
+    static public function findRoute($routeKey, $format = null)
+    {
+        /*
+         * Because a single route key will have all specs loaded it does not
+         * matter which one we check for
+         */
+        if (! $spec = RouteRegistry::getRouteSpec('uri', $routeKey)) {
+            return false;
+        }
+
+        $captures = array();
+        $params = $spec->getPathParams();
+        foreach ($params as $key) {
+            if (array_key_exists($key, $_GET)) {
+                $captures[$key] = $_GET[$key];
+            }
+        }
+        
+        return RouteFactory::createMatchedRoute(array(
+            'type'           => 'key',
+            'route-key'      => $routeKey,
+            'format'         => $format,
+            'final-captures' => $captures,
+        ));
+    }
+
+    /**
      * @param   string  $uri
      * @return  array | false
      */
-    static public function findRoute($uri, $method, $isFormat = true)
+    static public function matchRoute($uri, $method, $isFormat = true)
     {
         self::sanitize($uri, $isFormat);
         self::resolveGroup();

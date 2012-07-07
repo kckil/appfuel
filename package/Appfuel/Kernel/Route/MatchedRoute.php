@@ -11,6 +11,11 @@ use DomainException;
 class MatchedRoute implements MatchedRouteInterface
 {
     /**
+     * @var string
+     */
+    protected $type = 'pattern';
+
+    /**
      * Route key found in pattern match
      * @var string
      */
@@ -55,18 +60,39 @@ class MatchedRoute implements MatchedRouteInterface
      */
     public function __construct(array $data)
     {
-        if (! isset($data['original-uri'])) {
-            $err = "-(original-uri) original uri is required and not set";
-            throw new DomainException($err);
-        }
-        $this->originalUri = $this->str($data['original-uri'], 'originalUri');
-        
         if (! isset($data['route-key'])) {
             $err = "-(route-key) route key must is required by not set";
             throw new DomainException($err);
         }
         $this->key = $this->str($data['route-key'], 'routeKey');
 
+        /*
+         * needs to be first because key matches return early but still require
+         * the format property
+         */
+        if (isset($data['format'])) {
+            $this->format = $this->str($data['format'], 'format');
+        }
+
+        if (isset($data['final-captures']) 
+            && is_array($data['final-captures'])) {
+            $this->captures = $data['final-captures'];
+        }
+
+        /*
+         * this route was matched soley by its route key
+         */
+        if (isset($data['type']) && 'key' === $data['type']) {
+            $this->type = 'key';
+            return;
+        }
+
+        if (! isset($data['original-uri'])) {
+            $err = "-(original-uri) original uri is required and not set";
+            throw new DomainException($err);
+        }
+        $this->originalUri = $this->str($data['original-uri'], 'originalUri');
+        
         if (! isset($data['route-match'])) {
             $err = "-(route-match) route match is required but not set";
             throw new DomainException($err);
@@ -85,14 +111,31 @@ class MatchedRoute implements MatchedRouteInterface
             }
         }
 
-        if (isset($data['format'])) {
-            $this->format = $this->str($data['format'], 'format');
-        }
 
-        if (isset($data['final-captures']) 
-            && is_array($data['final-captures'])) {
-            $this->captures = $data['final-captures'];
-        }
+    }
+
+    /**
+     * @return  string
+     */
+    public function getMatchType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isPatternMatch()
+    {
+        return 'pattern' === $this->type;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isKeyMatch()
+    {
+        return 'key' === $this->type;
     }
 
     /**

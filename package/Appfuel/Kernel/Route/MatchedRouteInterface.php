@@ -17,6 +17,21 @@ interface MatchedRouteInterface
     /**
      * @return  string
      */
+    public function getMatchType();
+
+    /**
+     * @return  bool
+     */
+    public function isPatternMatch();
+
+    /**
+     * @return  bool
+     */
+    public function isKeyMatch();
+
+    /**
+     * @return  string
+     */
     public function getRouteKey();
 
     /**

@@ -65,11 +65,27 @@ class RouteRegistry
      */
     static public function getRouteSpec($cat, $key)
     {
-        if (! is_string($cat) || ! isset(self::$routes[$cat][$key])) {
+        if (! self::isRouteSpec($cat, $key)) {
             return false;
         }
 
         return self::$routes[$cat][$key];
+    }
+
+    /**
+     * @param   string  $cat
+     * @param   string  $key
+     * @return  bool
+     */
+    static public function isRouteSpec($cat, $key)
+    {
+        if (! is_string($cat) || 
+            ! is_string($key) ||
+            ! isset(self::$routes[$cat][$key])) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
