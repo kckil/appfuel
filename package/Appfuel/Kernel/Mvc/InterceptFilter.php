@@ -1,16 +1,14 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Kernel\Mvc;
 
 use Closure,
-    InvalidArgumentException;
+    InvalidArgumentException,
+    Appfuel\App\AppRegistry;
 
 /**
  * This intercepting filter pattern has been modified. The knowledge of the
@@ -18,12 +16,6 @@ use Closure,
  */
 class InterceptFilter implements InterceptFilterInterface
 {
-    /**
-     * Used to create the context
-     * @var MvcFactoryInterface
-     */
-    protected $mvcFactory = null;
-
     /**
      * Used by the filter chain to determine if it should continue to the 
      * next filter
@@ -52,24 +44,11 @@ class InterceptFilter implements InterceptFilterInterface
      * @param   MvcFactoryInterface $fact
      * @return  InterceptFilter
      */
-    public function __construct($callback=null, MvcFactoryInterface $fact=null)
+    public function __construct($callback=null)
     {
         if (null !== $callback) {
             $this->setCallback($callback);
         }
-
-        if (null === $fact) {
-            $fact = new MvcFactory();
-        }
-        $this->factory = $fact;
-    }
-
-    /**
-     * @return  MvcFactoryInterface
-     */
-    public function getMvcFactory()
-    {
-        return $this->factory;
     }
 
     /**
@@ -217,11 +196,13 @@ class InterceptFilter implements InterceptFilterInterface
     }
 
     /**
-     * @return  MvcContextBuilder
+     * @param   string  $routeKey
+     * @return  MvcContextInterface
      */
     public function createEmptyContext($routeKey)
     {
-        return $this->getMvcFactory()
-                    ->createEmptyContext($routeKey);
+        $factory = AppRegistry::getAppFactory();
+        $input = $factory->createAppInput('get', array());
+        return $factory->createContext($routeKey, $input);
     }
 }
