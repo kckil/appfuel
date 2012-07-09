@@ -259,13 +259,25 @@ class AppContext extends ArrayData implements MvcContextInterface
      * @param    AppInputInterface $input
      * @return   AppContext
      */
-    public function cloneContext($key, MvcContextInterface $input = null)
+    public function cloneContext($key, $input = null)
     {
         if (null === $input) {
             $input = $this->getInput();
         }
-
-        $context = new self($key, $this->getType(), $input, $this->getAcl());
+        
+        /*
+         * We don't call new self(..) because if the context has been replaced,
+         * that is extended or a different implementation, we want to use that
+         * instead. The app factory will create these objects for us
+         */
+        $factory = AppRegistry::getAppFactory();
+        
+        /*
+         * type (cli|http) will remain the same, as will the acl codes
+         */
+        $type = $this->getType();
+        $acl = $this->getAcl();
+        $context = $factory->createContext($key, $type, $input, $acl);
         $context->setView($this->getView());
         $context->load($this->getAll());
         $context->setExitCode($this->getExitCode());
@@ -301,6 +313,16 @@ class AppContext extends ArrayData implements MvcContextInterface
         }
         
         return $context;
+    }
+
+    /**
+     * @throws  LogicException
+     */
+    public function __clone()
+    {
+        $err  = "The context is immutable and can not be cloned: Please see ";
+        $err .= "the method cloneContext which is probably what you want";
+        throw new LogicException($err);
     }
 
     /**
