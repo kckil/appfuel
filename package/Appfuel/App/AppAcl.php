@@ -65,7 +65,7 @@ class AppAcl implements MvcAclInterface
             throw new InvalidArgumentException("acl code must be a string");
         }
     
-        if ($this->isAclCode($code)) {
+        if ($this->isCode($code)) {
             return $this;    
         }
 
