@@ -127,8 +127,12 @@ class AppContext extends ArrayData implements MvcContextInterface
      */
     public function getViewFormat()
     {
-        return $this->getView()
-                    ->getFormat();
+        $view = $this->getView();
+        if (! $view instanceof MvcViewInterface) {
+            return null;
+        }
+            
+        return $view->getFormat();
     }
 
     /**
