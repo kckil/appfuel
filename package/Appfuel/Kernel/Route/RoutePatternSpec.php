@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Kernel\Route;
 
-use OutOfBoundsException,
+use DomainException,
+    OutOfBoundsException,
     InvalidArgumentException;
 /**
  * Value object used to hold the route key, regex pattern, and group for a 
@@ -148,7 +149,7 @@ class RoutePatternSpec implements RoutePatternSpecInterface
 
         if (! is_array($pattern)) {
             $err = "pattern must be a string or an array";
-            throw new InvalidArgumentException($err);
+            throw new DomainException($err);
         }
 
         if (! isset($pattern[0])) {

@@ -35,64 +35,42 @@ class RoutePatternTest extends BaseTestCase
 	 */
 	public function createPatternWithIndexArray()
 	{
-		$data = array('/^users$/', 'my-route', 'my-group');
+		$data = array(
+            'route-key'=> 'my-route',
+            'pattern'  => '/^users$/', 
+            'pattern-group' => 'my-group'
+        );
 		$pattern = $this->createRoutePattern($data);
 		$interface = $this->getRoutePatternSpecInterface();
 		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data[0], $pattern->getRegEx());
-		$this->assertEquals($data[1], $pattern->getRouteKey());
-		$this->assertEquals($data[2], $pattern->getGroup());
+		$this->assertEquals($data['pattern'], $pattern->getPattern());
+		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
+		$this->assertEquals($data['pattern-group'], $pattern->getGroup());
 
-		$data = array('/^users$/', 'my-route');
+		$data = array(
+            'pattern'   => '/^users$/', 
+            'route-key' => 'my-route'
+        );
 		$pattern = $this->createRoutePattern($data);
 		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data[0],   $pattern->getRegEx());
-		$this->assertEquals($data[1],   $pattern->getRouteKey());
+		$this->assertEquals($data['pattern'],   $pattern->getPattern());
+		$this->assertEquals($data['route-key'],   $pattern->getRouteKey());
 		$this->assertEquals('no-group', $pattern->getGroup());
 	}
 
 	/**
-	 * @test
-	 * @return null
-	 */
-	public function createPatternAssociativeIndexArray()
-	{
-		$data = array(
-			'pattern'	=> '/^users$/', 
-			'route-key' => 'my-route', 
-			'group'		=> 'my-group'
-		);
-		$pattern = $this->createRoutePattern($data);
-		$interface = $this->getRoutePatternSpecInterface();
-		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data['pattern'],	$pattern->getRegEx());
-		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
-		$this->assertEquals($data['group'],		$pattern->getGroup());
-
-		$data = array(
-			'pattern'		=> '/^users$/', 
-			'route-key'     => 'my-route'
-		);
-		$pattern = $this->createRoutePattern($data);
-		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data['pattern'],	$pattern->getRegEx());
-		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
-		$this->assertEquals('no-group',			$pattern->getGroup());
-	}
-
-	/**
-	 * @test
+     * @test
 	 * @return	null
 	 */
 	public function createPatternEmptyArray()
 	{
-		$msg = 'route key must be a string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
+		$msg = '-(route-key) route key is expected but not given';
+		$this->setExpectedException('OutOfBoundsException', $msg);
 		$pattern = $this->createRoutePattern(array());
 	}
 
 	/**
-	 * @test
+     * @test
 	 * @dataProvider	provideInvalidStrings
 	 * @return			null
 	 */
@@ -101,34 +79,7 @@ class RoutePatternTest extends BaseTestCase
 		$msg = 'route key must be a string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		
-		$data = array('/^somepatter$/', $key);
-		$pattern = $this->createRoutePattern($data);
-	}
-
-	/**
-	 * @test
-	 * @dataProvider	provideInvalidStrings
-	 * @return			null
-	 */
-	public function createPatternInvalidPattern($pattern)
-	{
-		$msg = 'pattern must be a string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
-		
-		$data = array($pattern, 'my-key');
-		$pattern = $this->createRoutePattern($data);
-	}
-
-	/**
-	 * @test
-	 * @return			null
-	 */
-	public function createPatternInvalidGroup()
-	{
-		$msg = 'group must be a non empty string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
-		
-		$data = array('/^somepattern$/', 'my-key', array(1,2,3));
+		$data = array('pattern' => '/^somepatter$/', 'route-key' => $key);
 		$pattern = $this->createRoutePattern($data);
 	}
 }
