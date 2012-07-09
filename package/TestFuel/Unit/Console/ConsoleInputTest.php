@@ -155,5 +155,104 @@ class ConsoleInputTest extends BaseTestCase
         return $input;
     }
 
+    /**
+     * @test
+     * @return  ConsoleInput
+     */
+    public function longOptionWithParams()
+    {
+        $opts = array('opt-a' => 'value a', 'opt-b' => 123, 'opt-c' => null);
+        $input = $this->createInput(array('long' => $opts));
+        $this->assertEquals($opts, $input->getLongOptions());
+ 
+        foreach ($opts as $key => $value) {
+            /* none of these are flags */
+            $this->assertFalse($input->isLongOptionFlag($key));
+            $this->assertTrue($input->isLongOption($key));
+            $this->assertEquals($value, $input->getLongOption($key));
+        }
 
+        $this->assertFalse($input->isLongOption('d'));
+        $this->assertFalse($input->isLongOptionFlag('d'));
+        $this->assertEquals('custom', $input->getLongOption('d', 'custom'));
+
+        $this->assertNull($input->getLongOption(array(1,2,3)));
+        $this->assertFalse($input->isLongOption(array(1,2,3)));
+    }
+
+
+    /**
+     * @test
+     * @return  ConsoleInput
+     */
+    public function isOptionFlag()
+    {
+        $opts = array(
+            'short' => array('v' => true), 
+            'long'  => array('verbose' => true)
+        );
+        $input = $this->createInput($opts);
+        $this->assertFalse($input->isOptionFlag());
+        $this->assertTrue($input->isOptionFlag('verbose'));
+        $this->assertTrue($input->isOptionFlag(null, 'v'));
+
+        $this->assertTrue($input->isOptionFlag('verbose', 'v'));
+        $this->assertTrue($input->isOptionFlag('verbose', 'n'));
+        $this->assertTrue($input->isOptionFlag('not-found', 'v'));
+        $this->assertFalse($input->isOptionFlag('not-found'));
+        $this->assertFalse($input->isOptionFlag('not-found', 'n'));
+        $this->assertFalse($input->isOptionFlag(null, 'n'));
+
+        return $input;
+    }
+
+    /**
+     * @test
+     * @return  ConsoleInput
+     */
+    public function isOption()
+    {
+        $opts = array(
+            'short' => array('m' => 'my value'), 
+            'long'  => array('my-opt' => 'my value')
+        );
+        $input = $this->createInput($opts);
+        $this->assertFalse($input->isOption());
+        $this->assertTrue($input->isOption('my-opt'));
+        $this->assertTrue($input->isOption(null, 'm'));
+        
+        $this->assertTrue($input->isOption('my-opt', 'm'));
+        $this->assertTrue($input->isOption('my-opt', 'n'));
+        $this->assertTrue($input->isOption('not-found', 'm'));
+        $this->assertFalse($input->isOption('not-found'));
+        $this->assertFalse($input->isOption('not-found', 'n'));
+        $this->assertFalse($input->isOption(null, 'n'));
+        
+        return $input;
+    }
+
+    /**
+     * @test
+     * @depends isOption
+     * @return  ConsoleInput
+     */
+    public function getOption(ConsoleInput $input)
+    {
+        $value = 'my value';
+        $this->assertEquals($value, $input->getOption('my-opt'));
+        $this->assertEquals($value, $input->getOption(null, 'm'));
+        $this->assertEquals($value, $input->getOption('my-opt', 'n'));
+        $this->assertEquals($value, $input->getOption('not-found', 'm'));
+
+        $this->assertNull($input->getOption());
+        $this->assertNull($input->getOption('not-found'));
+        $this->assertNull($input->getOption(null, 'n'));
+        $this->assertNull($input->getOption(array(1,2,3)));
+
+        $this->assertEquals(
+            'custom', 
+            $input->getOption('not-found', 'n', 'custom')
+        );
+        return $input;
+    }
 }

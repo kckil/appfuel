@@ -212,6 +212,24 @@ class ConsoleInput implements ConsoleInputInterface
      * @param   string  $long
      * @return  bool
      */
+    public function isOptionFlag($long = null, $short = null)
+    {
+        if (null !== $long && $this->isLongOptionFlag($long)) {
+            return true;
+        }
+
+        if (null !== $short && $this->isShortOptionFlag($short)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param   string  $short
+     * @param   string  $long
+     * @return  bool
+     */
     public function isOption($long = null, $short = null)
     {
         if (null !== $long && $this->isLongOption($long)) {
@@ -233,7 +251,7 @@ class ConsoleInput implements ConsoleInputInterface
     public function getOption($long = null, $short = null, $default = null)
     {
         if (null !== $long && $this->isLongOption($long)) {
-            return $this->getLongOpt($long);
+            return $this->getLongOption($long);
         }
 
         if (null !== $short && $this->isShortOption($short)) {
