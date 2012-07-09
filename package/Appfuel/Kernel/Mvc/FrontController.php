@@ -141,12 +141,18 @@ class FrontController implements FrontControllerInterface
     }
 
     /**
+     * @throws  DomainException
      * @param   string  $cat
-     * @param   string  $key    route key
-     * @return  object | false 
+     * @param   string  $key
+     * @return  object
      */
-    protected function getRouteSpec($cat, $key)
+    static protected function getRouteSpec($cat, $key)
     {
-        return RouteRegistry::getRouteSpec($cat, $key);
+        if (! ($route = RouteRegistry::getRouteSpec($cat, $key))) {
+            $err = "route specification -($cat) not found for -($key)";
+            throw new DomainException($err);
+        }
+
+        return $route;
     }
 }
