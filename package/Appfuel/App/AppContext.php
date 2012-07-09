@@ -259,7 +259,7 @@ class AppContext extends ArrayData implements MvcContextInterface
      * @param    AppInputInterface $input
      * @return   AppContext
      */
-    public function cloneContext($key, $type = null, $input = null, $acl = null)
+    public function cloneContext($key, $type=null, $input=null, $acl=null)
     {
         if (null === $type) {
             $type = $this->getType();

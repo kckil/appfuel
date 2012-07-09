@@ -1,11 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Kernel\Mvc;
 
@@ -61,12 +58,18 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * @param    string    $cat
-     * @param    string    $key
-     * @return   object
+     * @throws  DomainException
+     * @param   string  $cat
+     * @param   string  $key
+     * @return  object
      */
     static protected function getRouteSpec($cat, $key)
     {
-        return RouteRegistry::getRouteSpec($cat, $key);
+        if (! ($route = RouteRegistry::getRouteSpec($cat, $key))) {
+            $err = "route specification -($cat) not found for -($key)";
+            throw new DomainException($err);
+        }
+
+        return $route;
     }
 }
