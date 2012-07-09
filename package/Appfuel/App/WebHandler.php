@@ -108,17 +108,35 @@ class WebHandler extends AppHandler implements WebHandlerInterface
     }
 
     /**
+     * The routing system will capture parameters from the request uri or even
+     * duplicate GET params if the old school urls are used. These params need 
+     * to be added to the app input. Input data can also be declared in the 
+     * route action spec. All these inputs are collected under the key 'route'
+     *
      * @param   MatchedRouteInterface   $route
      * @param   string  $method
      * @return  AppInputInterface
      */
-    public function createWebInput($method, array $additional = null)
+    public function createWebInput(MatchedRouteInterface $route,
+                                   $method, 
+                                   array $additional = null)
     {
+        $spec = $this->getRouteSpec('action', $route->getRouteKey()); 
         $factory = $this->getAppFactory();
         $params  = $this->createWebInputParams($method);
-        if (null !== $additional) {
-            $params  = array_merge($params, $additional);
+
+        /*
+         * route captures will always override action input declarations
+         */
+        $data['route'] = $route->getCaptures();
+        if ($spec->isInput()) {
+            $data['route'] = array_merge($spec->getInput(), $data['route']);
         }
+
+        if (null !== $additional) {
+            $params  = array_merge($params, $routeData, $additional);
+        }
+
         return $factory->createHttpInput($method, $params);
     }
 

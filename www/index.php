@@ -34,12 +34,10 @@ $routeKey = $route->getRouteKey();
 $view = $handler->createAppView($route);
 
 /*
- * The routing system will capture parameters from the request uri or even
- * duplicate GET params if the old school urls are used. These params need to
- * be added to the app input
+ * Allow the routing regex captures and input declarations to be added to 
+ * the input object
  */
-$captures = array('route' => $route->getCaptures());
-$input = $handler->createWebInput($method, $captures);
+$input = $handler->createWebInput($route, $method);
 
 /*
  * The context holds all the objects needed by the action controller
