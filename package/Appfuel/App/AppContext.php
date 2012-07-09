@@ -259,10 +259,18 @@ class AppContext extends ArrayData implements MvcContextInterface
      * @param    AppInputInterface $input
      * @return   AppContext
      */
-    public function cloneContext($key, $input = null)
+    public function cloneContext($key, $type = null, $input = null, $acl = null)
     {
+        if (null === $type) {
+            $type = $this->getType();
+        }
+
         if (null === $input) {
             $input = $this->getInput();
+        }
+
+        if (null === $acl) {
+            $acl = $this->getAcl();
         }
         
         /*
@@ -272,11 +280,6 @@ class AppContext extends ArrayData implements MvcContextInterface
          */
         $factory = AppRegistry::getAppFactory();
         
-        /*
-         * type (cli|http) will remain the same, as will the acl codes
-         */
-        $type = $this->getType();
-        $acl = $this->getAcl();
         $context = $factory->createContext($key, $type, $input, $acl);
         $context->setView($this->getView());
         $context->load($this->getAll());

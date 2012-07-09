@@ -76,10 +76,12 @@ interface MvcContextInterface extends DictionaryInterface
 
     /**
      * @param   string  $key
-     * @param   MvcContextInterface $context
+     * @param   string  $type
+     * @param   mixed   $input
+     * @param   mixed   $acl
      * @return  MvcContextInterface
      */
-    public function cloneContext($key, MvcContextInterface $context);
+    public function cloneContext($key, $type=null, $input=null, $acl=null);
 
     /**
      * @param   MvcContextInterface $context
