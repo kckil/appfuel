@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Orm\OrmManager;
+use Appfuel\Orm\OrmManager,
+    Appfuel\Route\RouteRegistry;
 
 /**
  * @deprecated  no longer under development use MvcController
@@ -65,5 +66,20 @@ class MvcAction implements MvcActionInterface
     {
         Dispatcher::dispatch($context);
         return $context;
+    }
+
+    /**
+     * @param   string  $cat
+     * @param   string  $key
+     * @return  object
+     */
+    protected function getRouteSpec($cat, $key)
+    {
+        if (! $spec = RouteRegistry::getRouteSpec($cat, $key)) {
+            $err = "route specificiation -($cat) was not found for -($key)";
+            throw new LogicException($err);
+        }
+
+        return $spec;
     }
 }

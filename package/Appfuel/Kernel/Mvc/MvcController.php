@@ -7,7 +7,8 @@
 namespace Appfuel\Kernel\Mvc;
 
 use LogicException,
-    Appfuel\Orm\OrmManager;
+    Appfuel\Orm\OrmManager,
+    Appfuel\Kernel\Route\RouteRegistry;
 
 class MvcController implements MvcControllerInterface
 {
@@ -49,5 +50,21 @@ class MvcController implements MvcControllerInterface
     {
         Dispatcher::dispatch($context);
         return $context;
+    }
+
+    /**
+     * @throws  LogicException
+     * @param   string  $cat
+     * @param   string  $key
+     * @return  object
+     */
+    public function getRouteSpec($cat, $key)
+    {
+        if (! $spec = RouteRegistry::getRouteSpec($cat, $key)) {
+            $err = "route specificiation -($cat) was not found for -($key)";
+            throw new LogicException($err);
+        }
+
+        return $spec;
     }
 }
