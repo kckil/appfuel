@@ -53,9 +53,7 @@ class MvcAction implements MvcActionInterface
     {
         $tmp = $context->cloneContext($routeKey);
         $this->dispatch($tmp);
-
         $context->merge($tmp);
-
         return $context;
     }
 

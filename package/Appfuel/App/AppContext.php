@@ -292,29 +292,19 @@ class AppContext extends ArrayData implements MvcContextInterface
      * @param   MvcContextInterface
      * @return  MvcContextInterface
      */
-    public function merge(MvcContextInterface $context, $isReplaceInput = false)
+    public function merge(MvcContextInterface $context)
     {
         $view = $context->getView();                                                 
         if ($this->isValidView($view)) {                                      
             $this->setView($view);                                            
             $format = $context->getViewFormat();                                     
-            if (is_string($format)) {                                            
-                $this->setViewFormat($format);                                
+            if (is_string($format) && $this->getViewFormat() !== $format) {                                            
+                $this->setViewFormat($format);      
             }                                                            
         }
 
-        $this->load($contex->getAll());
+        $this->load($context->getAll());
         $this->setExitCode($context->getExitCode());
-
-        $codes = $context->getAclCodes();
-        foreach ($codes as $code) {
-            $this->addAclCode($code);
-        }
-
-        if (true === $isReplaceInput) {
-            $this->setInput($context->getInput());
-        }
-        
         return $context;
     }
 

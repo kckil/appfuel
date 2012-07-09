@@ -85,8 +85,7 @@ interface MvcContextInterface extends DictionaryInterface
 
     /**
      * @param   MvcContextInterface $context
-     * @param   bool    $isReplaceInput
-     * @return  MvcContextInterface
+     * @return  MvcContextInterface 
      */
-    public function merge(MvcContextInterface $context, $isReplaceInput=false);
+    public function merge(MvcContextInterface $context);
 }

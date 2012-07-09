@@ -55,6 +55,8 @@ class Dispatcher implements DispatcherInterface
         }
 
         $action->execute($context);
+
+        return $context;
     }
 
     /**
