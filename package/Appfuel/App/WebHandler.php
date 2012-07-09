@@ -129,6 +129,13 @@ class WebHandler extends AppHandler implements WebHandlerInterface
          * route captures will always override action input declarations
          */
         $data['route'] = $route->getCaptures();
+
+        /*
+         * put a copy of the route captures in the GET collection because
+         * in the old school urls they would have been there. This allows 
+         * legacy code to continue to work at the cost of some array bloat
+         */
+        $params['get'] = array_merge($params['get'], $data['route']);
         if ($spec->isInput()) {
             $data['route'] = array_merge($spec->getInput(), $data['route']);
         }
