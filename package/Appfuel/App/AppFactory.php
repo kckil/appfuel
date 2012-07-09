@@ -7,10 +7,12 @@
 namespace Appfuel\App;
 
 use RunTimeException,
+    Appfuel\Http\HttpInput,
     Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpOutputInterface,
     Appfuel\Http\HttpResponse,
     Appfuel\Console\ArgParser,
+    Appfuel\Console\ConsoleInput,
     Appfuel\Console\ConsoleOutput,
     Appfuel\Console\ConsoleOutputInterface,
     Appfuel\Kernel\Task\TaskHandler,
@@ -70,11 +72,19 @@ class AppFactory implements AppFactoryInterface
     /**
      * @param   string  $method
      * @param   array   $params
-     * @return  AppInput
+     * @return  HttpInput
      */
-    public function createInput($method, array $params = array())
+    public function createHttpInput($method, array $params = array())
     {
-        return new AppInput($method, $params);
+        return new HttpInput($method, $params);
+    }
+
+    /**
+     * @return  ConsoleInput
+     */
+    public function createConsoleInput(array $data)
+    {
+        return new ConsoleInput($data);
     }
 
     /**
@@ -99,17 +109,9 @@ class AppFactory implements AppFactoryInterface
      * @param   AppInputInterface $input
      * @return  AppContext
      */
-    public function createContext($key, AppInputInterface $input)
+    public function createContext($key, $type, $input)
     {
-        return new AppContext($key, $input);
-    }
-
-    /**
-     * @return  MvcViewBuilderInterface
-     */
-    public function createViewBuilder()
-    {
-        return new ViewBuilder();
+        return new AppContext($key, $type, $input);
     }
 
     /**

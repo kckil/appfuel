@@ -6,7 +6,10 @@
  */ 
 namespace Appfuel\App;
 
-use InvalidArgumentException,
+use DomainException,
+    InvalidArgumentException,
+    Appfuel\Http\HttpInputInterface,
+    Appfuel\Console\ConsoleInputInterface,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface,
     Appfuel\Kernel\Mvc\MvcViewInterface,
@@ -17,6 +20,12 @@ use InvalidArgumentException,
 class AppContext extends ArrayData implements MvcContextInterface
 {
     /**
+     * The context can be http or cli but nothing else
+     * @var string
+     */
+    protected $type = 'http';
+
+    /**
      * Actual route key used in user request
      * @var string
      */
@@ -25,7 +34,7 @@ class AppContext extends ArrayData implements MvcContextInterface
     /**
      * Holds most of the user input given to the application. Used by the
      * Front controller and all action controllers
-     * @var    AppInputInterface
+     * @var HttpInputInterface | ConsoleInputInterface
      */
     protected $input = null;
 
@@ -53,17 +62,45 @@ class AppContext extends ArrayData implements MvcContextInterface
      * @param    AppInputInterface    $input
      * @return    AppContext
      */
-    public function __construct($key,
-                                AppInputInterface $input, 
-                                MvcViewInterface $view = null)
+    public function __construct($key, $type, $input = null)
     {
-        $this->setRouteKey($key);
-        $this->setInput($input);
-        if (null === $view) {
-            $view = new AppView();
+        if ('http' !== $type && 'cli' !== $type) {
+            $err = "context type must be http or cli";
+            throw new DomainException($err);
         }
-            
-        $this->setView($view);
+        $this->type = $type;
+        $this->setRouteKey($key);
+
+        if (null !== $input && 'http' === $type) {
+            $this->setHttpInput($input);
+        }
+        else if (null !== $input && 'cli' === $type) {
+            $this->setConsoleInput($input);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isCli()
+    {
+        return 'cli' === $this->type;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isHttp()
+    {
+        return 'http' === $this->type;
     }
 
     /**
@@ -202,6 +239,24 @@ class AppContext extends ArrayData implements MvcContextInterface
     }
 
     /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidHttpInput($input)
+    {
+        return $input instanceof HttpInputInterface;
+    }
+
+    /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidConsoleInput($input)
+    {
+        return $input instanceof ConsoleInputInterface;
+    }
+
+    /**
      * @param    string    $key
      * @param    AppInputInterface $input
      * @return   AppContext
@@ -251,15 +306,6 @@ class AppContext extends ArrayData implements MvcContextInterface
     }
 
     /**
-     * @param    AppInputInterface    $input
-     * @return    null
-     */
-    protected function setInput(AppInputInterface $input)
-    {
-        $this->input = $input;
-    }
-
-    /**
      * @param    string    $key
      * @return    null
      */
@@ -271,5 +317,33 @@ class AppContext extends ArrayData implements MvcContextInterface
         }
 
         $this->routeKey = $key;
+    }
+
+    /**
+     * @param   unkown   $input
+     * @return  null
+     */
+    protected function setHttpInput($input)
+    {
+        if (! $this->isValidHttpInput($input)) {
+            $err = "input is not valid for an http context";
+            throw new DomainException($err);
+        }
+
+        $this->input = $input;
+    }
+
+    /**
+     * @param   unkown   $input
+     * @return  null
+     */
+    protected function setConsoleInput($input)
+    {
+        if (! $this->isValidConsoleInput($input)) {
+            $err = "input is not valid for an console context";
+            throw new DomainException($err);
+        }
+
+        $this->input = $input;
     }
 }

@@ -8,6 +8,7 @@ namespace Appfuel\App;
 
 use LogicException,
     DomainException,
+    Appfuel\Http\HttpInputInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface,
     Appfuel\Kernel\Route\MatchedRouteInterface;
 
@@ -118,7 +119,7 @@ class WebHandler extends AppHandler implements WebHandlerInterface
         if (null !== $additional) {
             $params  = array_merge($params, $additional);
         }
-        return $factory->createInput($method, $params);
+        return $factory->createHttpInput($method, $params);
     }
 
     /**
@@ -127,12 +128,10 @@ class WebHandler extends AppHandler implements WebHandlerInterface
      * @param   mixed   $view
      * @return  MvcContextInterface
      */
-    public function createWebContext($key, 
-                                    AppInputInterface $input, 
-                                    $view = null)
+    public function createWebContext($key, HttpInputInterface $in, $view = null)
     {
         $factory = $this->getAppFactory();
-        $context = $factory->createContext($key, $input);
+        $context = $factory->createContext($key, 'http', $in);
         
         if (null !== $view) {
             $context->setView($view);
