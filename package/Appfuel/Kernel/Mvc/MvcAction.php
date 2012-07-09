@@ -7,7 +7,7 @@
 namespace Appfuel\Kernel\Mvc;
 
 use Appfuel\Orm\OrmManager,
-    Appfuel\Route\RouteRegistry;
+    Appfuel\Kernel\Route\RouteRegistry;
 
 /**
  * @deprecated  no longer under development use MvcController
