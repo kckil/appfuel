@@ -133,12 +133,11 @@ class WebHandler extends AppHandler implements WebHandlerInterface
             $data['route'] = array_merge($spec->getInput(), $data['route']);
         }
 
-        if (null !== $additional) {
+        if (null === $additional) {
             $additional = array();
         }
         
-        $params = array_merge($params, $routeData, $additional);
-
+        $params = array_merge($params, $data, $additional);
         return $factory->createHttpInput($method, $params);
     }
 
