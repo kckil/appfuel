@@ -44,13 +44,9 @@ class ConsoleInput implements ConsoleInputInterface
      */
     public function __construct(array $data)
     {
-        if (! isset($data['cmd'])) {
-            $err  = "Console input requires the name of the cli script used ";
-            $err .= "to provide the input to be provided in the first param ";
-            $err .= "as -(cmd)";
-            throw new DomainException($err);
+        if (isset($data['cmd'])) {
+            $this->setCmd($data['cmd']);
         }
-        $this->setCmd($data['cmd']);
 
         if (isset($data['args'])) {
             $this->setArgs($data['args']);
@@ -63,8 +59,6 @@ class ConsoleInput implements ConsoleInputInterface
         if (isset($data['long'])) {
             $this->setLongOptions($data['long']);
         }
-
-        parent::__construct($handler);
     }
 
     /**

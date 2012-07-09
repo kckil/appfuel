@@ -13,6 +13,7 @@
 <!--	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteManagerTest.php</file>-->
 
 	<directory suffix="Test.php">../package/Testfuel/Unit/Kernel/Route</directory>
+	<directory suffix="Test.php">../package/Testfuel/Unit/Console</directory>
 	
 	<file>../package/Testfuel/Unit/App/AppInputTest.php</file>
 
