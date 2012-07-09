@@ -37,7 +37,7 @@ class AppAcl implements MvcAclInterface
      */
     public function setCodes(array $codes)
     {
-        $this->clear();
+        $this->clearCodes();
         $this->loadCodes($codes);
         return $this;
     }
