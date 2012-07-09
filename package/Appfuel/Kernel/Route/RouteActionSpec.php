@@ -59,7 +59,7 @@ class RouteActionSpec implements RouteActionSpecInterface
         $this->setAction($spec['action']);
 
         if (isset($spec['action-input'])) {
-            $this->setActionInput($spec['action-input']);
+            $this->setInput($spec['action-input']);
         }
     }
 
