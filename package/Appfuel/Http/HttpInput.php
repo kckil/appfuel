@@ -7,7 +7,8 @@
 namespace Appfuel\Http;
 
 use DomainException,    
-    InvalidArgumentException;
+    InvalidArgumentException,
+    Appfuel\DataStructure\ArrayData;
 
 class HttpInput implements HttpInputInterface
 {
