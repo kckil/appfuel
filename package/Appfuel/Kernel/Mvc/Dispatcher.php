@@ -40,7 +40,8 @@ class Dispatcher implements DispatcherInterface
         }
 
         $spec = self::getRouteSpec('access', $key);
-        if (! $spec->isAccessAllowed($context->getAclCodes(), $method)) {
+        $acl  = $context->getAcl();
+        if (! $spec->isAccessAllowed($acl->getCodes(), $method)) {
             $err = 'user request is not allowed: insufficient permissions';
             throw new DomainException($err);
         }

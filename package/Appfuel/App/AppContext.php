@@ -12,6 +12,7 @@ use DomainException,
     Appfuel\Console\ConsoleInputInterface,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface,
+    Appfuel\Kernel\Mvc\MvcAclInterface,
     Appfuel\Kernel\Mvc\MvcViewInterface,
     Appfuel\Kernel\Mvc\MvcContextInterface;
 
@@ -41,9 +42,9 @@ class AppContext extends ArrayData implements MvcContextInterface
     /**
      * List of acl roles for this context. The dispatcher asks the mvc action
      * if this context will be allowed for processing based on these codes.
-     * @var    array
+     * @var MvcAclInterface
      */
-    protected $aclCodes = array();
+    protected $acl = null;
 
     /**
      * Used to hold a string or object that implements __toString
@@ -58,11 +59,13 @@ class AppContext extends ArrayData implements MvcContextInterface
     protected $exitCode = 200;
 
     /**
-     * @param    string    $strategy    console|ajax|html
-     * @param    AppInputInterface    $input
+     * @param   string  $key    route key used to find the mvc action
+     * @param   string  $type   cli | http only
+     * @param   mixed   $input  object used to hold input data
+     * @param   mixed   $array  acl codes used in acl access checks
      * @return    AppContext
      */
-    public function __construct($key, $type, $input = null)
+    public function __construct($key, $type, $input = null, $acl = null)
     {
         if ('http' !== $type && 'cli' !== $type) {
             $err = "context type must be http or cli";
@@ -76,6 +79,14 @@ class AppContext extends ArrayData implements MvcContextInterface
         }
         else if (null !== $input && 'cli' === $type) {
             $this->setConsoleInput($input);
+        }
+
+        if (! $acl instanceof MvcAclInterface) {
+            $this->acl = new AppAcl();
+        }
+
+        if (null !== $acl) {
+            $this->setAcl($acl);
         }
     }
 
@@ -170,43 +181,30 @@ class AppContext extends ArrayData implements MvcContextInterface
     /**
      * @return    array
      */
-    public function getAclCodes()
+    public function getAcl()
     {
-        return $this->aclCodes;
+        return $this->acl;
     }
 
     /**
-     * @param    string    $code
-     * @return    AppContext
+     * @param   array | MvcAclInterface $codes
+     * @return  AppContext
      */
-    public function addAclCode($code)
+    public function setAcl($codes)
     {
-        if (empty($code) || ! is_string($code)) {
-            throw new InvalidArgumentException(
-                'role code must be a non empty string'
-            );
+        if (is_array($codes)) {
+            $this->acl->load($codes);
         }
-    
-        if ($this->isAclCode($code)) {
-            return $this;    
+        else if ($codes instanceof MvcAclInterface) {
+            $this->acl = $codes;
+        }
+        else {
+            $err  = "acl codes must be an array of codes or an object that ";
+            $err .= "implements Appfuel\Kernel\Mvc\MvcAclInterface";
+            throw new DomainException($err);
         }
 
-        $this->aclCodes[] = $code;
         return $this;
-    }
-
-    /**
-     * @param    string    $code
-     * @return    bool
-     */
-    public function isAclCode($code)
-    {
-        if (empty($code) || 
-            ! is_string($code) || ! in_array($code, $this->aclCodes, true)) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

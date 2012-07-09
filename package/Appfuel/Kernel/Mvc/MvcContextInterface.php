@@ -21,6 +21,11 @@ use Appfuel\DataStructure\DictionaryInterface;
 interface MvcContextInterface extends DictionaryInterface
 {
     /**
+     * @return string
+     */
+    public function getType();
+
+    /**
      * @return  string
      */
     public function getRouteKey();
@@ -33,20 +38,14 @@ interface MvcContextInterface extends DictionaryInterface
     /**
      * @return  array
      */
-    public function getAclCodes();
+    public function getAcl();
 
     /**
      * @param   string  $code
      * @return  AppContext
      */
-    public function addAclCode($code);
-
-    /**
-     * @param   string  $code
-     * @return  bool
-     */
-    public function isAclCode($code);
-
+    public function setAcl($codes);
+    
     /**
      * @return  int
      */
@@ -62,6 +61,18 @@ interface MvcContextInterface extends DictionaryInterface
      * @return  ContextInputInterface
      */
     public function getInput();
+
+    /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidHttpInput($input);
+
+    /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidConsoleInput($input);
 
     /**
      * @param   string  $key
