@@ -199,10 +199,10 @@ class InterceptFilter implements InterceptFilterInterface
      * @param   string  $routeKey
      * @return  MvcContextInterface
      */
-    public function createEmptyContext($routeKey)
+    public function createEmptyContext($routeKey, $typs = 'http')
     {
         $factory = AppRegistry::getAppFactory();
-        $input = $factory->createAppInput('get', array());
-        return $factory->createContext($routeKey, $input);
+        $input = $factory->createHttpInput('get', array());
+        return $factory->createContext($routeKey, $type, $input);
     }
 }
