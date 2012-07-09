@@ -109,9 +109,9 @@ class AppFactory implements AppFactoryInterface
      * @param   AppInputInterface $input
      * @return  AppContext
      */
-    public function createContext($key, $type, $input)
+    public function createContext($key, $type, $input, $acl = null)
     {
-        return new AppContext($key, $type, $input);
+        return new AppContext($key, $type, $input, $acl);
     }
 
     /**
