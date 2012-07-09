@@ -30,7 +30,7 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @return    ArgParser
+     * @return  ArgParser
      */
     public function createArgParser()
     {
@@ -41,8 +41,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    createArgParser
-     * @return    ArgParser
+     * @depends createArgParser
+     * @return  ArgParser
      */
     public function testEmptyArgs(ArgParser $parser)
     {
@@ -54,8 +54,8 @@ class ArgParserTest extends BaseTestCase
      * A double dash with nothing else is treated as empty
      *
      * @test
-     * @depends    testEmptyArgs
-     * @return    ArgParser
+     * @depends testEmptyArgs
+     * @return  ArgParser
      */
     public function testDoubleDashOnlyArgs(ArgParser $parser)
     {
@@ -67,8 +67,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    testEmptyArgs
-     * @return    ArgParser
+     * @depends testEmptyArgs
+     * @return  ArgParser
      */
     public function cliCmd(ArgParser $parser)
     {
@@ -80,8 +80,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    cliCmd
-     * @return    ArgParser
+     * @depends cliCmd
+     * @return  ArgParser
      */
     public function shortOptAsFlagAlone(ArgParser $parser)
     {
@@ -96,8 +96,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    shortOptAsFlagAlone
-     * @return    ArgParser
+     * @depends shortOptAsFlagAlone
+     * @return  ArgParser
      */
     public function shortOptCluster(ArgParser $parser)
     {
@@ -117,8 +117,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    shortOptCluster
-     * @return    ArgParser
+     * @depends shortOptCluster
+     * @return  ArgParser
      */
     public function shortOptWithValue(ArgParser $parser)
     {
@@ -135,8 +135,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    shortOptWithValue
-     * @return    ArgParser
+     * @depends shortOptWithValue
+     * @return  ArgParser
      */
     public function manyShortOptWithValues(ArgParser $parser)
     {
@@ -163,8 +163,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    cliCmd
-     * @return    ArgParser
+     * @depends cliCmd
+     * @return  ArgParser
      */
     public function longOptAsFlagAlone(ArgParser $parser)
     {
@@ -180,8 +180,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    longOptAsFlagAlone
-     * @return    ArgParser
+     * @depends longOptAsFlagAlone
+     * @return  ArgParser
      */
     public function longOptAsFlagMany(ArgParser $parser)
     {
@@ -200,8 +200,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    longOptAsFlagAlone
-     * @return    ArgParser
+     * @depends longOptAsFlagAlone
+     * @return  ArgParser
      */
     public function longOptWithValueEqual(ArgParser $parser)
     {
@@ -233,8 +233,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    longOptWithValueEqual
-     * @return    ArgParser
+     * @depends longOptWithValueEqual
+     * @return  ArgParser
      */
     public function longOptWithValueSpace(ArgParser $parser)
     {
@@ -266,8 +266,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    longOptAsFlagAlone
-     * @return    ArgParser
+     * @depends longOptAsFlagAlone
+     * @return  ArgParser
      */
     public function manyLongOptions(ArgParser $parser)
     {
@@ -292,8 +292,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    longOptAsFlagAlone
-     * @return    ArgParser
+     * @depends longOptAsFlagAlone
+     * @return  ArgParser
      */
     public function singleArg(ArgParser $parser)
     {
@@ -308,8 +308,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    singleArg
-     * @return    ArgParser
+     * @depends singleArg
+     * @return  ArgParser
      */
     public function manyArgs(ArgParser $parser)
     {
@@ -324,8 +324,8 @@ class ArgParserTest extends BaseTestCase
 
     /**
      * @test
-     * @depends    singleArg
-     * @return    ArgParser
+     * @depends singleArg
+     * @return  ArgParser
      */
     public function shortLongAndArgs(ArgParser $parser)
     {
@@ -368,8 +368,8 @@ class ArgParserTest extends BaseTestCase
      * and treat everything else as an argument
      *
      * @test
-     * @depends    shortLongAndArgs
-     * @return    ArgParser
+     * @depends shortLongAndArgs
+     * @return  ArgParser
      */
     public function shortLongEndOfArgs(ArgParser $parser)
     {

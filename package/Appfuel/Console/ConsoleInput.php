@@ -70,7 +70,7 @@ class ConsoleInput implements ConsoleInputInterface
     public function getCmd($isRealPath = false)
     {
         $cmd = $this->cmd;
-        if (true === $isRealPath) {
+        if (! empty($cmd) && true === $isRealPath) {
             $cmd = realpath($cmd);
         }
 
@@ -105,6 +105,14 @@ class ConsoleInput implements ConsoleInputInterface
         }
 
         return $this->args[$index];
+    }
+
+    /**
+     * @return  array
+     */
+    public function getShortOptions()
+    {
+        return $this->shortOptions;
     }
 
     /**
@@ -150,13 +158,21 @@ class ConsoleInput implements ConsoleInputInterface
     }
 
     /**
+     * @return array
+     */
+    public function getLongOptions()
+    {
+        return $this->longOptions;
+    }
+
+    /**
      * @param   string  $key
      * @return  bool
      */
     public function isLongOptionFlag($key)
     {
-        if (! is_string($key)
-            ! isset($this->longOptions) || 
+        if (! is_string($key) ||
+            ! isset($this->longOptions[$key]) || 
             true !== $this->longOptions[$key]) {
             return false;
         }
@@ -170,7 +186,7 @@ class ConsoleInput implements ConsoleInputInterface
      */
     public function isLongOption($key)
     {
-        if (! is_string($opt) || ! array_key_exists($key, $this->longOptions)) {
+        if (! is_string($key) || ! array_key_exists($key, $this->longOptions)) {
             return false;
         }
 
