@@ -32,4 +32,14 @@ interface RouteActionSpecInterface
      * @return  MvcActionInterface
      */
     public function createAction($method = null);
+
+    /**
+     * @return bool
+     */
+    public function isInput();
+
+    /**
+     * @return  array
+     */
+    public function getInput();
 }

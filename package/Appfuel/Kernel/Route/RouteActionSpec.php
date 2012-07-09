@@ -34,6 +34,11 @@ class RouteActionSpec implements RouteActionSpecInterface
     protected $namespace = null;
 
     /**
+     * @var array
+     */
+    protected $input = array();
+
+    /**
      * @throws  DomainException
      * @param   array   $spec
      * @return  RouteAction
@@ -52,6 +57,10 @@ class RouteActionSpec implements RouteActionSpecInterface
         }
 
         $this->setAction($spec['action']);
+
+        if (isset($spec['action-input'])) {
+            $this->setActionInput($spec['action-input']);
+        }
     }
 
     /**
@@ -80,6 +89,22 @@ class RouteActionSpec implements RouteActionSpecInterface
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInput()
+    {
+        return ! empty($this->input);
+    }
+
+    /**
+     * @return  array
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
     /**
@@ -210,5 +235,22 @@ class RouteActionSpec implements RouteActionSpecInterface
         }
 
         $this->namespace = $ns;
+    }
+
+    /**
+     * @throws  DomainException
+     * @param   array   $data
+     * @return  null
+     */
+    protected function setInput(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if (! is_string($key) || empty($key)) {
+                $err = "route input key must be a non empty string";
+                throw new DomainException($err);
+            }
+        }
+
+        $this->input = $data;
     }
 }
