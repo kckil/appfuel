@@ -51,26 +51,10 @@ class MvcAction implements MvcActionInterface
      */
     public function callWithContext($routeKey, MvcContextInterface $context)
     {
-        $tmp = $this->getMvcFactory()
-                    ->createContext($routeKey, $context->getInput());
-
-        if ($context->isContextView()) {
-            $tmp->setView($context->getView());
-        }
-
-        $tmp->load($context->getAll());
-        if ('' !== trim($context->getViewFormat())) {
-            $tmp->setViewFormat($context->getViewFormat());
-        }
+        $tmp = $context->cloneContext($routeKey);
         $this->dispatch($tmp);
 
-        /* transfer all assignments made by mvc action */
-        $context->load($tmp->getAll());
-        $view = $tmp->getView();
-        if (! empty($view)) {
-            $context->setView($view);
-        }
-        $context->setExitCode($tmp->getExitCode());
+        $context->merge($tmp);
 
         return $context;
     }
