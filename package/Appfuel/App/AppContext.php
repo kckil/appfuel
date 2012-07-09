@@ -265,7 +265,7 @@ class AppContext extends ArrayData implements MvcContextInterface
             $input = $this->getInput();
         }
 
-        $context = new self($key, $input);
+        $context = new self($key, $this->getType(), $input, $this->getAcl());
         $context->setView($this->getView());
         $context->load($this->getAll());
         $context->setExitCode($this->getExitCode());
