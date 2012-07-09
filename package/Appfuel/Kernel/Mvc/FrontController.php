@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Kernel\Route\RouteRegistry,
+use DomainException,
+    Appfuel\Kernel\Route\RouteRegistry,
     Appfuel\Kernel\Route\RouteInterceptFilterSpecInterface;
 
 /**
