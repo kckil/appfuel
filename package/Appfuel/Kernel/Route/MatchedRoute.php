@@ -91,7 +91,8 @@ class MatchedRoute implements MatchedRouteInterface
             $err = "-(original-uri) original uri is required and not set";
             throw new DomainException($err);
         }
-        $this->originalUri = $this->str($data['original-uri'], 'originalUri');
+        $uri = $data['original-uri'];
+        $this->originalUri = $this->str($uri, 'originalUri', true);
         
         if (! isset($data['route-match'])) {
             $err = "-(route-match) route match is required but not set";
@@ -110,8 +111,6 @@ class MatchedRoute implements MatchedRouteInterface
                 $this->groupMatch = $this->str($gMatch, 'groupMatch');
             }
         }
-
-
     }
 
     /**
@@ -208,11 +207,15 @@ class MatchedRoute implements MatchedRouteInterface
      * @param   string  $str
      * @return  string  
      */
-    protected function str($str, $member) 
+    protected function str($str, $member, $isEmpty = false) 
     {
-         if (! is_string($str) || empty($str)) {
-            $err = "-($member) must a none empty string";
+         if (! is_string($str)) {
+            $err = "-($member) must be a string";
             throw new DomainException($err);
+        }
+
+        if (false === $isEmpty && empty($str)) {
+            $err = "-($member) must not be an empty string";
         }
 
         return $str;
