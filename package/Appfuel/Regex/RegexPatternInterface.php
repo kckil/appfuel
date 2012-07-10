@@ -9,7 +9,7 @@ namespace Appfuel\Regex;
 /**
  * Ensure a raw regex is safely escaped for use with preg_* family of functions
  */
-interface RegExFilterInterface
+interface RegexPatternInterface
 {
     public function filter($raw, $modifiers = "");
 

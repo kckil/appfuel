@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Error;
 
@@ -15,34 +11,34 @@ namespace Appfuel\Error;
  */
 interface ErrorStackInterface 
 {
-	/**
-	 * @param	ErrorInterface	$error
-	 * @return	ErrorStackInterface
-	 */
-	public function addErrorItem(ErrorInterface $error);
+    /**
+     * @param   ErrorInterface  $error
+     * @return  ErrorStackInterface
+     */
+    public function addErrorItem(ErrorInterface $error);
 
-	/**
-	 * @param	string	$text	
-	 * @param	scalar	$code
-	 * @return	ErrorStackInterface
-	 */
-	public function addError($msg, $code = null);
+    /**
+     * @param   string  $text    
+     * @param   scalar  $code
+     * @return  ErrorStackInterface
+     */
+    public function addError($msg, $code = null);
 
-	/**
-	 * Alias for current
-	 *
-	 * @return	ErrorInterface | false when no error exists
-	 */
-	public function getError();
+    /**
+     * Alias for current
+     *
+     * @return  ErrorInterface | false when no error exists
+     */
+    public function getError();
 
-	/**
-	 * @return	ErrorInterface | false when no error exists
-	 */
-	public function getLastError();
+    /**
+     * @return  ErrorInterface | false when no error exists
+     */
+    public function getLastError();
 
-	/**
-	 * Clears all errors out of the stack
-	 * @return	ErrorStackInterface
-	 */
-	public function clear();
+    /**
+     * Clears all errors out of the stack
+     * @return  ErrorStackInterface
+     */
+    public function clear();
 }

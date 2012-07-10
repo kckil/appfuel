@@ -1,17 +1,13 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Error;
 
 use Countable,
-	Iterator;
+    Iterator;
 
 /**
  * The error stack handles a collection of errors or treats that collection
@@ -19,114 +15,113 @@ use Countable,
  */
 class ErrorStack implements ErrorStackInterface, Countable, Iterator
 {
-	/**
-	 * Collection of error objects
-	 * @var scalar
-	 */
-	protected $errors = array();
+    /**
+     * Collection of error objects
+     * @var scalar
+     */
+    protected $errors = array();
 
-	/**
-	 * @return	bool
-	 */
-	public function isError()
-	{
-		return $this->count() > 0;
-	}
+    /**
+     * @return  bool
+     */
+    public function isError()
+    {
+        return $this->count() > 0;
+    }
 
-	/**
-	 * @param	ErrorStackInterface $stack
-	 * @return	ErrorStack
-	 */
-	public function mergeStack(ErrorStackInterface $stack)
-	{
-		foreach ($stack as $item) {
-			$this->addErrorItem($item);
-		}
+    /**
+     * @param   ErrorStackInterface $stack
+     * @return  ErrorStack
+     */
+    public function mergeStack(ErrorStackInterface $stack)
+    {
+        foreach ($stack as $item) {
+            $this->addErrorItem($item);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * @param	ErrorInterface	$error
-	 * @return	ErrorStack	
-	 */
-	public function addErrorItem(ErrorInterface $error)
-	{
-		$this->errors[] = $error;
-		return $this;
-	}
+    /**
+     * @param   ErrorInterface  $error
+     * @return  ErrorStack    
+     */
+    public function addErrorItem(ErrorInterface $error)
+    {
+        $this->errors[] = $error;
+        return $this;
+    }
 
-	/**
-	 * @throws	InvalidArgumentException	
-	 *			when msg or code is not a scalar or an object that implements
-	 *			__toString.
-	 *										
-	 * @paran	scalar	$msg
-	 * @param	scalar	$code
-	 * @return	ErrorStack
-	 */
-	public function addError($msg, $code = null)
-	{
-		return $this->addErrorItem($this->createErrorItem($msg, $code));
-	}
+    /**
+     * @throws    InvalidArgumentException    
+     *            when msg or code is not a scalar or an object that implements
+     *            __toString.
+     *                                        
+     * @paran   scalar  $msg
+     * @param   scalar  $code
+     * @return  ErrorStack
+     */
+    public function addError($msg, $code = null)
+    {
+        return $this->addErrorItem($this->createErrorItem($msg, $code));
+    }
 
-	/**
-	 * Alias for current
-	 *
-	 * @return	ErrorInterface | false when no error exists
-	 */
-	public function getError()
-	{
-		return $this->current();
-	}
+    /**
+     * Alias for current
+     *
+     * @return  ErrorInterface | false when no error exists
+     */
+    public function getError()
+    {
+        return $this->current();
+    }
 
-	/**
-	 * @return	string | null when no error exists
-	 */
-	public function getCode()
-	{
-		$error = $this->current();
-		if ($error instanceof ErrorInterface) {
-			return $error->getCode();
-		}
+    /**
+     * @return    string | null when no error exists
+     */
+    public function getCode()
+    {
+        $error = $this->current();
+        if ($error instanceof ErrorInterface) {
+            return $error->getCode();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
+    /**
+     * @return  string | null when no error exists
+     */
+    public function getMessage()
+    {
+        $error = $this->current();
+        if ($error instanceof ErrorInterface) {
+            return $error->getMessage();
+        }
 
-	/**
-	 * @return	string | null when no error exists
-	 */
-	public function getMessage()
-	{
-		$error = $this->current();
-		if ($error instanceof ErrorInterface) {
-			return $error->getMessage();
-		}
+        return null;
+    }
 
-		return null;
-	}
+    /**
+     * @return  ErrorInterface | false when no error exists
+     */
+    public function getLastError()
+    {
+        $count = $this->count();
+        if (0 === $count) {
+            return false;
+        }
 
-	/**
-	 * @return	ErrorInterface | false when no error exists
-	 */
-	public function getLastError()
-	{
-		$count = $this->count();
-		if (0 === $count) {
-			return false;
-		}
+        return $this->errors[$count - 1];
+    }
 
-		return $this->errors[$count - 1];
-	}
-
-	/**
-	 * @return	int
-	 */
-	public function count()
-	{
-		return count($this->errors);
-	}
+    /**
+     * @return  int
+     */
+    public function count()
+    {
+        return count($this->errors);
+    }
 
     /**
      * @return  null
@@ -157,10 +152,10 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
      */
     public function valid()
     {
-		if (null === ($key = $this->key())) {
-			return false;
-		}
-		
+        if (null === ($key = $this->key())) {
+            return false;
+        }
+        
         return $this->errors[$key] instanceof ErrorInterface;
     }
 
@@ -169,25 +164,25 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
      */
     public function next()
     {
-		next($this->errors);
+        next($this->errors);
     }
 
-	/**
-	 * @return	ErrorStack
-	 */
-	public function clear()
-	{
-		$this->errors = array();
-		return $this;
-	}
+    /**
+     * @return  ErrorStack
+     */
+    public function clear()
+    {
+        $this->errors = array();
+        return $this;
+    }
 
-	/**
-	 * @param	string	
-	 * @param	scalar	$code
-	 * @return	AppfuelError
-	 */
-	public function createErrorItem($msg, $code = null)
-	{
-		return new ErrorItem($msg, $code);
-	}
+    /**
+     * @param   string    
+     * @param   scalar  $code
+     * @return  AppfuelError
+     */
+    public function createErrorItem($msg, $code = null)
+    {
+        return new ErrorItem($msg, $code);
+    }
 }

@@ -10,10 +10,13 @@ use InvalidArgumentException;
 
 /**
  * Taken from the book Mastering Regular Expressions 3rd Edition. The
- * converter will take any raw regex and return it so that it is suitable
- * for use with the preg_* family of functions.
+ * pattern will take any raw regex and pattern suitable for use with the 
+ * preg_* family of functions.
+ * 
+ * Note: currently this only supports patterns written for the forward slash
+ *       delimiter
  */ 
-class RegexFilter implements RegexFilterInterface
+class RegexPattern implements RegexPatternInterface
 {
     /**
      * Error message when filter or validation fails

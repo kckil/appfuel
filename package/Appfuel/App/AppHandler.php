@@ -60,7 +60,7 @@ class AppHandler implements AppHandlerInterface
             return $route;
         }
 
-        return $this->validateRoute($route);
+        return $this->validateRoute($route, $uri, $method);
     }
 
     /**
@@ -217,10 +217,11 @@ class AppHandler implements AppHandlerInterface
      * @param   MatchedRouteInterface $route
      * @return  MatchedRouteInterface
      */
-    protected function validateRoute($route)
+    protected function validateRoute($route, $uri = null, $method = null)
     {
         if (! $this->isMatchedRoute($route)) {
-            $err = "Request to this application could not be resolved for $uri";
+            $err  = "Request to this application could not be resolved for ";
+            $err .= "-($uri, $method)";
             throw new DomainException($err, 404);
         }
 
