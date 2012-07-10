@@ -9,6 +9,7 @@ namespace Appfuel\Kernel\Route;
 use LogicException,
     DomainException,
     InvalidArgumentException;
+
 /**
  * The router will attempt to match a uri string against any url group patterns
  * defined in the url-groups file, when no groups are found a group of 
@@ -113,26 +114,10 @@ class Router
                 throw new LogicException($err);
             }
 
-            $pattern = $uriSpec->getPattern($method);
-
-            /*
-             * the uri spec can hold a pattern as string or an array where
-             * the first elmement is the pattern and the second is the regex
-             * modifier string
-             */
-            $modifiers = null;
-            if (is_array($pattern)) {
-                $modifiers = isset($pattern[1]) ? $pattern[1] : null;
-                $pattern = current($pattern);
-            }
-            
-            /*
-             * No pattern for this request method, move onto the next pattern
-             */
-            if (! is_string($pattern)) {
+            if (! ($pattern = $uriSpec->getPattern($method))) {
                 continue;
             }
-            $pattern = '#' . $pattern . "#{$modifiers}";
+
             if (preg_match($pattern, $uri, $matches)) {
                 $routeKey = $key;
                 break;

@@ -32,11 +32,12 @@ class RoutePatternSpec implements RoutePatternSpecInterface
      * Allow the pattern to change based on the method
      * @var array
      */
-    protected $patternMap = array(
-        'get'    => null,
-        'post'   => null,
-        'put'    => null,
-        'delete' => null,
+    protected $map = array(
+        'default' => null,
+        'get'     => null,
+        'post'    => null,
+        'put'     => null,
+        'delete'  => null,
     );
 
     /**
@@ -59,18 +60,8 @@ class RoutePatternSpec implements RoutePatternSpecInterface
         }
         $this->setRouteKey($data['route-key']);
 
-        if (isset($data['pattern'])) {
-            $this->setPattern($data['pattern']);
-        }
-
-        if (isset($data['pattern-map'])) {
-            $this->setPatternMap($data['pattern-map']);
-        }
-
-        if (! isset($data['pattern']) && ! isset($data['pattern-map'])) {
-            $err  = "either -(pattern) or -(pattern-map) must be defined to ";
-            $err .= "inorder to complete the url specification";
-            throw new OutofBoundsException($err);
+        if (isset($data['compiled-pattern'])) {
+            $this->setPattern($data['compiled-pattern']);
         }
 
         if (isset($data['pattern-group'])) {
@@ -91,13 +82,25 @@ class RoutePatternSpec implements RoutePatternSpecInterface
      */
     public function getPattern($method = null)
     {
-        if (null === $method || 
-            ! is_string($method) ||
-            ! isset($this->patternMap[$method])) {
-            return $this->pattern;
+        if (null === $method) {
+            return $this->getDefaultPattern();
         }
 
-        return $this->patternMap[$method];
+        if (! is_string($method)) {
+            $err = "http method must be string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (! isset($this->map[$method])) {
+            if (isset($this->map['default'])) {
+                return $this->map['default'];
+            }
+
+            return false;
+        }
+
+
+        return $this->map[$method];
     }
 
     /**
@@ -125,49 +128,23 @@ class RoutePatternSpec implements RoutePatternSpecInterface
      * @param   string  $pattern
      * @return  null
      */
-    protected function setPattern($pattern)
+    protected function setPattern(array $map)
     {
-        $this->pattern = $this->validatePattern($pattern);
-    }
+        foreach ($map as $key => $pattern) {
+            if (! array_key_exists($key, $this->map)) {
+                $keys = explode(',', array_keys($this->map));
+                $err = "pattern map key must be one of the following -($keys)";
+                throw new DomainException($err);
+            }
 
-    /**
-     * @param   array   $map
-     * @return  null
-     */
-    protected function setPatternMap(array $map)
-    {
-        foreach ($map as $method => $pattern) {
-            $this->patternMap[$method] = $this->validatePattern($pattern); 
+            if (null !== $pattern && 
+                (! is_string($pattern) || empty($pattern))) {
+                $err = "regex pattern must be a non empty string";
+                throw new DomainException($err);
+            }
+
+            $this->map[$key] = $pattern;
         }
-    }
-
-    protected function validatePattern($pattern)
-    {
-        if (is_string($pattern)) {
-            return $pattern;
-        }
-
-        if (! is_array($pattern)) {
-            $err = "pattern must be a string or an array";
-            throw new DomainException($err);
-        }
-
-        if (! isset($pattern[0])) {
-            $err = "when pattern is an array it must at least 1 item";
-            throw new DomainException($err);
-        }
-
-        if (! is_string($pattern[0])) {
-            $err = 'pattern must be be a string';
-            throw new DomainException($err);
-        }
-
-        if (isset($pattern[1]) && ! is_string($pattern[1])) {
-            $err = 'pattern modifier must be a string';
-            throw new DomainException($err);
-        }
-
-        return $pattern;
     }
 
     /**

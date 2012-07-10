@@ -59,7 +59,7 @@ class ConsoleHandler extends AppHandler implements ConsoleHandlerInterface
     {
         $factory = $this->getAppFactory();
         $parser  = $factory->createCliArgParser();
-        return $factory->createInput('cli', $parser->parse($data));
+        return $factory->createConsoleInput($parser->parse($data));
     }
 
     /**
