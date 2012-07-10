@@ -1,11 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Validate\Filter;
 
@@ -18,85 +15,85 @@ namespace Appfuel\Validate\Filter;
  */
 class BoolFilter extends ValidationFilter
 {
-	/**
-	 * @param	mixed	$raw	input to filter
-	 * @return	mixed
-	 */	
-	public function filter($raw)
-	{
+    /**
+     * @param   mixed   $raw    input to filter
+     * @return  mixed
+     */    
+    public function filter($raw)
+    {
 
-		$map = $this->getOption('map');
-		if (is_array($map) && ! empty($map)) {
-			$clean = $this->filterMap($raw, $map);
-		}
-		else {
-			$clean = $this->filterVar($raw);
-		}
+        $map = $this->getOption('map');
+        if (is_array($map) && ! empty($map)) {
+            $clean = $this->filterMap($raw, $map);
+        }
+        else {
+            $clean = $this->filterVar($raw);
+        }
 
-		if ($this->isFailure($clean)) {
-			return $this->getFailure();
-		}
+        if ($this->isFailure($clean)) {
+            return $this->getFailure();
+        }
 
-		return $clean;
-	}
+        return $clean;
+    }
 
-	/**
-	 * uses php's filter_var to clean boolean values
-	 *
-	 * @param	mixed	$raw
-	 * @return	bool | string
-	 */
-	protected function filterVar($raw)
-	{
-		if (is_bool($raw)) {
-			return $raw;
-		}
-
-		$opts = array('options' => array());
-		if ($this->isDefault()) {
-			$opts['options']['default'] = $this->getDefault();
-		}
-		
-		if (true === $this->getOption('strict', false)) {
-			$opts['flags'] = FILTER_NULL_ON_FAILURE;
-		}
-
-		$clean = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $opts);
-		return (null === $clean) ? $this->getFailureToken() : $clean;
-	}
-
-	/**
-	 * Allows for a custom map of true and false values
+    /**
+     * uses php's filter_var to clean boolean values
      *
-	 * @param	mixed	$raw	
-	 * @param	array	$map
-	 * @return	mixed
-	 */
-	protected function filterMap($raw, array $map)
-	{
-		if (! isset($map['true']) || ! is_array($map['true'])) {
-			return $this->getFailureToken();
-		}
-		$truthy = $map['true'];
+     * @param   mixed   $raw
+     * @return  bool | string
+     */
+    protected function filterVar($raw)
+    {
+        if (is_bool($raw)) {
+            return $raw;
+        }
 
-		if (in_array($raw, $truthy, true)) {
-			return true;
-		}
-		
-		$isStrict = $this->getOption('strict', false);
-		if (! $isStrict) {
-			return false;
-		}
+        $opts = array('options' => array());
+        if ($this->isDefault()) {
+            $opts['options']['default'] = $this->getDefault();
+        }
+        
+        if (true === $this->getOption('strict', false)) {
+            $opts['flags'] = FILTER_NULL_ON_FAILURE;
+        }
 
-		if (! isset($map['false']) || ! is_array($map['false'])) {
-			return $this->getFailureToken();
-		}
-		$falsey = $map['false'];
-		
-		if (in_array($raw, $falsey, true)) {
-			return false;
-		}
+        $clean = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $opts);
+        return (null === $clean) ? $this->getFailureToken() : $clean;
+    }
 
-		return $this->getFailureToken();
-	}
+    /**
+     * Allows for a custom map of true and false values
+     *
+     * @param   mixed   $raw    
+     * @param   array   $map
+     * @return  mixed
+     */
+    protected function filterMap($raw, array $map)
+    {
+        if (! isset($map['true']) || ! is_array($map['true'])) {
+            return $this->getFailureToken();
+        }
+        $truthy = $map['true'];
+
+        if (in_array($raw, $truthy, true)) {
+            return true;
+        }
+        
+        $isStrict = $this->getOption('strict', false);
+        if (! $isStrict) {
+            return false;
+        }
+
+        if (! isset($map['false']) || ! is_array($map['false'])) {
+            return $this->getFailureToken();
+        }
+        $falsey = $map['false'];
+        
+        if (in_array($raw, $falsey, true)) {
+            return false;
+        }
+
+        return $this->getFailureToken();
+    }
 }

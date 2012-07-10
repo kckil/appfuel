@@ -1,11 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Validate;
 
@@ -14,9 +11,9 @@ namespace Appfuel\Validate;
  */
 interface ValidatorInterface
 {
-	/**
-	 * @param	CoordinatorInterface $coord
-	 * @return	bool
-	 */
-	public function isValid(CoordinatorInterface $coord);
+    /**
+     * @param   CoordinatorInterface    $coord
+     * @return  bool
+     */
+    public function isValid(CoordinatorInterface $coord);
 }

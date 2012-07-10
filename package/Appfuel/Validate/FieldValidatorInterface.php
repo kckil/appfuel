@@ -1,30 +1,28 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * For complete copywrite and license details see the LICENSE file distributed
- * with this source code.
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Validate;
 
 use Appfuel\Validate\Filter\FilterInterface;
+
 /**
  * All validators must extend from this interface
  */
 interface FieldValidatorInterface extends ValidatorInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getFields();
-	
-	/**
-	 * @param	string	$name
-	 * @return	FieldValidatorInterface
-	 */
-	public function addField($name);
+    /**
+     * @return  array
+     */
+    public function getFields();
+    
+    /**
+     * @param   string  $name
+     * @return  FieldValidatorInterface
+     */
+    public function addField($name);
 
     /**
      * @return  FieldValidatorInterface
@@ -53,8 +51,8 @@ interface FieldValidatorInterface extends ValidatorInterface
      */
     public function loadSpec(FieldSpecInterface $spec);
 
-	/**
-	 * @return	FieldValidatorInterface
-	 */
-	public function clear();
+    /**
+     * @return  FieldValidatorInterface
+     */
+    public function clear();
 }
