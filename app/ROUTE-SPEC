@@ -1,6 +1,12 @@
 route-key => array
-    pattern   => [string regex pattern] - required. 
-    group     => [string group of patterns this route belongs too],
+    pattern         => [string regex pattern] - required. 
+    pattern-map     => [array regex patterns] - used to map patterns to http
+                                                request methods get, post, put,
+                                                delete. default is used to 
+                                                fallback too
+    pattern-group   => [string group of patterns this route belongs too],
+    compiled-pattern => [array regex patterns]  This is compiled by appfuel,
+                                                unless you specify it yourself
     namespace => [string namespace of the mvc action] -required,
     action    => [string|array  when a string the name will be mapped to all 
                                 http methods and to the cli
