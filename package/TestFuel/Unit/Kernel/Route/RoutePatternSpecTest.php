@@ -52,9 +52,6 @@ class RoutePatternTest extends BaseTestCase
 		$this->assertNull($pattern->getPattern());
 		$this->assertEquals($data['route-key'],   $pattern->getRouteKey());
 		$this->assertEquals('no-group', $pattern->getGroup());
-
-        $test = new static(array('ab', 'c'));
-        echo "\n", print_r($test,1), "\n";exit;
 	}
 
 	/**
