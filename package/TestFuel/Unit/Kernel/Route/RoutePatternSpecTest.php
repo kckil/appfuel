@@ -33,33 +33,31 @@ class RoutePatternTest extends BaseTestCase
 	 * @test
 	 * @return null
 	 */
-	public function createPatternWithIndexArray()
+	public function createPatternNothingCompiled()
 	{
 		$data = array(
-            'route-key'=> 'my-route',
-            'pattern'  => '/^users$/', 
+            'route-key'     => 'my-route',
             'pattern-group' => 'my-group'
         );
 		$pattern = $this->createRoutePattern($data);
 		$interface = $this->getRoutePatternSpecInterface();
 		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data['pattern'], $pattern->getPattern());
+        $this->assertNull($pattern->getPattern());
 		$this->assertEquals($data['route-key'], $pattern->getRouteKey());
 		$this->assertEquals($data['pattern-group'], $pattern->getGroup());
 
-		$data = array(
-            'pattern'   => '/^users$/', 
-            'route-key' => 'my-route'
-        );
+		$data = array('route-key' => 'my-route');
 		$pattern = $this->createRoutePattern($data);
 		$this->assertInstanceOf($interface, $pattern);
-		$this->assertEquals($data['pattern'],   $pattern->getPattern());
+		$this->assertNull($pattern->getPattern());
 		$this->assertEquals($data['route-key'],   $pattern->getRouteKey());
 		$this->assertEquals('no-group', $pattern->getGroup());
+
+        $test = new static(array('ab', 'c'));
+        echo "\n", print_r($test,1), "\n";exit;
 	}
 
 	/**
-     * @test
 	 * @return	null
 	 */
 	public function createPatternEmptyArray()
@@ -70,7 +68,6 @@ class RoutePatternTest extends BaseTestCase
 	}
 
 	/**
-     * @test
 	 * @dataProvider	provideInvalidStrings
 	 * @return			null
 	 */

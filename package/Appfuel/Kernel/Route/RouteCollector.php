@@ -154,7 +154,17 @@ class RouteCollector implements RouteCollectorInterface
     {
         /* add route key to the specification */
         $spec['route-key'] = $key;
-        
+       
+        /*
+         * you know better than I so don't check the regex
+         */
+        if (isset($spec['compiled-pattern'])) {
+            return $spec;
+        }
+ 
+        /*
+         * This route has no pattern to process so do nothing
+         */
         if (! isset($spec['pattern']) && ! isset($spec['pattern-map'])) {
             return $spec;
         }

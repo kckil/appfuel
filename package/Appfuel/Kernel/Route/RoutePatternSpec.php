@@ -9,6 +9,7 @@ namespace Appfuel\Kernel\Route;
 use DomainException,
     OutOfBoundsException,
     InvalidArgumentException;
+
 /**
  * Value object used to hold the route key, regex pattern, and group for a 
  * given route. It is used by the route manager to process the uri matching it
@@ -83,7 +84,7 @@ class RoutePatternSpec implements RoutePatternSpecInterface
     public function getPattern($method = null)
     {
         if (null === $method) {
-            return $this->getDefaultPattern();
+            return $this->map['default'];
         }
 
         if (! is_string($method)) {
