@@ -3,10 +3,9 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Validate;
 
@@ -16,6 +15,13 @@ namespace Appfuel\Validate;
  */
 interface CoordinatorInterface
 {
+	/**
+	 * Value used to indicate a raw field was not found. This allows you to
+	 * use getRaw and trust that a null or false  is the legitimate return 
+	 * value and not a failure case.
+	 */
+	const FIELD_NOT_FOUND = '___AF_FIELD_NOT_FOUND___';
+
     /**
      * @return array
      */
@@ -24,7 +30,7 @@ interface CoordinatorInterface
     /**
      * @param   string  $label
      * @param   mixed   $value
-     * @return  Coordinator
+     * @return  CoordinatorInterface
      */
     public function addClean($field, $value);
 
@@ -35,16 +41,21 @@ interface CoordinatorInterface
      */
     public function getClean($field, $default = null);
 
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearClean();
+
     /**
      * @return array
      */
     public function getSource();
 
     /**
-     * @param   mixed
-     * @return  Validator
+     * @param   array	$source
+     * @return  CoordinatorInterface
      */
-    public function setSource($source);
+    public function setSource(array $source);
 
     /**
      * @param   string  $field
@@ -53,12 +64,17 @@ interface CoordinatorInterface
     public function getRaw($field);
 
 	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearSource();
+
+	/**
 	 * Returns a special token string to indicate that the raw key was
 	 * not located
 	 *
 	 * @return	string
 	 */
-	public function rawKeyNotFound();
+	public function getFieldNotFoundToken();
     
 	/**
 	 * @param	string	$field
@@ -73,7 +89,18 @@ interface CoordinatorInterface
     public function isError();
 
     /**
-     * @return string
+     * @return ErrorStackInterface
      */
-    public function getErrors();
+    public function getErrorStack();
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearErrors();
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clear();
+
 }

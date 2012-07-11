@@ -1,24 +1,58 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Validate;
 
+use Appfuel\Validate\Filter\FilterInterface;
+
 /**
- * Validator used to run filters against a single field
+ * All validators must extend from this interface
  */
-interface FieldValidatorInterface
+interface FieldValidatorInterface extends ValidatorInterface
 {
-	/**
-	 * Return the name of the field we are validating against
-	 *
-	 * @return	string
-	 */
-	public function getField();
+    /**
+     * @return  array
+     */
+    public function getFields();
+    
+    /**
+     * @param   string  $name
+     * @return  FieldValidatorInterface
+     */
+    public function addField($name);
+
+    /**
+     * @return  FieldValidatorInterface
+     */
+    public function clearFields();
+
+    /**
+     * @return  array
+     */
+    public function getFilters();
+
+    /**
+     * @param   FilterInterface $filter
+     * @return  FieldValidatorInterface
+     */
+    public function addFilter(FilterInterface $filter);
+
+    /**
+     * @return  FieldValidatorInterface
+     */
+    public function clearFilters();
+
+    /**
+     * @param   FieldSpecInterface $spec
+     * @return  FieldValidatorInterface
+     */
+    public function loadSpec(FieldSpecInterface $spec);
+
+    /**
+     * @return  FieldValidatorInterface
+     */
+    public function clear();
 }

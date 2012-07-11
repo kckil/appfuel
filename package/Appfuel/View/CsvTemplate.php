@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\View;
 
@@ -15,11 +11,11 @@ namespace Appfuel\View;
  */
 class CsvTemplate extends ViewTemplate
 {
-	/**
-	 * @return	string
-	 */
-	public function build()
-	{
-		return ViewCompositor::composeCsv($this->getAll());
-	}
+    /**
+     * @return  string
+     */
+    public function build()
+    {
+        return ViewCompositor::composeCsv($this->getAll());
+    }
 }

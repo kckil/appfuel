@@ -1,0 +1,57 @@
+route-key => array
+    pattern         => [string regex pattern] - required. 
+    pattern-map     => [array regex patterns] - used to map patterns to http
+                                                request methods get, post, put,
+                                                delete. default is used to 
+                                                fallback too
+    pattern-group   => [string group of patterns this route belongs too],
+    compiled-pattern => [array regex patterns]  This is compiled by appfuel,
+                                                unless you specify it yourself
+    namespace => [string namespace of the mvc action] -required,
+    action    => [string|array  when a string the name will be mapped to all 
+                                http methods and to the cli
+                                when array it will be an associative array that
+                                maps request method to action class name.
+
+    /* route startup */
+    disable-startup             => [bool false by default],
+    prepend-startup-tasks       => [bool false by default],
+    only-route-startup-tasks    => [bool false by default],
+    startup-tasks               => [array strings, classnames of tasks],
+    excluded-startup-tasks      => [array strings, classnames of excluded tasks],
+
+    /* route view */
+    default-format => [string   determines how the view is composed],
+    disable-view   => [bool     false by default],
+    manual-view    => [bool     false by defualt],
+    view-pkg       => [string   location of the view package]
+
+    /* route intercepting filters */
+    disable-pre-filters  => [bool    false by default],
+    pre-filters          => [array strings   classnames of prefilters],
+    excluded-pre-filters => [array strings   classnames of excluded prefilters],
+    disable-post-filters => [bool    false by default],
+    post-filters         => [array strings   classnames of post filters],
+    exclude-post-filters => [array strings  classnames of excluded post filters]
+
+    /* route access */
+    is-public     => [bool  false by default],
+    is-internal   => [bool  false by default],
+    is-ignore-acl => [bool  false by default],
+    acl           => [array acl],
+
+    /* route input validation */
+    disable-validation          =>  [bool   false by default],
+    disable-validation-failures =>  [bool   false by default],
+    validation-error-code       =>  [scalar used when throwing an error],
+    validation-spec             =>  [array
+        field   => [string | array of fields ],
+            filters => [array
+                filter-name => array[
+                    options => [array list of options],
+                    error   => [string error message]
+                    ], ...
+            ]
+        ], ...
+    ]
+]

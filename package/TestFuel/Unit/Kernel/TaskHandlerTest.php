@@ -4,16 +4,16 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Testfuel\Unit\Kernel;
 
 use StdClass,
 	Appfuel\Kernel\TaskHandler,
-	Appfuel\Kernel\Mvc\MvcContext,
-	Appfuel\Kernel\ConfigRegistry,
+	Appfuel\App\AppContext,
+	Appfuel\Config\ConfigRegistry,
 	Testfuel\TestCase\BaseTestCase,
 	Testfuel\Functional\Kernel\Startup\TestTaskA,
 	Testfuel\Functional\Kernel\Startup\TestTaskB;
@@ -60,22 +60,10 @@ class TaskHandlerTest extends BaseTestCase
 		ConfigRegistry::setAll($this->configBackup);
 	}
 
-    /**
-     * @return  array
-     */
-    public function provideInvalidStrings()
+    public function createContextWithInput($key)
     {
-        return array(
-            array(0),
-            array(1),
-            array(100),
-            array(-1),
-            array(-100),
-            array(1.2),
-            array(array()),
-            array(array(1,2,3)),
-            array(new StdClass())
-        );
+    	$input = $this->getMock("Appfuel\App\AppInputInterface");
+		return new AppContext($key $input);
     }
 
 	/**
@@ -219,8 +207,7 @@ class TaskHandlerTest extends BaseTestCase
 
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
-		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = $this->createContextWithInput('my-route');
 
 		$this->assertNull($handler->kernelRunTasks($route, $context));
 	
@@ -253,7 +240,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$msg = 'tasks defined in the config registry must be in an array';
 		$this->setExpectedException('RunTimeException', $msg);
@@ -280,7 +267,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$msg  = 'startup task class name must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
@@ -307,7 +294,7 @@ class TaskHandlerTest extends BaseTestCase
 		$ns = 'Appfuel\Kernel\Mvc';
 		$route = $this->getMock("$ns\MvcRouteDetailInterface");
 		$input = $this->getMock("$ns\AppInputInterface");
-		$context = new MvcContext('my-route', $input);
+		$context = new AppContext('my-route', $input);
 
 		$ns  = 'Appfuel\Kernel\StartupTaskInterface'; 
 		$msg = "-(StdClass) must implement $ns";
@@ -339,7 +326,4 @@ class TaskHandlerTest extends BaseTestCase
 		$msg = TaskHandler::getStatus(get_class($taskB));
 		$this->assertEquals('test-b has executed', $msg);
 	}
-
-
-
 }

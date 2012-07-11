@@ -1,21 +1,19 @@
 #!/usr/bin/env php
-<?php
+<?php 
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
- */ 
-use Appfuel\Kernel\AppHandler,
-    Appfuel\Filesystem\FileFinder,
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */
+use Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileWriter;
 
-require 'cli-header.php';
+$ctrl['app-type'] = 'cli';
+$handler = require realpath(dirname(__FILE__) . '/../app/app-header.php');
+$input = $handler->createConsoleInput($_SERVER['argv']);
 
-if (count($argv) < 2) {
+$args = $input->getArgs();
+if (count($args) < 1) {
     $err  = "installer must have the absolute path to where the appfuel ";
     $err .= "source code will be installed to as the first argument \n";
     fwrite(STDERR, $err);
@@ -23,8 +21,8 @@ if (count($argv) < 2) {
 }
 
 /* source files */
-$src  = AF_CODE_PATH . '/Appfuel';
-$dest = $argv[1];
+$src  = AF_SRC_PATH . '/Appfuel';
+$dest = current($args);
 if (! is_string($dest) || empty($dest)) {
     $err  = "the absolute path to the directory of your projects source code ";
     $err .= "must be a non empty string";
@@ -51,7 +49,7 @@ $writer->copyTree($src, "$dest/Appfuel");
 /*
  * this variabled is defined in cli-header
  */
-if ($isVerbose) {
+if ($input->isCliOpt('verbose', 'v')) {
 	fwrite(STDOUT, "appfuel source was copied to $dest/Appfuel\n");
 }
 exit(0);

@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Http;
 
@@ -20,22 +16,22 @@ use InvalidArgumentException;
  */
 class HttpStatus implements HttpStatusInterface
 {
-	/**
-	 * Data to be sent in this response
-	 * @var	string
-	 */
-	protected $code = null;
+    /**
+     * Data to be sent in this response
+     * @var string
+     */
+    protected $code = null;
 
-	/**
-	 * @var	string
-	 */
-	protected $text = '';
+    /**
+     * @var string
+     */
+    protected $text = '';
 
-	/**
-	 * Http status codes to use a defaults
-	 * @var array
-	 */
-	static protected $statusMap = array(
+    /**
+     * Http status codes to use a defaults
+     * @var array
+     */
+    static protected $statusMap = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -77,65 +73,65 @@ class HttpStatus implements HttpStatusInterface
         503 => 'Service Unavailable',
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported',
-	);
+    );
 
-	/**
-	 * @param	int		$status		status code of the response
-	 * @return	HttpResponseStatus
-	 */
-	public function __construct($code = 200, $text = null)
-	{
-		if (! is_numeric($code)) {
-			$err  = "invalid http status code, must be a number or string ";
-			$err .- "that is a number";
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   int $status status code of the response
+     * @return  HttpResponseStatus
+     */
+    public function __construct($code = 200, $text = null)
+    {
+        if (! is_numeric($code)) {
+            $err  = "invalid http status code, must be a number or string ";
+            $err .- "that is a number";
+            throw new InvalidArgumentException($err);
+        }
 
-		$code = (int)$code;
-		if (! is_int($code) || $code < 100 || $code >= 600) {
-			throw new InvalidArgumentException("invalid http status code");
-		}
-		
-		$this->code = $code;
-		if (null === $text) {
-			$text = '';
-			if (isset(self::$statusMap[$code])) {
-				$text = self::$statusMap[$code];
-			}
-		}
-			
-		$this->text = $text;
-	}
+        $code = (int)$code;
+        if (! is_int($code) || $code < 100 || $code >= 600) {
+            throw new InvalidArgumentException("invalid http status code");
+        }
+        
+        $this->code = $code;
+        if (null === $text) {
+            $text = '';
+            if (isset(self::$statusMap[$code])) {
+                $text = self::$statusMap[$code];
+            }
+        }
+            
+        $this->text = $text;
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function getStatusMap()
-	{
-		return self::$statusMap;
-	}
+    /**
+     * @return  array
+     */
+    public function getStatusMap()
+    {
+        return self::$statusMap;
+    }
 
-	/**
-	 * @return	int
-	 */
-	public function getCode()
-	{
-		return $this->code;
-	}
+    /**
+     * @return  int
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
 
-	/**
-	 * @return	string
-	 */
-	public function getText()
-	{
-		return $this->text;
-	}
+    /**
+     * @return  string
+     */
+    public function getText()
+    {
+        return $this->text;
+    }
 
-	/**
-	 * @return	string
-	 */
-	public function __toString()
-	{
-		return "{$this->getCode()} {$this->getText()}";
-	}
+    /**
+     * @return  string
+     */
+    public function __toString()
+    {
+        return "{$this->getCode()} {$this->getText()}";
+    }
 }

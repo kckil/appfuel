@@ -1,36 +1,74 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
-use Appfuel\Kernel\AppHandler;
-
-$base = realpath(dirname(__FILE__) . '/../');
-$src  = 'package';
-$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
-if (! file_exists($file)) {
-    throw new LogicException("Could not find app runner at -($file)");
+$header = realpath(dirname(__FILE__) . '/../app/app-header.php');
+if (! file_exists($header)) {
+    $err = "appfuel's app-header script is required but not found -($header)";
+    throw new LogicException($err);
 }
-require_once $file;
 
-$handler = new AppHandler($base);
-$handler->loadConfigFile('app/config/config.php', 'main')
-        ->initializeFramework();
+$ctrl['app-type'] = 'web';
+$handler = require $header;
 
-$uri     = $handler->createUriFromServerSuperGlobal();
-$key     = $uri->getRouteKey();
-$format  = $uri->getRouteFormat();
-$route   = $handler->findRoute($uri);
-$input   = $handler->createRestInputFromBrowser($uri);
-$context = $handler->createContext($key, $input);
-$handler->initializeApp($route, $context)
-		->setupView($route, $context, $format)
-		->runAction($context)
-		->outputHttpContext($route, $context);
+/*
+ * Appfuel works with both pretty urls (using regex) and old style urls where
+ * it looks for two keys 1) routekey 2) viewformat. Either route methods will
+ * throw an exception when a route can not be found.
+ */
+$method = $handler->getRequestMethod(); 
+if ($handler->isQueryString()) {
+    $route = $handler->lookupRouteInQueryString();
+}
+else {
+    $route = $handler->matchRoute($handler->getRequestUri(), $method);
+}
+$routeKey = $route->getRouteKey();
 
-exit($context->getExitCode());
+/*
+ * The app view is an object that holds all content, formatting info and 
+ * data assignments used to constuct a view 
+ */
+$view = $handler->createAppView($route);
+
+/*
+ * Allow the routing regex captures and input declarations to be added to 
+ * the input object
+ */
+$input = $handler->createWebInput($route, $method);
+
+/*
+ * The context holds all the objects needed by the action controller
+ */
+$context = $handler->createWebContext($routeKey, $input, $view);
+
+/*
+ * Application specific logic applied before the action is dispatched. Note:
+ * the routing system has the ability to add, remove or skip startup tasks
+ * for any given route
+ */
+$handler->runStartupTasks($context);
+
+/*
+ * Action is dispatched. Note: pre and post filters are applied by the front
+ * controller
+ */
+$context = $handler->runAction($context);
+
+/*
+ * Ensure the view is a string
+ */
+$content = $handler->composeView($context); 
+
+/*
+ * Collect any http headers added to the context
+ */
+$headers = $context->get('http-headers', array());
+if (! is_array($headers) || empty($headers)) {
+    $headers = null;
+}
+
+$handler->outputHttp($content, $context->getExitCode(), $headers);
+exit(0);

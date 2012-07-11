@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\ClassLoader;
 
@@ -17,42 +13,42 @@ namespace Appfuel\ClassLoader;
  */
 interface AutoLoaderInterface
 {
-	/**
-	 * @return	bool
-	 */
-	public function isIncludePathEnabled();
+    /**
+     * @return  bool
+     */
+    public function isIncludePathEnabled();
 
-	/**
-	 * @return	StandardAutoLoader
-	 */
-	public function enableIncludePath();
+    /**
+     * @return  StandardAutoLoaderInterface
+     */
+    public function enableIncludePath();
 
-	/**
-	 * @return	StandardAutoLoader
-	 */
-	public function disableIncludePath();
+    /**
+     * @return  StandardAutoLoaderInterface
+     */
+    public function disableIncludePath();
 
-	/**
-	 * @param	string	$namespace	
-	 * @param	string	absolute path to namespace
-	 * @return	StandardAutoLoader
-	 */
-	public function addPath($path);
+    /**
+     * @param    string    $namespace    
+     * @param    string    absolute path to namespace
+     * @return  StandardAutoLoaderInterface
+     */
+    public function addPath($path);
 
-	/**
-	 * @return	array
-	 */
-	public function getPaths();
+    /**
+     * @return  array
+     */
+    public function getPaths();
 
-	/**
-	 * @param	bool	$flag
-	 * @return	null
-	 */
-	public function register($prepend = false);
+    /**
+     * @param   bool    $flag
+     * @return  null
+     */
+    public function register($prepend = false);
 
-	/**
-	 * @param	string
-	 * @return	null
-	 */
-	public function loadClass($class);
+    /**
+     * @param   string
+     * @return  null
+     */
+    public function loadClass($class);
 }

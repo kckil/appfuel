@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Orm\Domain;
 
@@ -18,22 +14,22 @@ use Appfuel\Expr\BinaryExprInterface;
  */
 interface DomainExprInterface extends BinaryExprInterface
 {
-	/**
-	 * Returns the domain key used in the expression
-	 * @return	string
-	 */
-	public function getDomain();
+    /**
+     * Returns the domain key used in the expression
+     * @return    string
+     */
+    public function getDomain();
 
-	/**
-	 * Returns the domain member used in the expression
-	 * @return string
-	 */
-	public function getMember();
+    /**
+     * Returns the domain member used in the expression
+     * @return string
+     */
+    public function getMember();
 
-	/**
-	 * Returns the value of the expression
-	 * @return string
-	 */
-	public function getValue();
+    /**
+     * Returns the value of the expression
+     * @return string
+     */
+    public function getValue();
 
 }

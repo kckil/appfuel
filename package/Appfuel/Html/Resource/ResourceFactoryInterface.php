@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Html\Resource;
 
@@ -15,33 +11,33 @@ namespace Appfuel\Html\Resource;
  */
 interface ResourceFactoryInterface
 {
-	/**
-	 * @param	string	$vendor 
-	 * @return	ResourceAdapterInterface
-	 */
-	public function createResourceAdapter();
+    /**
+     * @param    string    $vendor 
+     * @return    ResourceAdapterInterface
+     */
+    public function createResourceAdapter();
 
-	/**
-	 * @return	FileStackInterface
-	 */
-	public function createFileStack();
+    /**
+     * @return    FileStackInterface
+     */
+    public function createFileStack();
 
-	/**
-	 * @param	string	$name
-	 * @param	VendorInterface $vendor
-	 * @return	ResourceLayerInterface
-	 */
-	public function createLayer($name, VendorInterface $vendor);
+    /**
+     * @param    string    $name
+     * @param    VendorInterface $vendor
+     * @return    ResourceLayerInterface
+     */
+    public function createLayer($name, VendorInterface $vendor);
 
-	/**
-	 * @param	array	$data
-	 * @return	VendorInterface
-	 */
-	public function createVendor(array $data);
+    /**
+     * @param    array    $data
+     * @return    VendorInterface
+     */
+    public function createVendor(array $data);
 
-	/**
-	 * @param	array	$data
-	 * @return	AppfuelManifestInterface
-	 */
-	public function createPkg(array $data, $vendor = null);
+    /**
+     * @param    array    $data
+     * @return    AppfuelManifestInterface
+     */
+    public function createPkg(array $data, $vendor = null);
 }

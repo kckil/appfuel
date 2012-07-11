@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Console;
 
@@ -17,25 +13,19 @@ namespace Appfuel\Console;
  */
 interface ConsoleOutputInterface
 {
-	/**
-	 * @param	mixed	$data
-	 * @return	bool
-	 */
-	public function isValidOutput($data);
+    /**
+     * Write to the STDOUT.
+     *
+     * @param   scalar|object   $data
+     * @return  null
+     */
+    public function render($data);
 
-	/**
-	 * Write to the STDOUT.
-	 *
-	 * @param	mixed	$data
-	 * @return	null
-	 */
-	public function render($data);
-
-	/**
-	 * Write to the STDERR.
-	 *
-	 * @param	string	$msg	error message
-	 * @return	null
-	 */
-	public function renderError($data);
+    /**
+     * Write to the STDERR.
+     *
+     * @param   scalar|object  $data
+     * @return  null
+     */
+    public function renderError($data);
 }
