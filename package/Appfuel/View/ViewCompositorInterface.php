@@ -1,119 +1,117 @@
 <?php
-/**
- * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+/**                                                                              
+ * Appfuel                                                                       
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design.       
+ *                                                                               
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>                  
+ * See LICENSE file at the project root directory for details.                   
  */
 namespace Appfuel\View;
 
 use DomainException,
-	RunTimeException,
-	InvalidArgumentException,
-	Appfuel\Filesystem\FileFinder,
-	Appfuel\Filesystem\FileFinderInterface;
+    RunTimeException,
+    InvalidArgumentException,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileFinderInterface;
 
 /**
  */
 interface ViewCompositorInterface
 {
-	/**
-	 * @param	string	$file	
-	 * @param	string	$data
-	 * @return	string
-	 */
-	static public function composeFile($file, array $data);
+    /**
+     * @param   string    $file    
+     * @param   string    $data
+     * @return  string
+     */
+    static public function composeFile($file, array $data);
 
-	/**
-	 * @param	array	$data	
-	 * @param	int		$options
-	 * @return	string
-	 */
-	static public function composeJson(array $data, $options = 0);
+    /**
+     * @param   array    $data    
+     * @param   int        $options
+     * @return  string
+     */
+    static public function composeJson(array $data, $options = 0);
 
-	/**
-	 * @param	array	$data
-	 * @return	string
-	 */
-	static public function composeCsv(array $data);
+    /**
+     * @param   array    $data
+     * @return  string
+     */
+    static public function composeCsv(array $data);
 
-	/**
-	 * Removes only the values from the list and converts them into a string
-	 * where each item is separated by $sep
-	 * 
-	 * @param	array	$data
-	 * @param	string	$sep
-	 * @return	string
-	 */
-	static public function composeList(array $data, $sep = ' ');
-	
-	/**
-	 * @param	string	$str
-	 * @return	string
-	 */
-	static public function composeString($str);
+    /**
+     * Removes only the values from the list and converts them into a string
+     * where each item is separated by $sep
+     * 
+     * @param   array    $data
+     * @param   string    $sep
+     * @return  string
+     */
+    static public function composeList(array $data, $sep = ' ');
+    
+    /**
+     * @param   string    $str
+     * @return  string
+     */
+    static public function composeString($str);
 
-	/**
-	 * @param	array	$list
-	 * @param	string	$sep
-	 * @return	string
-	 */
-	static public function composeArray(array $list, $sep = ' ');
+    /**
+     * @param   array    $list
+     * @param   string    $sep
+     * @return  string
+     */
+    static public function composeArray(array $list, $sep = ' ');
 
-	/**
-	 * @return	TemplateCompositorInterface
-	 */
-	static public function getFileCompositor();
+    /**
+     * @return  TemplateCompositorInterface
+     */
+    static public function getFileCompositor();
 
-	/**
-	 * @param	FileCompositorInterface $comp
-	 * @return	null
-	 */
-	static public function setFileCompositor(FileCompositorInterface $comp);
-		
-	/**
-	 * @return	FileCompositorInterface
-	 */
-	static public function loadFileCompositor();
+    /**
+     * @param   FileCompositorInterface $comp
+     * @return  null
+     */
+    static public function setFileCompositor(FileCompositorInterface $comp);
+        
+    /**
+     * @return  FileCompositorInterface
+     */
+    static public function loadFileCompositor();
 
-	/**
-	 * @return	bool
-	 */
-	static public function isFileCompositor();
+    /**
+     * @return  bool
+     */
+    static public function isFileCompositor();
 
-	/**
-	 * @return	null
-	 */
-	static public function createFileCompositor();
-	
-	/**
-	 * @return	FileFinderInterface
-	 */
-	static public function getFileFinder();
+    /**
+     * @return  null
+     */
+    static public function createFileCompositor();
+    
+    /**
+     * @return  FileFinderInterface
+     */
+    static public function getFileFinder();
 
-	/**
-	 * @param	FileFinderInterface $finder
-	 * @return	null
-	 */
-	static public function setFileFinder(FileFinderInterface $finder);
+    /**
+     * @param   FileFinderInterface $finder
+     * @return  null
+     */
+    static public function setFileFinder(FileFinderInterface $finder);
 
-	/**
-	 * @return	bool
-	 */
-	static public function isFileFinder();
+    /**
+     * @return  bool
+     */
+    static public function isFileFinder();
 
-	/**
-	 * @param	string	$path	
-	 * @param	bool	$isBase
-	 * @return	FileFinderInterface
-	 */
-	static public function createFileFinder($path = null, $isBase = true);
+    /**
+     * @param   string  $path    
+     * @param   bool    $isBase
+     * @return  FileFinderInterface
+     */
+    static public function createFileFinder($path = null, $isBase = true);
 
-	/**
-	 * @return	FileFinderInterface
-	 */
-	static public function loadFileFinder();
+    /**
+     * @return  FileFinderInterface
+     */
+    static public function loadFileFinder();
 }

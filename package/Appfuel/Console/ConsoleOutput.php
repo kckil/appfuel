@@ -1,17 +1,10 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Console;
-
-
-use InvalidArgumentException;
 
 /**
  * Provides validation to ensure scalar data or objects that implement
@@ -20,61 +13,69 @@ use InvalidArgumentException;
  */
 class ConsoleOutput implements ConsoleOutputInterface
 {
-	/**
-	 * @param	mixed	$data
-	 * @return	bool
-	 */
-	public function isValidOutput($data)
-	{
-		if (is_null($data)   ||
-			is_bool($data)   ||
-			is_scalar($data) || 
-			is_object($data) && is_callable(array($data, '__toString'))) {
-			return true;
-		}
+    /**
+     * Its the Output engines responsiblity to validate the output is 
+     * is safe to use.
+     * 
+     * @param    mixed    $data
+     * @return    null
+     */
+    public function render($data, $includeNewline = true)
+    {
+        if (! $this->isValidOutput($data)) {
+            $err = 'invalid console output: must be able to cast to a string';
+            $this->renderError($err);
+            exit;
+        }
 
-		return false;
-	}
+        if (true === $includeNewline) {
+            $data .= PHP_EOL;
+        }
 
-	/**
-	 * Its the Output engines responsiblity to validate the output is 
-	 * is safe to use.
-	 * 
-	 * @param	mixed	$data
-	 * @return	null
-	 */
-	public function render($data)
-	{
-		if (! $this->isValidOutput($data)) {
-			$err = 'data must be able to cast to a string';
-			throw new InvalidArgumentException($err);
-		}
+        if (PHP_SAPI !== 'cli') {
+            echo $data;
+            return;
+        }
 
-		if (PHP_SAPI !== 'cli') {
-			echo $data, PHP_EOL;
-			return;
-		}
+        fwrite(STDOUT, $data);
+    }
 
-		fwrite(STDOUT, $data);
-	}
+    /**
+     * @param   string    $msg    error message
+     * @param   int        $code    ignored by commandline
+     * @return  null
+     */
+    public function renderError($data, $includeNewline = true)
+    {
+        if (! $this->isValidOutput($data)) {
+            $err = 'unkown error has occured: also error msg is not valid';
+            fwrite(STDERR, $err);
+            exit;
+        }
+    
+        if (true === $includeNewline) {
+            $data .= PHP_EOL;
+        }
 
-	/**
-	 * @param	string	$msg	error message
-	 * @paraj	int		$code	ignored by commandline
-	 * @return	null
-	 */
-	public function renderError($data)
-	{
-		if (! $this->isValidOutput($data)) {
-			$err = 'data must be able to cast to a string';
-			throw new InvalidArgumentException($err);
-		}
-	
-		if (PHP_SAPI !== 'cli') {
-			echo $data, PHP_EOL;
-			return;
-		}
+        if (PHP_SAPI !== 'cli') {
+            echo $data;
+            return;
+        }
 
-		fwrite(STDERR, (string)$data . PHP_EOL);
-	}
+        fwrite(STDERR, (string)$data);
+    }
+
+    /**
+     * @param   mixed   $data
+     * @return  bool
+     */
+    protected function isValidOutput($data)
+    {
+        if (is_scalar($data) || 
+            is_object($data) && is_callable(array($data, '__toString'))) {
+            return true;
+        }
+
+        return false;
+    }
 }

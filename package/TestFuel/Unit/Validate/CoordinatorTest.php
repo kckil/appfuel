@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,429 +12,306 @@ namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\Coordinator,
+	Appfuel\Validate\CoordinatorInterface,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
- * Test the coordinator's ability to move raw and clean data aswell as add error text
+ * Test the coordinator's ability to move raw and clean data aswell as add 
+ * error text
  */
 class CoordinatorTest extends BaseTestCase
 {
 	/**
-	 * System under test
-	 * @var Coordinator
+	 * @return	array
 	 */
-	protected $coord = null;
-
-	/**
-	 * @return null
-	 */
-	public function setUp()
+	public function provideInvalidKeys()
 	{
-		$this->coord = new Coordinator();
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		unset($this->coord);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testInterfaces()
-	{
-		$this->assertInstanceOf(
-			'Appfuel\Validate\CoordinatorInterface',
-			$this->coord
+		return array(
+			array(true),
+			array(false),
+			array(new StdClass()),
+			array(array(1,2,3,4))
 		);
 	}
 
 	/**
-	 * You can set the raw source with setSource of by passing it into the
-	 * the constructor
-	 *
-	 * @return	null
+	 * @return	string	
 	 */
-	public function testGetSetSource()
+	public function getErrorStackInterface()
 	{
-		/* 
-		 * when nothing is passed into the constructor the default source is
-		 * an empty array
-		 */
-		$this->assertEquals(array(), $this->coord->getSource());
-
-		$source = array('name' => 'value');
-		$this->assertSame(
-			$this->coord,
-			$this->coord->setSource($source),
-			'Must use a fluent interface'
-		);
-		$this->assertEquals($source, $this->coord->getSource());
-
-		/* 
-		 * can also set an empty array which has the effect of resetting the
-		 * source
-		 */
-		$this->assertSame(
-			$this->coord,
-			$this->coord->setSource(array()),
-			'Must use a fluent interface'
-		);
-		$this->assertEquals(array(), $this->coord->getSource());
-
-
-		/* use the constructor to set the source */
-		$coord = new Coordinator($source);
-		$this->assertEquals($source, $coord->getSource());
-
-		/* dictionary is a valid source */
-		$this->assertSame(
-			$this->coord,
-			$this->coord->setSource(new Dictionary($source)),
-			'Must use a fluent interface'
-		);
-		$this->assertEquals($source, $this->coord->getSource());
+		return 'Appfuel\Error\ErrorStackInterface';
 	}
 
 	/**
-	 * The Test class adds uses addClean while the Controller uses 
-	 * getClean and GetAllClean
-	 *
+	 * @return	string
+	 */
+	public function getCoordinatorInterface()
+	{
+		return 'Appfuel\Validate\CoordinatorInterface';
+	}
+
+	/**
+	 * @return	Coordinator
+	 */
+	public function createCoordinator(ErrorStackInterface $stack = null)
+	{
+		return new Coordinator($stack);	
+	}
+
+	/**
+	 * @test
+	 * @return Coordinator
+	 */
+	public function coordinatorInterface()
+	{
+		$coord = $this->createCoordinator();
+		$this->assertInstanceOf($this->getCoordinatorInterface(), $coord);
+		return $coord;
+	}
+
+	/**
+	 * @test
+	 * @return	Coordinator
+	 */
+	public function createCoordinatorWithErrorStack()
+	{
+		$stack = $this->getMock($this->getErrorStackInterface());
+		$coord = $this->createCoordinator($stack);
+		$this->assertInstanceOf($this->getCoordinatorInterface(), $coord);
+		$this->assertSame($stack, $coord->getErrorStack());	
+
+		return $coord;
+	}
+
+	/**
+	 * @test
+	 * @depends	coordinatorInterface
 	 * @return null
 	 */
-	public function testGetGetAllAddClean()
+	public function clean(Coordinator $coord)
 	{
 		/* default value is an empty array */
-		$this->assertEquals(array(), $this->coord->getAllClean());
+		$this->assertEquals(array(), $coord->getAllClean());
 
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addClean('key', 'value'),
-			'must expose a fluent interface'
-		);
+		$this->assertSame($coord, $coord->addClean('key', 'value'));
 
-		$this->assertEquals('value', $this->coord->getClean('key'));
-		$this->assertEquals(array('key'=>'value'),$this->coord->getAllClean());
+		$this->assertEquals('value', $coord->getClean('key'));
+		$this->assertEquals(array('key'=>'value'), $coord->getAllClean());
 			
 
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addClean('foo', 'bar'),
-			'must expose a fluent interface'
-		);
+		$this->assertSame($coord, $coord->addClean('foo', 'bar'));
 
 		$expected = array(
 			'key' => 'value',
 			'foo' => 'bar'
 		);
 	
-		$this->assertEquals($expected, $this->coord->getAllClean());
-		$this->assertEquals('value', $this->coord->getClean('key'));
-		$this->assertEquals('bar', $this->coord->getClean('foo'));
+		$this->assertEquals($expected, $coord->getAllClean());
+		$this->assertEquals('value', $coord->getClean('key'));
+		$this->assertEquals('bar', $coord->getClean('foo'));
+	
+		/* key can be a scalar value */
+		$this->assertSame($coord, $coord->addClean(123, 'value_123'));
+	
+		$expected[123] = 'value_123';
+		$this->assertEquals($expected, $coord->getAllClean());
+		$this->assertEquals('value', $coord->getClean('key'));
+		$this->assertEquals('bar', $coord->getClean('foo'));
+		$this->assertEquals('value_123', $coord->getClean(123));
+
+
+		$this->assertSame($coord, $coord->clearClean());
+		$this->assertEquals(array(), $coord->getAllClean());
+
+		return $coord;	
+	}
+
+	/**
+	 * @test
+	 * @depends	clean
+	 * @return	Coordinator
+	 */
+	public function getCleanUsingDefault(Coordinator $coord)
+	{
+		$coord->clearClean();
+		$coord->addClean('foo', 'bar');
 
 		/* default is ignored when key is found */	
-		$this->assertEquals('bar', $this->coord->getClean('foo', 'my-value'));
+		$this->assertEquals('bar', $coord->getClean('foo', 'my-value'));
 			
 		/* default is used  when key is not found */	
-		$this->assertEquals(
-			'default-value', 
-			$this->coord->getClean('does-not-exist', 'default-value')
-		);
-
-		/* key can be a scalar value */
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addClean(123, 'value_123'),
-			'must expose a fluent interface'
-		);
-
-		$expected = array(
-			'key' => 'value',
-			'foo' => 'bar',
-			123   => 'value_123'
-		);
-		$this->assertEquals($expected, $this->coord->getAllClean());
-		$this->assertEquals('value', $this->coord->getClean('key'));
-		$this->assertEquals('bar', $this->coord->getClean('foo'));
-		$this->assertEquals('value_123', $this->coord->getClean(123));
+		$this->assertEquals('default', $coord->getClean('none', 'default'));
 
 		/* default value returned when key is not found is null */
-		$this->assertNull($this->coord->getClean('does-not-exist'));
+		$this->assertNull($coord->getClean('none'));
 		
 		/* invalid keys always return default value */
-		$this->assertEquals(
-			'bad-key', 
-			$this->coord->getClean(array(), 'bad-key'),
-			'array is not a valid key'
-		);
+		$default = 'bad-key';
+		$this->assertEquals($default, $coord->getClean(array(), $default));
+		$this->assertEquals($default, $coord->getClean('', $default));
+		$this->assertEquals($default, $coord->getClean(new StdClass,$default));
 
-		$this->assertEquals(
-			'bad-key', 
-			$this->coord->getClean('', 'bad-key'),
-			'empty string is not a valid key'
-		);
-
-		$this->assertEquals(
-			'bad-key', 
-			$this->coord->getClean(new StdClass(), 'bad-key'),
-			'object is not a valid key'
-		);
+		$coord->clearClean();	
 	}
 
 	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return null
+	 * @test
+	 * @param			mixed $key
+	 * @dataProvider	provideInvalidKeys
+	 * @return			null
 	 */
-	public function testAddCleanBadKeyEmptyString()
+	public function getCleanUsingInvalidKey($key)
 	{
-		$this->coord->addClean('', 'some-value');
+		$coord   = $this->createCoordinator();
+		$default = 'some value';
+		$this->assertEquals($default, $coord->getClean($key, $default));
 	}
 
 	/**
-	 * @expectedException	InvalidArgumentException
+	 * @test
+	 * @param			mixed $key
+	 * @dataProvider	provideInvalidKeys
 	 * @return null
 	 */
-	public function testAddCleanBadKeyArray()
+	public function addCleanInvalidKey($key)
 	{
-		$this->coord->addClean(array(1,2,3), 'some-value');
+		$msg = "can not add field to the clean source, invalid key";
+		$this->setExpectedException('InvalidArgumentException', $msg);
+		$coord = $this->createCoordinator();
+		$coord->addClean($key, 'some-value');
 	}
 
 	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return null
+	 * You can set the raw source with setSource of by passing it into the
+	 * the constructor
+	 *
+	 * @test
+	 * @depends	coordinatorInterface
+	 * @return	null
 	 */
-	public function testAddCleanBadKeyObject()
+	public function source(Coordinator $coord)
 	{
-		$this->coord->addClean(new StdClass(), 'some-value');
+		/* 
+		 * when nothing is passed into the constructor the default source is
+		 * an empty array
+		 */
+		$this->assertEquals(array(), $coord->getSource());
+
+		$source = array('name' => 'value');
+		$this->assertSame($coord, $coord->setSource($source));
+		$this->assertEquals($source, $coord->getSource());
+
+		/* 
+		 * can also set an empty array which has the effect of resetting the
+		 * source
+		 */
+		$this->assertSame($coord, $coord->setSource(array()));
+		$this->assertEquals(array(), $coord->getSource());
+
+		$coord->setSource($source);
+		$this->assertSame($coord, $coord->clearSource());
+		$this->assertEquals(array(), $coord->getSource());
+
+		return $coord;
 	}
 
 	/**
-	 * This is used once the source has been set and looks for a key in the
-	 * source array. If a key can not be found it returns a special token 
-	 * string used to indicate the key was not found. This removed the 
-	 * ambiguity associated with using null or false as values. The special
-	 * token is returned via the function rawKeyNotFound
-	 * 
-	 * @return null
+	 * @test
+	 * @depends	source
+	 * @return	Coordinator
 	 */
-	public function testGetRawRawKeyNotFound()
+	public function raw(Coordinator $coord)
 	{
 		$source = array(
 			'foo' => 'bar',
-			'baz' => false,
-			'biz' => null,
-			'fiz' => 'fiz_value'
+			123   => 456,
+			'baz' => 'blah'
 		);
-		$this->coord->setSource($source);
-		$this->assertEquals($source['foo'], $this->coord->getRaw('foo'));
-		$this->assertEquals($source['baz'], $this->coord->getRaw('baz'));
-		$this->assertEquals($source['biz'], $this->coord->getRaw('biz'));
-		$this->assertEquals($source['fiz'], $this->coord->getRaw('fiz'));
+		$coord->setSource($source);
+		$this->assertEquals('bar', $coord->getRaw('foo'));
+		$this->assertEquals(456, $coord->getRaw(123));
+		$this->assertEquals('blah', $coord->getRaw('baz'));
 
-		/* try to get key that does not exist */
-		$this->assertEquals(
-			$this->coord->rawKeyNotFound(),
-			$this->coord->getRaw('key-does-not-exist'),
-			'special token is used to indicate that key was not found'
-		);
+		$coord->clearSource();
 
-		$this->assertEquals(
-			$this->coord->rawKeyNotFound(),
-			$this->coord->getRaw(''),
-			'same token is used with invalid keys'
-		);
-
-		$this->assertEquals(
-			$this->coord->rawKeyNotFound(),
-			$this->coord->getRaw(array(1,2,3)),
-			'same token is used with invalid keys'
-		);
-
-		$this->assertEquals(
-			$this->coord->rawKeyNotFound(),
-			$this->coord->getRaw(new StdClass()),
-			'same token is used with invalid keys'
-		);
+		return $coord;
 	}
 
 	/**
-	 * @return null
+	 * @test
+	 * @depends	source
+	 * @return	Coordinator
 	 */
-	public function testInitialStateOfErrors()
+	public function fieldNotFound(Coordinator $coord)
 	{
-		$this->assertFalse($this->coord->isError());
-		$this->assertEquals(array(), $this->coord->getErrors());
-		$this->assertFalse($this->coord->isFieldError('key-does-not-exist'));
-		$this->assertNull($this->coord->getError('key-does-not-exist'));
+		$token = CoordinatorInterface::FIELD_NOT_FOUND;
+		$this->assertEquals($token, $coord->getFieldNotFoundToken());
+
+		return $coord;
 	}
 
 	/**
-	 * Error are added to the coordinator associated by the field that caused 
-	 * them.
-	 * 
-	 * @depends		testInitialStateOfErrors
-	 * @return null
+	 * @test
+	 * @depends	fieldNotFound
+	 * @return	Coordinator
 	 */
-	public function testAddErrorManyErrorsToSingleField()
+	public function rawFieldNotFound(Coordinator $coord)
 	{
-		/* when a field does not exist for an error a null is returned */
-		$field = 'my-field';
-		$msg1  = 'my-field error message';
-		$this->assertNull($this->coord->getError($field));
-		$this->assertFalse($this->coord->isFieldError($field));
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addError($field, $msg1),
-			'must expose a fluent interface'
-		);
+		$coord->clearSource();
 
-		/* prove the error object was created and field, msg were added */
-		$this->assertTrue($this->coord->isError());
-		$this->assertTrue($this->coord->isFieldError($field));
-
-		$error = $this->coord->getError($field);
-		$this->assertInstanceOf('Appfuel\Validate\Error', $error);
-		$this->assertEquals($field, $error->getField());
-		$this->assertEquals($msg1, $error->current());
-
-		/* add second error to the same field */
-		$msg2 = "second error message";
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addError($field, $msg2),
-			'must expose a fluent interface'
-		);
-
-		/* make sure checks still return the same values */
-		$this->assertTrue($this->coord->isError());
-		$this->assertTrue($this->coord->isFieldError($field));
-
-		/* prove we have a reference to the same object just created */
-		$this->assertSame($error, $this->coord->getError($field));
-		$this->assertEquals($msg1, $error->current());
-
-		$error->next();
-		$this->assertEquals($msg2, $error->current());
-
-		/* duplicate messages are not checked against */
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addError($field, $msg1),
-			'must expose a fluent interface'
-		);
-
-		$expected = array($msg1, $msg2, $msg1);
-		$this->assertEquals($expected, $error->getErrors());
-
-		/* test that getErrors returns an associative array of
-		 * field => Error
-		 */
-		$expected = array($field => $error);
-		$this->assertEquals($expected, $this->coord->getErrors());
+		$token = $coord->getFieldNotFoundToken();
+		$this->assertEquals($token, $coord->getRaw('no-field'));
+		return $coord;
 	}
 
 	/**
-	 * Tests adding errors to multiple fields as well as clearing all the 
-	 * errors 
-	 *
-	 * @depends testAddErrorManyErrorsToSingleField
-	 * @return null
+	 * @test
+	 * @param			mixed $key
+	 * @dataProvider	provideInvalidKeys
+	 * @return			null
 	 */
-	public function testAddErrorMultipleFields()
+	public function getRawWithInvalidKey($key)
 	{
-		$field1		  = 'field_1';
-		$field_msg1   = 'error field 1 msg 1';
-		$field_msg2	  = 'error field 1 msg 2';
-		$field2		  = 'field_2';
-		$field2_msg1  = 'error field 2 msg 1';
-		$this->coord->addError($field1, $field_msg1) 
-					->addError($field1, $field_msg2)
-					->addError($field2, $field2_msg1);
-
-		$this->assertTrue($this->coord->isError());
-		$error1 = $this->coord->getError($field1);
-		$error2 = $this->coord->getError($field2);
-
-		$this->assertInstanceOf('Appfuel\Validate\Error', $error1);
-		$this->assertInstanceOf('Appfuel\Validate\Error', $error2);
-
-		$this->assertEquals($field1, $error1->getField());
-		$this->assertEquals($field2, $error2->getField());
-
-		$this->assertEquals($field_msg1, $error1->current());
-		$error1->next();
-		$this->assertEquals($field_msg2, $error1->current());
-
-		$this->assertEquals($field2_msg1, $error2->current());
-
-		$expected = array($field1 => $error1, $field2 => $error2);
-		$this->assertEquals($expected, $this->coord->getErrors());
-
-		$this->assertSame(
-			$this->coord,
-			$this->coord->clearErrors(),
-			'must expose a fluent interface'
-		);
-		$this->assertEquals(array(), $this->coord->getErrors());
-		$this->assertFalse($this->coord->isError());
+		$coord = $this->createCoordinator();
+		$token = $coord->getFieldNotFoundToken(); 
+		$this->assertEquals($token, $coord->getRaw($key));
 	}
 
 	/**
-	 * @depends testAddErrorManyErrorsToSingleField
+	 * @test
+	 * @depends	coordinatorInterface
 	 * @return null
 	 */
-	public function testAddErrorNumericField()
+	public function errorStack(Coordinator $coord)
 	{
-		$field = 123;
-		$msg   = 'this is an error message';
+		$stack = $coord->getErrorStack();
+		$stackInterface = $this->getErrorStackInterface();
+		$this->assertInstanceOf($stackInterface, $stack);
+		$this->assertFalse($stack->isError());
+		$this->assertFalse($coord->isError());
+
+		$this->assertSame($coord, $coord->addError('my error'));
+		$this->assertTrue($coord->isError());
+		$this->assertTrue($stack->isError());
+
+		$error = $stack->getLastError();
+		$this->assertInstanceof('Appfuel\Error\ErrorItem', $error);
+
+		$this->assertEquals(500, $error->getCode());
+		$this->assertEquals('my error', $error->getMessage());
+		$this->assertSame($coord, $coord->addError('other error', 404));
+
+		$error = $stack->getLastError();
+		$this->assertInstanceof('Appfuel\Error\ErrorItem', $error);
+		$this->assertEquals(404, $error->getCode());
+		$this->assertEquals('other error', $error->getMessage());
 		
-		$this->assertSame(
-			$this->coord,
-			$this->coord->addError($field, $msg),
-			'must expose a fluent interface'
-		);
-		$this->assertTrue($this->coord->isError());
-		$error = $this->coord->getError(123);
-		$this->assertInstanceOf('Appfuel\Validate\Error', $error);
-		$this->assertEquals(123, $error->getField());
-		$this->assertEquals($msg, $error->current());
-		$this->assertEquals(
-			array(123 => $error),
-			$this->coord->getErrors()
-		);	
+		$this->assertSame($coord, $coord->clearErrors());
+		$this->assertFalse($coord->isError());
+		$this->assertFalse($stack->isError());
+				
+		return $coord;
 	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */
-	public function testAddErrorBadFieldEmptyString()
-	{
-		$this->coord->addError('', 'this is message');
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */
-	public function testAddErrorBadFieldArray()
-	{
-		$this->coord->addError(array(1,3,4), 'this is message');
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */
-	public function testAddErrorBadFieldObject()
-	{
-		$this->coord->addError(new StdClass(), 'this is message');
-	}
-
-
-
 }

@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Http;
 
@@ -15,24 +11,25 @@ namespace Appfuel\Http;
  */
 class HttpOutput implements HttpOutputInterface
 {
-	/**
-	 * @param	HttpResponseInterface $response
-	 * @return	null
-	 */
-	public function render(HttpResponseInterface $response)
-	{
-		if (headers_sent()) {
-			return;
-		}
-		header($response->getStatusLine());
-		
-		$headerList = $response->getHeaderList();
+    /**
+     * @param   HttpResponseInterface $response
+     * @return  null
+     */
+    public function render(HttpResponseInterface $response)
+    {
+        if (headers_sent()) {
+            return;
+        }
 
-		$replaceSimilar = false;
-		foreach($headerList as $header) {
-			header($header, $replaceSimilar);
-		}
+        header($response->getStatusLine());
+        
+        $headerList = $response->getHeaderList();
 
-		echo $response->getContent();
-	}
+        $replaceSimilar = false;
+        foreach($headerList as $header) {
+            header($header, $replaceSimilar);
+        }
+
+        echo $response->getContent();
+    }
 }

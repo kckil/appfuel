@@ -2,76 +2,112 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */
+use Appfuel\App\AppRegistry,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileReader,
+    Appfuel\Filesystem\FileWriter;
+
+/**
+ * build-config: will generate a cached configuration file based on a 
+ * build strategy.
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * cli args: any argument will be considered a path to a config file to 
+ *           process
+ *  options: 
+ *  -e, --env [required]
+ *      name of the enviroment to build
+ * 
+ *  -t, --target-env [default: production]
+ *      name of the target you want to merge with
+ * 
+ *  -c, --config-file [default: <base-path>/app/config-settings.php]
+ *      absolute path to the config file to be processed
+ *
+ *  -b, --build-file [default: <base-path>/app/build/config.json]  
+ *      absolute path to the generated config file
  */
-use Appfuel\Kernel\AppHandler,
-	Appfuel\Kernel\ConfigBuilder;
+$base = realpath(__DIR__ . "/../");
 
-$base = realpath(dirname(__FILE__) . '/../');
-$src  = 'package';
-$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
-if (! file_exists($file)) {
-    $err = "Could not find kernel initializer file at $file";
-	fwrite(STDERR, $err);
-	exit(1);
-}
-require $file;
-
-$config = array(
-	'php-error-level'			=> 'all strict',
-	'php-include-path'			=> array($base),
-	'php-include-path-replace'	=> 'replace',
-	'php-display-errors'		=> 'on',
-	'php-autoloader'			=> 'Appfuel\ClassLoader\StandardAutoloader',
-	'fault-handler-class'		=> 'Appfuel\Kernel\FaultHandler',
-	'php-default-timezone'		=> 'America/Los_Angeles'
+/*
+ * Used to control the app-header.php script. $appType gives us cli handler
+ * and configAction tells the header to replace the config data with ours.
+ * Since we are the building configuration data we can not rely on config
+ * data to be arround, so we use our own values
+ */
+$ctrl = array(
+    'app-type'          => 'cli',
+    'config-action'     => 'replace',
+    'config-settings'   => array(
+	    'php-error-level'			=> 'all strict',
+	    'php-include-path'			=> array($base),
+	    'php-include-path-replace'	=> 'replace',
+	    'php-display-errors'		=> 'on',
+	    'php-autoloader'			=> 'Appfuel\ClassLoader\StandardAutoloader',
+	    'fault-handler-class'		=> 'Appfuel\Kernel\FaultHandler',
+	    'php-default-timezone'		=> 'America/Los_Angeles'
+    ),
 );
+$handler = require "{$base}/app/app-header.php";
 
-$handler = new AppHandler($base);
-$handler->setConfigData($config)
-		->initializeFramework();
+$input   = $handler->createConsoleInput($_SERVER['argv']);
+$appPath = AppRegistry::getAppPath();
 
-$isVerbose = false;
-
-/* when -v is found capture it then remove it from argv 
- * so env will always be the first argumment regardless
- * of where the option is set
- */
-$index = array_search('-v', $argv, true);
-if (false !== $index) {
-	$isVerbose = true;
-	unset($argv[$index]);
-	$argv = array_values($argv);
+$env = $input->getCliOpt('env', 'e');
+if (! $env) {
+    $err = "environment -(env|e) is required and not set\n";
+    fwrite(STDERR, $err);
+    exit(1);
 }
 
-if (count($argv) < 2) {
-	$err = "config builder must have the env name as the first argument \n";
-	fwrite(STDERR, $err);
-	exit(1);
+$targetEnv = $input->getCliOpt('target-env', 't');
+if (! $targetEnv) {
+    $targetEnv = 'prod';
 }
 
-$env = $argv[1];
-if (! is_string($env) || empty($env)) {
-	fwrite(STDERR, "env name must be a non empty string \n");
-	exit(1);
+$file = $input->getCliOpt('config-file', 'c');
+if (! $file) {
+    $file = $appPath->get('config-settings');
 }
 
-$builder = new ConfigBuilder($env);
-$finder  = $builder->getFileFinder();
-$full    = $finder->getPath('config.php');
-if (false === $builder->generateConfigFile()) {
-	$err = "could not build config data to -($full) for -($env)\n";
-	fwrite(STDERR, $err);
-	exit(1); 
+$buildFile = $input->getCliOpt('build-file', 'c');
+if (! $buildFile) {
+    $buildFile = $appPath->get('config-build');
 }
 
-if (true === $isVerbose) {
-	fwrite(STDOUT, "config file for -($env) was written to -($full) \n");
+$finder = new FileFinder(null, false);
+$reader = new FileReader($finder);
+if (false !== strpos('.json', $file)) {                                  
+    $data = $reader->decodeJsonAt($file);                                
+}                                                                        
+else {                                                                   
+    $data = $reader->import($file);                                      
 }
 
+if (! isset($data[$env]) || ! is_array($data[$env])) {
+    fwrite(STDERR, "could not find -($env) or is not an array  in -($file)\n");
+    exit(1);
+}
+
+if (true === $targetEnv) {
+    $settings = $data[$env];
+}
+elseif (isset($data[$targetEnv]) && is_array($data[$targetEnv])){
+    $settings = array_replace_recursive($data[$targetEnv], $data[$env]);
+}
+else {
+    $err  = "target env -($targetEnv) was not found or was not an array in ";
+    $err .= "-($file) \n";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+$writer = new FileWriter($finder);
+$result = $writer->putContent(json_encode($settings), $buildFile);
+if (! $result) {
+    fwrite(STDERR, "could not write to file -($buildFile)\n");
+    exit(1);
+}
 exit(0);

@@ -1,16 +1,10 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Validate\Filter;
-
-use Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Filter raw input into a known clean value
@@ -18,15 +12,23 @@ use Appfuel\DataStructure\DictionaryInterface;
 interface FilterInterface
 {
     /**
+     * Unique key used to indicate a filter failure
+     */
+    const FAILURE = '__AF_FILTER_FAILURE__';
+
+    /**
+     * Unique key used to indicate the default value has not been set
+     */
+    const DEFAULT_NOT_SET = '__AF_DEFAULT_NOT_SET__';
+
+    /**
      * @return mixed | special token string on failure
      */
-	public function filter($raw, DictionaryInterface $params);
+    public function filter($raw);
 
-	/**
-	 * Returns a string stoken not likely to occur in a typical value to 
-	 * indicate a failure has occured
-	 *
-	 * @return	string
-	 */
-	public function isFailure();
+    /**
+     * @param   FilterSpecInterface $spec
+     * @return  FilterInterface
+     */
+    public function loadSpec(FilterSpecInterface $spec);
 }

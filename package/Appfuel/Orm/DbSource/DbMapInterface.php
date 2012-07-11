@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Orm\DbSource;
 
@@ -17,17 +13,17 @@ use InvalidArgumentException;
  */
 interface DbMapInterface
 {
-	/**
-	 * @param	array	$maps
-	 * @return	null
-	 */
-	public function initialize(array $maps);
+    /**
+     * @param   array   $maps
+     * @return  null
+     */
+    public function initialize(array $maps);
 
-	/**
-	 * @param	array	$data
-	 * @return	DbTableMap
-	 */
-	public function createTableMap(array $data);
+    /**
+     * @param   array    $data
+     * @return  DbTableMap
+     */
+    public function createTableMap(array $data);
 
     /**
      * @param   string  $key

@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\Orm\Domain;
 
@@ -16,16 +12,16 @@ namespace Appfuel\Orm\Domain;
  */
 interface DomainBuilderInterface
 {
-	/**
-	 * @param	string	$key	used to determine which object to create
-	 * @return	DomainModelInterface
-	 */
-	public function createDomainObject($key);
+    /**
+     * @param   string  $key    used to determine which object to create
+     * @return  DomainModelInterface
+     */
+    public function createDomainObject($key);
 
-	/**
-	 * @param	string	$key
-	 * @param	array	$data  
-	 * @return	DomainModel
-	 */
-	public function buildDomain($key, array $data);
+    /**
+     * @param   string  $key
+     * @param   array   $data  
+     * @return  DomainModel
+     */
+    public function buildDomain($key, array $data);
 }

@@ -1,4 +1,4 @@
-app/config/config.php
+app/build/*
 resource/build
 *.swp
 *.swo

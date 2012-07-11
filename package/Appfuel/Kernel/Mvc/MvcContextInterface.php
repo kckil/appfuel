@@ -3,10 +3,9 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Kernel\Mvc;
 
@@ -21,63 +20,72 @@ use Appfuel\DataStructure\DictionaryInterface;
  */
 interface MvcContextInterface extends DictionaryInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getRouteKey();
+    /**
+     * @return string
+     */
+    public function getType();
 
-	/**
-	 * @return	ViewTemplateInterface
-	 */
-	public function getView();
+    /**
+     * @return  string
+     */
+    public function getRouteKey();
 
-	/**
-	 * @param	mixed	$view
-	 * @return	bool
-	 */
-	public function isValidView($view);
+    /**
+     * @return  ViewTemplateInterface
+     */
+    public function getView();
 
-	/**
-	 * @return	bool
-	 */
-	public function isContextView();
+    /**
+     * @return  array
+     */
+    public function getAcl();
 
-	/**
-	 * @param	ViewTemplateInterface $template
-	 * @return	AppContext
-	 */
-	public function setView($view);
+    /**
+     * @param   string  $code
+     * @return  AppContext
+     */
+    public function setAcl($codes);
+    
+    /**
+     * @return  int
+     */
+    public function getExitCode();
+    
+    /**
+     * @param   int $code
+     * @return  AppContext
+     */
+    public function setExitCode($code);
 
-	/**
-	 * @return	array
-	 */
-	public function getAclCodes();
+    /**
+     * @return  ContextInputInterface
+     */
+    public function getInput();
 
-	/**
-	 * @param	string	$code
-	 * @return	AppContext
-	 */
-	public function addAclCode($code);
+    /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidHttpInput($input);
 
-	/**
-	 * @param	string	$code
-	 * @return	bool
-	 */
-	public function isAclCode($code);
+    /**
+     * @param   mixed   $input
+     * @return  bool
+     */
+    public function isValidConsoleInput($input);
 
-	/**
-	 * @return	int
-	 */
-	public function getExitCode();
-	
-	/**
-	 * @param	int	$code
-	 * @return	AppContext
-	 */
-	public function setExitCode($code);
+    /**
+     * @param   string  $key
+     * @param   string  $type
+     * @param   mixed   $input
+     * @param   mixed   $acl
+     * @return  MvcContextInterface
+     */
+    public function cloneContext($key, $type=null, $input=null, $acl=null);
 
-	/**
-	 * @return	ContextInputInterface
-	 */
-	public function getInput();
+    /**
+     * @param   MvcContextInterface $context
+     * @return  MvcContextInterface 
+     */
+    public function merge(MvcContextInterface $context);
 }

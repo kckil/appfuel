@@ -1,12 +1,8 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
  */
 namespace Appfuel\ClassLoader;
 
@@ -15,11 +11,12 @@ namespace Appfuel\ClassLoader;
  */
 interface NamespaceParserInterface
 {
-	/**
-	 * Resolve php namespace first otherwise resolve as pear name 
-	 *
-	 * @param	string	$string	
-	 * @return	string
-	 */	
-	static public function parse($class, $isExtension = true);
+    /**
+     * Resolve php namespace first otherwise resolve as pear name 
+     *
+     * @param   string  $class
+     * @param   bool    $isExtension    default true
+     * @return  string
+     */    
+    static public function parse($class, $isExtension = true);
 }

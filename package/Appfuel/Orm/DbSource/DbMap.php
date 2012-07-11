@@ -1,13 +1,9 @@
 <?php
 /**
  * Appfuel
- * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
- *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
- */
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */ 
 namespace Appfuel\Orm\DbSource;
 
 use InvalidArgumentException;
@@ -23,43 +19,43 @@ class DbMap implements DbMapInterface
      */
     protected $maps = array();
 
-	/**
-	 * @param	array  $data
-	 * @return	DbMap
-	 */
-	public function __construct(array $maps = null)
-	{
+    /**
+     * @param   array   $data
+     * @return  DbMap
+     */
+    public function __construct(array $maps = null)
+    {
         if (null !== $maps) {
             $this->initialize($maps);
         }
-	}
+    }
 
-	/**
-	 * @param	array	$maps
-	 * @return	null
-	 */
-	public function initialize(array $maps)
-	{
-		if ($maps === array_values($maps)) {
-			$err  = 'database map must be an associative array of ';
-			$err .= 'key => array of table map data';
-			throw new InvalidArgumentException($err);
-		}
+    /**
+     * @param   array   $maps
+     * @return  null
+     */
+    public function initialize(array $maps)
+    {
+        if ($maps === array_values($maps)) {
+            $err  = 'database map must be an associative array of ';
+            $err .= 'key => array of table map data';
+            throw new InvalidArgumentException($err);
+        }
 
-		foreach ($maps as $key => $table) {
-			$map = $this->createTableMap($table);
-			$this->addTableMap($key, $map);
-		}
-	}
+        foreach ($maps as $key => $table) {
+            $map = $this->createTableMap($table);
+            $this->addTableMap($key, $map);
+        }
+    }
 
-	/**
-	 * @param	array	$data
-	 * @return	DbTableMap
-	 */
-	public function createTableMap(array $data)
-	{
-		return new DbTableMap($data);
-	}
+    /**
+     * @param   array   $data
+     * @return  DbTableMap
+     */
+    public function createTableMap(array $data)
+    {
+        return new DbTableMap($data);
+    }
 
     /**
      * @param   string  $key
