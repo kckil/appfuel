@@ -1,0 +1,15 @@
+{
+    "name": "appfuel/appfuel",
+    "type": "library",
+    "description": "Appfuel php framework",
+    "keywords": ["framework"],
+    "license": "Apache 2",
+    "authors": [
+        {
+            "name": "Robert Scott-Buccleuch",
+            "email": "rsb.appfuel@gmail.com"
+        }
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
