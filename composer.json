@@ -9,6 +9,7 @@
             "name": "Robert Scott-Buccleuch",
             "email": "rsb.appfuel@gmail.com"
         }
+    ],
     "require": {
         "php": ">=5.3.3"
     }
