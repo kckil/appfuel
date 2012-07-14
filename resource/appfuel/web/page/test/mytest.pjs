@@ -1,6 +1,0 @@
-YUI({bootstrap:false}).use('*',  function(Y) {
-	var yconsole = new Y.Console({
-		newestOnTop: false
-	});
-	yconsole.render("#log");
-});
