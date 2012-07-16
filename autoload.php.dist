@@ -1,0 +1,14 @@
+<?php
+    use Symfony\Component\ClassLoader\UniversalClassLoader;
+
+    $spath = __DIR__ . '/vendor/symfony/symfony/src';
+    $file = $spath . '/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+    require_once $file;
+
+    $loader = new UniversalClassLoader();
+    $loader->registerNamespaces(array(
+        'Appfuel' => __DIR__ . 'src',
+        'Symfony' => __DIR__ . $spath
+    ));
+
+    $loader->register();

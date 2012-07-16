@@ -16,7 +16,7 @@
 
     <testsuites>
 	    <testsuite name="Appfuel Test Suite">
-            <directory>./src/Appfuel/Component/*/Testsl/</directory>
+            <directory>./src/Testfuel</directory>
 	    </testsuite>
     </testsuites>
 </phpunit>

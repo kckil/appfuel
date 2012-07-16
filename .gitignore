@@ -1,5 +1,9 @@
-app/build/*
-resource/build
+/www/bundles/
+/app/bootstrap*
+/app/cache/*
+/app/logs/*
+/vendor/
+/app/config/parameters.yaml
 *.swp
 *.swo
 *~
