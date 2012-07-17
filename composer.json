@@ -1,7 +1,7 @@
 {
     "name": "appfuel/appfuel",
     "type": "library",
-    "description": "Appfuel is an extension of the symfony framework",
+    "description": "Appfuel: php framework focused on domain driven design",
     "keywords": ["framework"],
     "license": "MIT",
     "authors": [

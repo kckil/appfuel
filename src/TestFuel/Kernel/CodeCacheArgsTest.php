@@ -8,7 +8,7 @@ namespace Testfuel\Component\Kernel;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\Component\Kernel\CodeCacheArgs;
+    Appfuel\Kernel\CodeCacheArgs;
 
 class CodeCacheArgsTest extends FrameworkTestCase 
 {
@@ -83,7 +83,7 @@ class CodeCacheArgsTest extends FrameworkTestCase
         $spec = $this->getRequiredArguments();
         $args = $this->createArgs($spec);
 
-        $interface = 'Appfuel\\Component\\Kernel\\CodeCacheArgsInterface';
+        $interface = 'Appfuel\\Kernel\\CodeCacheArgsInterface';
         $this->assertInstanceOf($interface, $args);
         $this->assertEquals($spec['classes'], $args->getClasses());
         $this->assertEquals($spec['cache-dir'], $args->getCacheDir());
