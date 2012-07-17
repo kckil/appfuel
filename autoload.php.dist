@@ -7,8 +7,9 @@
 
     $loader = new UniversalClassLoader();
     $loader->registerNamespaces(array(
-        'Appfuel' => __DIR__ . 'src',
-        'Symfony' => __DIR__ . $spath
+        'Appfuel'  => __DIR__ . '/src',
+        'Testfuel' => __DIR__ . '/src',
+        'Symfony'  => __DIR__ . $spath
     ));
 
     $loader->register();
