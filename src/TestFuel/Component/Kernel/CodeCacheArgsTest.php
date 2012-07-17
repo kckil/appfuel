@@ -37,16 +37,27 @@ class CodeCacheArgsTest extends FrameworkTestCase
     /**
      * @return  array
      */
-    public function provideInvalidStringsIncludeEmpty()
+    public function provideInvalidStrings()
     {
         return array(
-            array(''),
             array(array(1,3,4)),
             array(12345),
             array(new StdClass),
             array(true),
             array(false)
         );
+    }
+
+
+    /**
+     * @return  array
+     */
+    public function provideInvalidStringsIncludeEmpty()
+    {
+        $args = $this->provideInvalidStrings();
+        array_unshift($args, array(''));
+        
+        return $args;
     }
 
     /**
@@ -87,6 +98,134 @@ class CodeCacheArgsTest extends FrameworkTestCase
        
         return $spec; 
     }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends requiredArguments
+     */
+    public function optionalAutoReload(array $spec)
+    {
+        $spec['auto-reload'] = true;
+        $args = $this->createArgs($spec);
+        $this->assertTrue($args->isAutoReload());
+
+
+        $spec['auto-reload'] = false;
+        $args = $this->createArgs($spec);
+        $this->assertFalse($args->isAutoReload());
+
+        /* must be a strict true */
+        $spec['auto-reload'] = 1;
+        $args = $this->createArgs($spec);
+        $this->assertFalse($args->isAutoReload()); 
+    }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends requiredArguments
+     */
+    public function optionalFileExtension(array $spec)
+    {
+        $spec['ext'] = '.inc';
+        $args = $this->createArgs($spec);
+
+        $dir = $args->getCacheDir();
+        $key = $args->getCacheKey();
+        
+        $expected = "{$dir}/{$key}.inc";
+        $this->assertEquals($expected, $args->getCacheFilePath());
+    
+        $expected = "$expected.meta";
+        $this->assertEquals($expected, $args->getCacheMetaFilePath());
+
+        unset($spec['ext']);
+
+        return $spec;
+    }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends optionalFileExtension
+     */
+    public function optionalFileExtensionEmptyString(array $spec)
+    {
+        $spec['ext'] = '';
+        $args = $this->createArgs($spec);
+
+        $dir = $args->getCacheDir();
+        $key = $args->getCacheKey();
+        
+        $expected = "{$dir}/{$key}";
+        $this->assertEquals($expected, $args->getCacheFilePath());
+    
+        $expected = "$expected.meta";
+        $this->assertEquals($expected, $args->getCacheMetaFilePath());
+    }
+
+    /**
+     * @test
+     * @param           mixed   $ext
+     * @depends         optionalFileExtension
+     * @dataProvider    provideInvalidStrings
+     */
+    public function fileExtensionFailure($ext)
+    {
+        $spec = $this->getRequiredArguments();
+        $spec['ext'] = $ext;
+        
+        $msg = "file extension must be a string";
+        $this->setExpectedException('OutOfRangeException', $msg);
+        
+        $args = $this->createArgs($spec);
+    }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends requiredArguments
+     */
+    public function filePathsWithAdaptiveTrue(array $spec)
+    {
+        $spec['adaptive'] = true;
+        $spec['classes'] = array(
+            'MyClass', 
+            'YourClass', 
+            'stdClass', 
+            'Exception'
+        );
+        $args = $this->createArgs($spec);
+
+        $dir  = $args->getCacheDir();
+        $key  = $args->getCacheKey();
+        $hash = substr(md5(implode('|', array('MyClass', 'YourClass'))), 0, 5);
+
+        $expected = "$dir/$key-$hash.php";
+        $this->assertEquals($expected, $args->getCacheFilePath());
+
+        $expected = "$expected.meta";
+        $this->assertEquals($expected, $args->getCacheMetaFilePath());
+    }
+
+    /**
+     * @test
+     * @param           mixed   $ext
+     * @depends         optionalFileExtension
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     */
+    public function invalidClassItemFailure($class)
+    {
+        $spec = $this->getRequiredArguments();
+        $spec['classes'] = array('MyClass', $class);
+        
+        $msg = "class entry in class list must be a non empty string";
+        $this->setExpectedException('OutOfBoundsException', $msg);
+        
+        $args = $this->createArgs($spec);
+    }
+
 
     /**
      * @test

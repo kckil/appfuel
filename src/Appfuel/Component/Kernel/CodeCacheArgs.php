@@ -97,7 +97,7 @@ class CodeCacheArgs implements CodeCacheArgsInterface
         if (isset($spec['adaptive']) && true === $spec['adaptive']) {
             /* don't include already declared classes */
             $classes = array_diff($classes, $this->getPHPDeclared());
-            
+                   
             /* 
              * the cache is different depending on which classes 
              * are already declared.
@@ -209,7 +209,7 @@ class CodeCacheArgs implements CodeCacheArgsInterface
     {
         foreach ($classes as $class) {
             if (! is_string($class) || empty($class)) {
-                $err = "class in class list must be a non empty string";
+                $err = "class entry in class list must be a non empty string";
                 throw new OutOfBoundsException($err);
             }
         }
