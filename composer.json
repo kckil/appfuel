@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Appfuel is an extension of the symfony framework",
     "keywords": ["framework"],
-    "license": "Apache 2",
+    "license": "MIT",
     "authors": [
         {
             "name": "Robert Scott-Buccleuch",
