@@ -134,7 +134,7 @@ class FileFinder implements FileFinderInterface
      * @param   string  $path
      * @return  string
      */
-    public function getPathBase($path, $suffix)
+    public function getPathBase($path, $suffix = null)
     {
         return basename($path, $suffix);
     }

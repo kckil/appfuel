@@ -34,8 +34,26 @@ class FileFinderTest extends FrameworkTestCase
             array(1234),
             array(1.23),
             array(array(1,2,3)),
-            array(null),
             array(new stdClass),
+        );
+    }
+
+    /**
+     * Used to test getPathBase
+     * param 1) path
+     * param 2) optional suffix
+     * param 3) expected result
+     *
+     * @return  array
+     */
+    public function providePathBaseData()
+    {
+        return array(
+            array('', null, ''),
+            array('.', null, '.'),
+            array('/etc/', null, 'etc'),
+            array('/etc/passwd', null, 'passwd'),
+            array('/ets/sudoers.d', '.d', 'sudoers')
         );
     }
 
@@ -178,6 +196,18 @@ class FileFinderTest extends FrameworkTestCase
      * @test
      * @depends finderRoot
      * @param   FileFinder  $finder
+     */
+    public function convertPathNullFailure(FileFinder $finder)
+    {
+        $msg = "path must be a string or an object that implements __toString";
+        $this->setExpectedException('InvalidArgumentException', $msg);
+        $finder->convertPath(null);
+    }
+
+    /**
+     * @test
+     * @depends finderRoot
+     * @param   FileFinder  $finder
      * @return  FileFinder
      */ 
     public function getPathWithRootNoTrailingSlash(FileFinder $finder)
@@ -268,6 +298,7 @@ class FileFinderTest extends FrameworkTestCase
     }
 
     /**
+     * @test
      * @depends finderRoot
      * @param   string  $badPath
      * @dataProvider    provideInvalidPaths
@@ -283,5 +314,36 @@ class FileFinderTest extends FrameworkTestCase
         $finder->getPath($badPath);
     }
 
+    /**
+     * @test
+     * @depends             finderRoot
+     * @dataProvider        providePathBaseData
+     * @param   FileFinder  $finder
+     * @return  FileFinder
+     */
+    public function getPathBase($path, $suffix = null, $expected)
+    {
+        $finder = $this->createFileFinder();
+        $this->assertEquals($expected, $finder->getPathBase($path, $suffix));
+    }
 
+    /**
+     * @test
+     * @depends             finderRoot
+     * @param   FileFinder  $finder
+     * @return  FileFinder
+     */
+    public function getDirPath(FileFinder $finder)
+    {
+        $finder = $this->createFileFinder();
+        
+        $path = "/etc/passwd";
+        $this->assertEquals('/etc', $finder->getDirPath($path));
+
+        $path = "/etc/";
+        $this->assertEquals('/', $finder->getDirPath($path));
+       
+        $path = ".";
+        $this->assertEquals('.', $finder->getDirPath($path));
+    }
 }

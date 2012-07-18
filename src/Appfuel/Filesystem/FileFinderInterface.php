@@ -58,7 +58,7 @@ interface FileFinderInterface
      * @param   string  $path
      * @return  string
      */
-    public function getPathBase($path, $suffix);
+    public function getPathBase($path, $suffix = null);
 
     /**
      * @param   string  $path
