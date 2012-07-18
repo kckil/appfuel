@@ -129,6 +129,22 @@ class FileFinder implements FileFinderInterface
         return $path;
     }
 
+    /**                                                                          
+     * @throws  DomainException                                                  
+     * @throws  InvalidArgumentException                                         
+     * @param   string  $path                                                    
+     * @return  string | false if path does not exist                            
+     */                                                                          
+    public function getExistingPath($path)                                       
+    {                                                                            
+        $full = $this->getPath($path);                                         
+        if (! file_exists($full)) {                                          
+            return false;                                                        
+        }                                                                        
+                                                                                 
+        return $full;                                                            
+    }
+
     /**
      * @param   string  $path
      * @param   string  $path

@@ -9,9 +9,10 @@ namespace Appfuel\Filesystem;
 interface FileReaderInterface
 {
     /**
-     * used to indicate a file could not be read
+     * Token used to indicate a failure in once of the readers operations
+     * @var string
      */
-    const READ_FAILURE = '__AF_FILESYSTEM_READ_FAILURE__';
+    const READ_FAILURE = '__AF_FILE_READER_FAILURE__';
 
     /**
      * @return  FileFinderInterface
@@ -34,7 +35,7 @@ interface FileReaderInterface
     /**
      * @param   string  $path
      * @param   bool    $isOnce
-     * @return  mixed
+     * @return  bool
      */
     public function includeScript($path, $isOnce = false);
 
@@ -43,12 +44,12 @@ interface FileReaderInterface
      * @param   bool    $isAssoc
      * @param   int     $depth
      * @param   int     $options
-     * @return  array | object | false
+     * @return  array | object
      */
     public function readJson($path, $assoc=true, $depth=512, $options=0);
 
     /**
-     * @return  string
+     * @return  string | false
      */
     public function getLastJsonError();
 
@@ -69,5 +70,16 @@ interface FileReaderInterface
      * @param   int     $flags = 0
      * @return  array | false when not found
      */
-    public function readIntoArray($path, $flags = 0);
+    public function readLinesIntoArray($path, $flags = 0);
+
+    /**
+     * @param   mixed   $token
+     * @return  bool
+     */
+    public function isFailureToken($token);
+
+    /**
+     * @return  string
+     */
+    public function getFailureToken();
 }

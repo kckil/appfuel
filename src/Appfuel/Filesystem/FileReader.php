@@ -54,7 +54,7 @@ class FileReader implements FileReaderInterface
     {
         $finder = $this->getFileFinder();
         if (false === ($full = $finder->getExistingPath($path))) {
-            return $this->getReadFailureToken();
+            return $this->getFailureToken();
         }
 
         return (true === $isOnce) ? require_once $full : require $full;
@@ -84,7 +84,7 @@ class FileReader implements FileReaderInterface
     {
         $finder  = $this->getFileFinder();
         $content = $this->read($path);
-        if ($this->isReadFailureToken($content)) {
+        if ($this->isFailureToken($content)) {
             return $content;
         }
 
@@ -98,13 +98,16 @@ class FileReader implements FileReaderInterface
     {
         switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
-                $result = 'maximum stack depth exceeded';
+                $result = 'Maximum stack depth has been exceeded';
                 break;
             case JSON_ERROR_CTRL_CHAR:
-                $result = 'unexpected control char found';
+                $result = 'Control char error, possibly incorrectly encoded';
                 break;
             case JSON_ERROR_SYNTAX:
-                $result = 'syntax error, malformed JSON';
+                $result = 'Syntax error, malformed JSON';
+                break;
+            case JSON_ERROR_UTF8:
+                $result = 'Malformed UTF-8 chars, possibly incorrectly encoded';
                 break;
             case JSON_ERROR_NONE:
             default:
@@ -122,7 +125,7 @@ class FileReader implements FileReaderInterface
     {
         $finder = $this->getFileFinder();
         if (false === ($full = $finder->getExistingPath($path))) {
-            return $this->getReadFailureToken();
+            return $this->getFailureToken();
         }
 
         return file_get_contents($full);
@@ -135,7 +138,7 @@ class FileReader implements FileReaderInterface
     public function readSerialized($path)
     {
         $content = $this->read($path);
-        if ($this->isReadFailureToken($content)) {
+        if ($this->isFailureToken($content)) {
             return $content;
         }
 
@@ -151,7 +154,7 @@ class FileReader implements FileReaderInterface
     {
         $finder = $this->getFileFinder();
         if (false === ($full = $finder->getExistingPath($path))) {
-            return $this->getReadFailureToken();
+            return $this->getFailureToken();
         }
 
         return file($full, $flags); 
