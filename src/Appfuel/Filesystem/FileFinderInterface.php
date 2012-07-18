@@ -4,51 +4,75 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Component\Filesystem;
+namespace Appfuel\Filesystem;
 
-/**
- * A generic representation of a file path. Its primary goal is to answer 
- * questions about the file like: does it exist, is it readable etc ... 
- */
+
 interface FileFinderInterface
 {
     /**
      * @return string
      */
-    public function getBasePath();
-
-    /**
-     * @throws  InvalidArgumentException
-     * @param   string  $path
-     * @return  FileFinderInterface
-     */
-    public function setBasePath($path);
+    public function getRoot();
 
     /**
      * @return  bool
      */
-    public function isBasePath();
+    public function isRoot();
 
     /**
-     * @return bool
-     */
-    public function isAbsolute();
-
-    /**
-     * @throws  DomainException
      * @throws  InvalidArgumentException
+     * @return  FileFinder
+     */
+    public function setRoot($path);
+
+    /**
+     * @return  bool
+     */
+    public function isRootAbsolute();
+
+    /**
+     * @return  bool
+     */
+    public function isAbsolute($path);
+
+    /**
+     * @throws  InvalidArgumentException
+     * @param   string  $path
+     * @return  string
+     */
+    public function convertPath($path);
+
+    /**
+     * Creates an absolute path by resolving base path (when it exists) root
+     * path and the path passed in as a parameter
+     *
+     * @throws  DomainException
+     * @throws  InvalidArgumentException 
      * @param   string  $path
      * @return  string
      */
     public function getPath($path = null);
 
     /**
-     * @throws  DomainException
-     * @throws  InvalidArgumentException
+     * @param   string  $path
      * @param   string  $path
      * @return  string
      */
-    public function getExistingPath($path = null);
+    public function getPathBase($path, $suffix);
+
+    /**
+     * @param   string  $path
+     * @return  string
+     */
+    public function getDirPath($path);
+
+    /**
+     * The last access time of a file
+     *
+     * @param   string $path
+     * @return  Unix timestamp | false on failure
+     */
+    public function getLastModifiedTime($path);
 
     /**
      * @param   string  $path
@@ -57,7 +81,7 @@ interface FileFinderInterface
     public function exists($path);
 
     /**
-     * @param   string  $path
+     * @param   string $path
      * @return  bool
      */
     public function isWritable($path);
@@ -84,5 +108,5 @@ interface FileFinderInterface
      * @param   string  $path
      * @return  bool
      */
-    public function isLink($path = null);
+    public function isLink($path);
 }

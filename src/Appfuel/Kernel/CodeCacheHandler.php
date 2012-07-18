@@ -42,7 +42,8 @@ class CodeCacheHandler
             return;
         }
    
-        $fmanager = $args->getFileManager();
+        $fhandler = $args->getFileHandler();
+        $fhandler->throwExceptionOnFailure();
         
         $classes = $args->getClasses();
         $cache   = $args->getCacheFilePath();
@@ -51,12 +52,12 @@ class CodeCacheHandler
         $reload = false;
         if ($args->isAutoReload()) {
             $meta = $args->getCacheMetaFilePath();
-            if (! $isCache || ! $fmanager->isFile($meta)) {
+            if (! $isCache || ! $fhandler->isFile($meta)) {
                 $reload = true;
             } 
             else {
-                $cacheTime = $fmanager->getModifyTime($cache);
-                $metadata = $fmanager->unserializeFile($cache);
+                $cacheTime = $fhandler->getLastModifyTime($cache);
+                $metadata  = $fhandler->readSerialized($cache);
 
                 if (! isset($metadata[1]) || ! is_array($metadata[1])) {
                     $err  = "meta data at -($meta) must unserialize into an ";
@@ -71,7 +72,7 @@ class CodeCacheHandler
                 }
                 else {
                     foreach ($metadata[0] as $resource) {
-                        $rtime = $fmanager->getModifyTime($resource);
+                        $rtime = $fhandler->getLastModifyTime($resource);
                         if (false === $rtime || $rtime > $cacheTime) {
                             $reload = $true
                         }
@@ -80,33 +81,33 @@ class CodeCacheHandler
             }
         }
 
+
         if (! $reload && $isCache) {
-            require_once $cache;
+            $fhandler->importCode($cache, true);
             return;
         }
 
         $declared = $args->getPHPDeclared();
-        $content = self::getContent($classes, $declared, $fmanager);
+        $content = self::getContent($classes, $declared, $fhandler);
 
-        $fmanager->throwOnFailure("failed to write to cache file -($cache)")
+        $fhandler->setFailureMsg("failed to write to cache file -($cache)")
                  ->write($cache, '<?php '.$content);
         
         if ($autoReload) {
-            $content = serialize(array($classes, $declared));
-            $fmanager->setFailureMsg("failed to write to cache file -($meta)")
-                     ->write($meta, $content);
+            $fhandler->setFailureMsg("failed to write to cache file -($meta)")
+                     ->writeSerialized($meta, array($classes, $declared));
         }
     }
 
     /**
      * @param   array   $classes
      * @param   array   $excluded
-     * @param   FileManagerInterface    $fmanager
+     * @param   FileHandlerInterface    $fmanager
      * @return  string
      */
     public static function getContent(array $classes, 
                                       array $excluded, 
-                                      FileManagerInterface $fmanager)
+                                      FileHandlerInterface $fhandler)
     {
         $files = array();
         $content = '';
@@ -120,7 +121,7 @@ class CodeCacheHandler
             $filename = $class->getFileName();
             $files[] = $filename;
 
-            $c = preg_replace($patterns, '', $fmanager->read($filename));
+            $c = preg_replace($patterns, '', $fhandler->read($filename));
             
             /* add namespace declaration for global code */
             if (! $class->inNamespace()) {

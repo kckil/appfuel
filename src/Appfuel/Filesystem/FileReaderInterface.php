@@ -9,36 +9,43 @@ namespace Appfuel\Filesystem;
 interface FileReaderInterface
 {
     /**
+     * used to indicate a file could not be read
+     */
+    const READ_FAILURE = '__AF_FILESYSTEM_READ_FAILURE__';
+
+    /**
      * @return  FileFinderInterface
      */
-    public function getFinder();
+    public function getFileFinder();
 
     /**
      * @param   FileFinderInterface $finder
      * @return  FileReader
      */
-    public function setFinder(FileFinderInterface $finder);
+    public function setFileFinder(FileFinderInterface $finder);
 
     /**
      * @param   string  $path
-     * @return  bool
+     * @param   bool    $isOnce
+     * @return  mixed
      */
-    public function require($path);
+    public function importScript($path, $isOnce = false);
 
     /**
      * @param   string  $path
-     * @return  bool
+     * @param   bool    $isOnce
+     * @return  mixed
      */
-    public function requireOnce($path);
+    public function includeScript($path, $isOnce = false);
 
     /**
      * @param   string  $path
      * @param   bool    $isAssoc
      * @param   int     $depth
      * @param   int     $options
-     * @return  array | object
+     * @return  array | object | false
      */
-    public function decodeJsonAt($path, $assoc=true, $depth=512, $options=0);
+    public function readJson($path, $assoc=true, $depth=512, $options=0);
 
     /**
      * @return  string
@@ -46,19 +53,21 @@ interface FileReaderInterface
     public function getLastJsonError();
 
     /**
-     * @throws  InvalidArgumentException
      * @param   string  $path
-     * @param   int     $offset
-     * @param   int     $max
      * @return  string | false when does not exist
      */
-    public function getContents($path = null, $offset = null, $max = null);
+    public function read($path);
 
     /**
-     * @throws  InvalidArgumentException
+     * @param   string  $path
+     * @return  string
+     */
+    public function readSerialized($path);
+
+    /**
      * @param   string  $file
      * @param   int     $flags = 0
      * @return  array | false when not found
      */
-    public function getContentsAsArray($file, $flags = 0);
+    public function readIntoArray($path, $flags = 0);
 }

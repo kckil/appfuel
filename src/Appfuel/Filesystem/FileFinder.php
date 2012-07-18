@@ -4,7 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Component\Filesystem;
+namespace Appfuel\Filesystem;
 
 use DomainException,
     InvalidArgumentException;
@@ -15,53 +15,71 @@ use DomainException,
 class FileFinder implements FileFinderInterface
 {
     /**
+     * Any path given to getPath will be relative to the root path
      * @var string
      */
-    protected $basePath = null;
+    protected $root = null;
 
     /**
-     * @param   string  $path
+     * @param   string  $root
      * @return  FileFinder
      */
     public function __construct($path = null)
     {
         if (null !== $path) {
-            $this->setBasePath($path);
+            $this->setRoot($path);
         }
     }
 
     /**
      * @return string
      */
-    public function getBasePath()
+    public function getRoot()
     {
-        return $this->basePath;
+        return $this->root;
     }
 
     /**
      * @return  bool
      */
-    public function isBasePath()
+    public function isRoot()
     {
-        return is_string($this->basePath);
+        return is_string($this->root);
     }
 
     /**
      * @throws  InvalidArgumentException
      * @return  FileFinder
      */
-    public function setBasePath($path)
+    public function setRoot($path)
     {
-        $this->basePath = $this->convertPath($path);
+        $this->root = $this->convertPath($path);
+        return $this;
+    }
+
+    /**
+     * @return  FileFinder
+     */
+    public function clearRoot()
+    {
+        $this->root = null;
         return $this;
     }
 
     /**
      * @return  bool
      */
-    public function isAbsolute()
+    public function isRootAbsolute()
     {
-        return $this->isBasePath() && '/' === $this->basePath{0};
+        return $this->isAbsolute($this->root);
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isAbsolute($path)
+    {
+        return is_string($path) && ! empty($path) && '/' === $path{0};
     }
 
     /**
@@ -71,8 +89,7 @@ class FileFinder implements FileFinderInterface
      */
     public function convertPath($path)
     {
-        if (! (is_string($path) || 
-            is_object($path) && is_callable($path, '__toString'))) {
+        if (! is_string($path) && ! is_callable(array($path, '__toString'))) {
             $err  = "path must be a string or an object that implements ";
             $err .= "__toString";
             throw new InvalidArgumentException($err);
@@ -92,40 +109,54 @@ class FileFinder implements FileFinderInterface
      */
     public function getPath($path = null)
     {
-        $isBase = $this->isBasePath();
-        if (null === $path && ! $isBase) {
+        $isRoot = $this->isRoot();
+        if (null === $path && ! $isRoot) {
             $err  = "nothing useful can happen when no path is given ";
-            $err .= "and no base path was set";
+            $err .= "and no root path is set";
             throw new DomainException($err);
         }
 
-        $base = $this->getBasePath();
-        if (null === $path && $isBase) {
-            return $base;
+        $root = $this->getRoot();
+        if (null === $path && $isRoot) {
+            return rtrim($root, "/");
         }
 
         $path = $this->convertPath($path);
-        if ($isBase) {
-            $path = $base . DIRECTORY_SEPARATOR . $path;   
+        if ($isRoot) {
+            $path = rtrim($root, "/") . '/' . ltrim($path, '/');   
         }
 
         return $path;
     }
 
     /**
-     * @throws  DomainException
-     * @throws  InvalidArgumentException 
      * @param   string  $path
-     * @return  string | false if path does not exist
+     * @param   string  $path
+     * @return  string
      */
-    public function getExistingPath($path = null)
+    public function getPathBase($path, $suffix)
     {
-        $full = $this->getPath($path);
-        if (! file_exists($full)) {
-            return false;
-        }
+        return basename($path, $suffix);
+    }
 
-        return $full;
+    /**
+     * @param   string  $path
+     * @return  string
+     */
+    public function getDirPath($path)
+    {
+        return dirname($path);
+    }
+
+    /**
+     * The last access time of a file
+     *
+     * @param   string $path
+     * @return  Unix timestamp | false on failure
+     */
+    public function getLastModifiedTime($path)
+    {
+        return filemtime($path);
     }
 
     /**
@@ -134,7 +165,7 @@ class FileFinder implements FileFinderInterface
      */
     public function exists($path)
     {
-        return file_exists($this->getPath($path);
+        return file_exists($path);
     }
 
     /**
@@ -143,7 +174,7 @@ class FileFinder implements FileFinderInterface
      */
     public function isWritable($path)
     {
-        return is_writable($this->getPath($path));
+        return is_writable($path);
     }
 
     /**
@@ -152,7 +183,7 @@ class FileFinder implements FileFinderInterface
      */
     public function isReadable($path)
     {
-        return is_readable($this->getPath($path));
+        return is_readable($path);
     }
 
     /**
@@ -161,7 +192,7 @@ class FileFinder implements FileFinderInterface
      */
     public function isFile($path)
     {
-        return is_file($this->getPath($path));
+        return is_file($path);
     }
 
     /**
@@ -170,7 +201,7 @@ class FileFinder implements FileFinderInterface
      */
     public function isDir($path)
     {
-        return is_dir($this->getPath($path));
+        return is_dir($path);
     }
 
     /**
@@ -179,6 +210,6 @@ class FileFinder implements FileFinderInterface
      */
     public function isLink($path)
     {
-        return is_link($this->getPath($path));
+        return is_link($path);
     }
 }

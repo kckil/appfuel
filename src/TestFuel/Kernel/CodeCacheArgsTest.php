@@ -10,6 +10,9 @@ use StdClass,
     Testfuel\FrameworkTestCase,
     Appfuel\Kernel\CodeCacheArgs;
 
+/**
+ * Test the value object that holds parameters for the CodeCacheHandler
+ */
 class CodeCacheArgsTest extends FrameworkTestCase 
 {
 

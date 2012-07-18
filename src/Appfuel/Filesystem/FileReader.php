@@ -47,30 +47,30 @@ class FileReader implements FileReaderInterface
 
     /**
      * @param   string  $path
-     * @return  bool
+     * @param   bool    $isOnce
+     * @return  mixed
      */
-    public function require($path)
+    public function importScript($path, $isOnce = false)
     {
         $finder = $this->getFileFinder();
-        if ($full = $finder->getExisting($path)) {
-            return require $full;
+        if (false === ($full = $finder->getExistingPath($path))) {
+            return $this->getReadFailureToken();
         }
 
-        return $finder->getFileAccessFailureToken();
+        return (true === $isOnce) ? require_once $full : require $full;
     }
 
     /**
      * @param   string  $path
+     * @param   bool    $isOnce
      * @return  bool
      */
-    public function requireOnce($path)
+    public function includeScript($path, $isOnce = false)
     {
         $finder = $this->getFileFinder();
-        if ($full = $finder->getExisting($path)) {
-            return require_once $full;
-        }
-
-        return $finder->getFileAccessFailureToken();
+        $full = $finder->getPath($path);
+           
+        return (true === $isOnce) ? include_once $full : include $full;
     }
 
     /**
@@ -80,11 +80,11 @@ class FileReader implements FileReaderInterface
      * @param   int     $options
      * @return  array | object
      */
-    public function decodeJsonAt($path, $assoc=true, $depth=512, $options=0)
+    public function readJson($path, $assoc=true, $depth=512, $options=0)
     {
         $finder  = $this->getFileFinder();
-        $content = $this->getContents($path);
-        if ($finder->isFileAccessFailureToken($content)) {
+        $content = $this->read($path);
+        if ($this->isReadFailureToken($content)) {
             return $content;
         }
 
@@ -92,7 +92,7 @@ class FileReader implements FileReaderInterface
     }
 
     /**
-     * @return  string
+     * @return  string | false
      */
     public function getLastJsonError()
     {
@@ -115,63 +115,62 @@ class FileReader implements FileReaderInterface
     }
 
     /**
-     * @throws  InvalidArgumentException
      * @param   string  $path
-     * @param   int     $offset
-     * @param   int     $max
      * @return  string | false when does not exist
      */
-    public function getContents($path = null, $offset = null, $max = null)
+    public function read($path)
     {
-        if (null !== $offset && ! is_int($offset) || $offset < 0) {
-            $err = 'offset must be a int that is greater than zero';
-            throw new InvalidArgumentException($err);
-        }
-
-        if (null !== $max && ! is_int($max) || $max < 0) {
-            $err = 'max must be a int that is greater than zero';
-            throw new InvalidArgumentException($err);
-        }
-
-        if ($offset > $max) {
-            $err = 'offset can not be larger than max';
-            throw new DomainException($err);
-        }
-
         $finder = $this->getFileFinder();
-        if (! $full = $finder->getExistingPath($path)) {
-            return $finder->getFileAccessFailureToken();
+        if (false === ($full = $finder->getExistingPath($path))) {
+            return $this->getReadFailureToken();
         }
 
-        /*
-         * file_get_contents will return an empty string if the last param is
-         * null
-         */
-        if (null === $max) {
-            return file_get_contents($full, false, null, $offset);
-        }
-        
-        return file_get_contents($full, false, null, $offset, $max);
+        return file_get_contents($full);
     }
 
     /**
-     * @throws  InvalidArgumentException
+     * @param   string  $path
+     * @return  string
+     */
+    public function readSerialized($path)
+    {
+        $content = $this->read($path);
+        if ($this->isReadFailureToken($content)) {
+            return $content;
+        }
+
+        return unserialize($content);
+    }
+
+    /**
      * @param   string  $file
      * @param   int     $flags = 0
      * @return  array | false when not found
      */
-    public function getContentsAsArray($file, $flags = 0)
+    public function readLinesIntoArray($path, $flags = 0)
     {
-        if (! is_int($flags)) {
-            $err = 'failed to get file contents: flags must be an int';
-            throw new InvalidArgumentException($err);
-        }
-
         $finder = $this->getFileFinder();
-        if (! $full = $finder->getExistingPath($path)) {
-            return $finder->getFileAccessFailureToken();
+        if (false === ($full = $finder->getExistingPath($path))) {
+            return $this->getReadFailureToken();
         }
 
         return file($full, $flags); 
+    }
+
+    /**
+     * @param   mixed   $token
+     * @return  bool
+     */
+    public function isFailureToken($token)
+    {
+        return FileReaderInterface::READ_FAILURE === $token;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getFailureToken()
+    {
+        return FileReaderInterface::READ_FAILURE;
     }
 }
