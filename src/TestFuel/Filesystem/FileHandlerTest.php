@@ -537,7 +537,4 @@ class FileHandlerTest extends FrameworkTestCase
         $this->clearSandBox(false);
         return $handler;
     }
-
-
-
 }

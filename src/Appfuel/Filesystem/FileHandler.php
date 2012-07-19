@@ -47,7 +47,7 @@ class FileHandler implements FileHandlerInterface
      * @param   string | FileFinderInterface $path 
      * @return  FileReader
      */
-    public function __construct($path)
+    public function __construct($path = null)
     {
         if ($path instanceof FileFinderInterface) {
             $finder = $path;

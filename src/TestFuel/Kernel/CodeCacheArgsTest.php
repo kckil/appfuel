@@ -8,7 +8,8 @@ namespace Testfuel\Component\Kernel;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\CodeCacheArgs;
+    Appfuel\Kernel\CodeCacheArgs,
+    Appfuel\Filesystem\FileHandlerInterface;
 
 /**
  * Test the value object that holds parameters for the CodeCacheHandler
@@ -72,7 +73,10 @@ class CodeCacheArgsTest extends FrameworkTestCase
 
         $expected = "$expected.meta";
         $this->assertEquals($expected, $args->getCacheMetaFilePath());
-       
+    
+        $fileHandler = $args->getFileHandler();
+        $interface = 'Appfuel\\Filesystem\FileHandlerInterface';
+        $this->assertInstanceOf($interface, $fileHandler);
         return $spec; 
     }
 
@@ -140,6 +144,19 @@ class CodeCacheArgsTest extends FrameworkTestCase
     
         $expected = "$expected.meta";
         $this->assertEquals($expected, $args->getCacheMetaFilePath());
+    }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends optionalFileExtension
+     */
+    public function overrideFileHander(array $spec)
+    {
+        $handler = $this->getMock('Appfuel\\Filesystem\\FileHandlerInterface');
+        $spec['file-handler'] = $handler;
+        $args = $this->createArgs($spec);
+        $this->assertSame($handler, $args->getFileHandler());
     }
 
     /**

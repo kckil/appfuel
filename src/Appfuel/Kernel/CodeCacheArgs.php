@@ -8,7 +8,9 @@ namespace Appfuel\Kernel;
 
 use OutOfRangeException,
     OutOfBoundsException,
-    InvalidArgumentException;
+    InvalidArgumentException,
+    Appfuel\Filesystem\FileHandler,
+    Appfuel\Filesystem\FileHandlerInterface;
 
 /**
  * A options used to control the CodeCacheHandler. The following keys are used
@@ -56,6 +58,11 @@ class CodeCacheArgs implements CodeCacheArgsInterface
      * @var string
      */
     protected $metaPath = null;
+
+    /**
+     * @var FileHandlerInterface
+     */
+    protected $fileHandler = null;
 
     /**
      * @param   array $spec
@@ -110,6 +117,19 @@ class CodeCacheArgs implements CodeCacheArgsInterface
         $this->filePath = $filePath;
 
         $this->setClasses($classes);
+
+        if (! isset($spec['file-handler'])) {
+            $fileHandler = new FileHandler();
+        }
+        else {
+            $fileHandler = $spec['file-handler'];
+            if (! $fileHandler instanceof FileHandlerInterface) {
+                $err  = "file handler must implement -(Appfuel\\Filesystem";
+                $err .= "\\FileHandlerInterface)";
+                throw new OutOfBoundsException($err);
+            }
+        }
+        $this->fileHandler = $fileHandler;
     }
 
     /**
@@ -158,6 +178,14 @@ class CodeCacheArgs implements CodeCacheArgsInterface
     public function isAutoReload()
     {
         return $this->isAutoReload;
+    }
+
+    /**
+     * @return  FileHandlerInterface
+     */
+    public function getFileHandler()
+    {
+        return $this->fileHandler;
     }
 
     /**
@@ -214,6 +242,8 @@ class CodeCacheArgs implements CodeCacheArgsInterface
             }
         }
 
-        $this->classes = array_unique($classes);
+        $classes = array_unique($classes);
+        sort($classes);
+        $this->classes = $classes;
     }
 }
