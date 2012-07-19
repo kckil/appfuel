@@ -162,27 +162,6 @@ class FileHandlerTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends settingAndGettingTheFinder
-     * @param   FileHandler  $handler
-     * @return  FileHandler
-     */
-    public function readFailureToken(FileHandler $handler)
-    {
-        $token = FileHandlerInterface::READ_FAILURE;
-        $this->assertEquals($token, '__AF_FILE_HANDLER_READ_FAILURE__');
-        $this->assertTrue($handler->isReadFailureToken($token));
-        $this->assertEquals($token, $handler->getReadFailureToken());
-        $this->assertTrue(
-            $handler->isReadFailureToken(
-                $handler->getReadFailureToken()
-            )
-        );
-
-        return $handler;
-    }
-
-    /**
-     * @test
      * @depends createFileHandlerUsedForFixtures
      * @return  FileHandler
     */
@@ -193,7 +172,7 @@ class FileHandlerTest extends FrameworkTestCase
 
         $file = 'reader/import/MyFixtureClassA.php';
         $result = $handler->importScript($file);
-        $this->assertNotEquals($result, $handler->getReadFailureToken());
+        $this->assertNotEquals($result, false);
         
 
         $declared = get_declared_classes();
@@ -214,15 +193,14 @@ class FileHandlerTest extends FrameworkTestCase
 
         $file = 'reader/import/MyFixtureClassB.php';
         $result = $handler->importScript($file, true);
-        $failureToken = $handler->getReadFailureToken();
-        $this->assertNotEquals($result, $failureToken);
+        $this->assertNotEquals($result, false);
         
 
         $declared = get_declared_classes();
         $this->assertContains('MyFixtureClassB', $declared); 
 
         $result = $handler->importScript($file, true);
-        $this->assertNotEquals($result, $failureToken);
+        $this->assertNotEquals($result, false);
  
         return $handler;
     }
@@ -235,8 +213,7 @@ class FileHandlerTest extends FrameworkTestCase
     public function importScriptNotFound(FileHandler $handler)
     {
         $file = '__FileNotFoundNoPossibleWayThisExists__.php';
-        $result = $handler->importScript($file);
-        $this->assertEquals($result, $handler->getReadFailureToken());
+        $this->assertFalse($handler->importScript($file));
         
         return $handler;
     }
@@ -268,7 +245,7 @@ class FileHandlerTest extends FrameworkTestCase
 
         $file = 'reader/include/MyFixtureClassC.php';
         $result = $handler->includeScript($file);
-        $this->assertNotEquals($result, $handler->getReadFailureToken());
+        $this->assertNotEquals($result, false);
         
 
         $declared = get_declared_classes();
@@ -289,15 +266,14 @@ class FileHandlerTest extends FrameworkTestCase
 
         $file = 'reader/include/MyFixtureClassD.php';
         $result = $handler->includeScript($file, true);
-        $failureToken = $handler->getReadFailureToken();
-        $this->assertNotEquals($result, $failureToken);
+        $this->assertNotEquals($result, false);
         
 
         $declared = get_declared_classes();
         $this->assertContains('MyFixtureClassD', $declared); 
 
         $result = $handler->includeScript($file, true);
-        $this->assertNotEquals($result, $failureToken);
+        $this->assertNotEquals($result, false);
  
         return $handler;
     }
@@ -333,8 +309,7 @@ class FileHandlerTest extends FrameworkTestCase
     public function readdJsonNotFound(FileHandler $handler)
     {
         $file = 'file-does-not-exist.json';
-        $result = $handler->readJson($file);
-        $this->assertEquals($handler->getReadFailureToken(), $result);
+        $this->assertFalse($handler->readJson($file));
 
         return $handler;
     }
@@ -362,8 +337,7 @@ class FileHandlerTest extends FrameworkTestCase
     public function readdFileNotFound(FileHandler $handler)
     {
         $file = 'file-does-not-exist.txt';
-        $result = $handler->read($file);
-        $this->assertEquals($handler->getReadFailureToken(), $result);
+        $this->assertFalse($handler->read($file));
 
         return $handler;
     }
@@ -392,8 +366,7 @@ class FileHandlerTest extends FrameworkTestCase
     public function readSerializeNotFound(FileHandler $handler)
     {
         $file = 'file-does-not-exist.txt';
-        $result = $handler->readSerialized($file);
-        $this->assertEquals($handler->getReadFailureToken(), $result);
+        $this->assertFalse($handler->readSerialized($file));
 
         return $handler;
     }
@@ -425,8 +398,7 @@ class FileHandlerTest extends FrameworkTestCase
     public function readLinesIntoArrayNotFound(FileHandler $handler)
     {
         $file = 'file-does-not-exist.txt';
-        $result = $handler->readLinesIntoArray($file);
-        $this->assertEquals($handler->getReadFailureToken(), $result);
+        $this->assertFalse($handler->readLinesIntoArray($file));
 
         return $handler;
     }

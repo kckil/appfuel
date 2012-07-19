@@ -9,18 +9,6 @@ namespace Appfuel\Filesystem;
 interface FileHandlerInterface
 {
     /**
-     * Token used to decribe a failure while trying to read a file
-     * @var string
-     */
-    const READ_FAILURE = '__AF_FILE_HANDLER_READ_FAILURE__';
-
-    /**
-     * Token used to decribe a failure while trying to write a file
-     * @var string
-     */
-    const WRITE_FAILURE = '__AF_FILE_HANDLER_READ_FAILURE__';
-
-    /**
      * @return  FileHandler
      */
     public function throwExceptionOnFailure();
