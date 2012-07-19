@@ -181,11 +181,7 @@ class FileHandler implements FileHandlerInterface
     public function write($path, $data, $flags = 0) 
     { 
         $finder = $this->getFileFinder(); 
-        if (! $full = $finder->getExistingPath($path)) {
-            return $finder->handleError('write'); 
-        }
-
-        $result = file_put_contents($full, $data, $flags);
+        $result = file_put_contents($finder->getPath($path), $data, $flags);
         if (false === $result) { 
             return $this->handleError('write', 'file_put_contents'); 
         }
@@ -201,7 +197,6 @@ class FileHandler implements FileHandlerInterface
      */ 
     public function writeSerialized($path, $data, $flags = 0)
     {
-        $data = serialize($data);
         return $this->write($path, serialize($data), $flags);
     }
 
@@ -211,18 +206,59 @@ class FileHandler implements FileHandlerInterface
      * @param    bool   $isRecursive 
      * @return 
      */ 
-    public function mkdir($path, $mode = null, $recursive = null) 
+    public function createDir($path, $mode = 0755, $recursive = false) 
     { 
-        $isRecursive = false; 
-        if (true === $recursive) { 
-            $isRecursive = true; 
+        $finder = $this->getFileFinder();
+        $full = $finder->getPath($path);
+        if ($finder->isDir($full)) {
+            return false;
         }
- 
-        $finder = $this->getFileFinder(); 
-        $full   = $finder->getPath($path); 
-        $result = @mkdir($full, $mode, $isRecursive);
-        if (false === @mkdir($full, $mode, $isRecursive)) {
-            $this->handleError('write', 'mkdir');
+
+        if (false === @mkdir($full, $mode, (bool)$recursive)) {
+            return $this->handleError('write', 'mkdir');
+        }
+
+        return true;
+    }
+
+    /**
+     * @param   string  $path
+     * @return  bool
+     */
+    public function deleteDir($path)
+    {
+        $finder = $this->getFileFinder();
+        $full = $finder->getExistingPath($path);
+        if (false === $full) {
+            return true;
+        }
+
+        if (! $finder->isDir($full)) {
+            return $this->handlerError('write', 'rmdir: not a dir');
+        }
+
+        $result = @rmdir($full);
+        if (false === $result) {
+            return $this->handleError('write', 'rmdir: could not delete dir');
+        }
+
+        return true;
+    }
+
+    /**
+     * @param   string  $path
+     * @return  bool
+     */
+    public function deleteFile($path)
+    {
+        $finder = $this->getFileFinder();
+        $full = $finder->getPath($path);
+        if (! $finder->isFile($full)) {
+            return false;
+        }
+
+        if (false === @unlink($full)) {
+            return $this->handleError('write', 'unlink');
         }
 
         return true;
@@ -256,7 +292,7 @@ class FileHandler implements FileHandlerInterface
     public function getPath($path = null)
     {
         return $this->getFileFinder()
-                    ->getPath();
+                    ->getPath($path);
     }
 
     /** 
@@ -282,7 +318,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function getPathBase($path)
     {
-        return $this->getFinder()
+        return $this->getFileFinder()
                     ->getPathBase($path);
     }
 
@@ -292,7 +328,7 @@ class FileHandler implements FileHandlerInterface
      */    
     public function getDirPath($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         $full = $finder->getPath($path);
 
         return $finder->getDirPath($full);
@@ -304,7 +340,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function getLastModifiedTime($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->getLastModifiedTime($finder->getPath($path));
     }
 
@@ -314,7 +350,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function isWritable($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->isWritable($finder->getPath($path));
     }
 
@@ -324,7 +360,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function isReadable($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->isReadable($finder->getPath($path));
     }
 
@@ -334,7 +370,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function isFile($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->isFile($finder->getPath($path));
     }
 
@@ -344,7 +380,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function isDir($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->isDir($finder->getPath($path));
     }
 
@@ -354,7 +390,7 @@ class FileHandler implements FileHandlerInterface
      */
     public function isLink($path)
     {
-        $finder = $this->getFinder();
+        $finder = $this->getFileFinder();
         return $finder->isLink($finder->getPath($path));
     }
 

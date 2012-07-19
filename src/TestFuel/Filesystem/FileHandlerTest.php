@@ -16,6 +16,39 @@ use StdClass,
 
 class FileHandlerTest extends FrameworkTestCase 
 {
+    /**
+     * Relative path from Fixtures to the directory used to test creating
+     * and deleting files and directories
+     * @var string
+     */
+    protected $sandboxPath = 'writer/sandbox';
+
+    /**
+     * @return  string
+     */
+    public function getSandboxPath()
+    {
+        return $this->sandboxPath;
+    }
+
+    /**
+     * Clean out the sandbox so the next test can write there
+     *
+     * @return null
+     */
+    public function clearSandBox($createDir = true)
+    {
+        $full = "{$this->getFixturePath()}/{$this->getSandboxPath()}";
+
+        if (is_dir($full)) {
+            $cmd  = "rm -rf $full";
+            $result = system($cmd);
+        }
+
+        if (true === $createDir) {
+            mkdir($full);
+        }
+    }
 
     /**
      * @return  FileFinderInterface
@@ -159,6 +192,31 @@ class FileHandlerTest extends FrameworkTestCase
         $handler = $this->createFileHandlerMockFinder();
         $handler->setFailureCode($badCode);
     }
+
+    /**
+     * @test
+     * @depends createFileHandlerMockFinder
+     * @param   FileHandler  $handler
+     * @return  FileHandler
+     */
+    public function failureReturnValue(FileHandler $handler)
+    {
+        $this->assertFalse($handler->getFailureReturnValue());
+        
+        $value = null;
+        $this->assertEquals($handler, $handler->setFailureReturnValue($value));
+        $this->assertEquals($value, $handler->getFailureReturnValue());
+
+        /* value can be any value there are no validation checks */
+        $value = new stdClass;
+        $this->assertEquals($handler, $handler->setFailureReturnValue($value));
+        $this->assertEquals($value, $handler->getFailureReturnValue());
+       
+        /* restore original setting */
+        $handler->setFailureReturnValue(false); 
+        return $handler;
+    }
+
 
     /**
      * @test
@@ -402,4 +460,84 @@ class FileHandlerTest extends FrameworkTestCase
 
         return $handler;
     }
+
+    /**
+     * @test
+     * @depends createFileHandlerUsedForFixtures
+     * @return  FileHandler
+     */
+    public function createAndDeleteDirectories(FileHandler $handler)
+    {
+        $this->clearSandBox();
+        $handler->disableExceptionsOnFailure();
+        
+        $name = "mydir";
+        $path = "{$this->getSandboxPath()}/$name";
+        
+        $full = $handler->getPath($path);
+        $this->assertFalse(is_dir($full));
+
+        $this->assertTrue($handler->createDir($path));
+        $this->assertTrue($handler->isDir($path));
+        $this->assertTrue($handler->deleteDir($path));
+    }
+
+    /**
+     * @test
+     * @depends createFileHandlerUsedForFixtures
+     * @return  FileHandler
+     */
+    public function writeAndDeleteFileInTheSandbox(FileHandler $handler)
+    {
+        $this->clearSandBox();
+        $handler->disableExceptionsOnFailure();
+       
+        $content = "this is my file";
+        $size = strlen($content);
+        $path = "{$this->getSandboxPath()}/myfile.txt";
+        $full = $handler->getPath($path);
+        
+        $this->assertFalse(file_exists($full));
+        $this->assertEquals($size, $handler->write($path, $content));
+        $this->assertTrue(file_exists($full));
+
+        $this->assertTrue($handler->deleteFile($path));
+        $this->assertFalse(file_exists($full));
+
+        return $handler;
+    }    
+
+    /**
+     * @test
+     * @depends createFileHandlerUsedForFixtures
+     * @return  FileHandler
+     */
+    public function writeAndDeleteSeializedInTheSandbox(FileHandler $handler)
+    {
+        $this->clearSandBox();
+        $handler->disableExceptionsOnFailure();
+       
+        $content = array(
+            'item1' => "this is my file",
+            'item2' => array('a', 'b', 'c')
+        );
+        $serialized = serialize($content);
+        $size = strlen($serialized);
+        $path = "{$this->getSandboxPath()}/mySerialized.txt";
+        $full = $handler->getPath($path);
+        
+        $this->assertFalse(file_exists($full));
+        $this->assertEquals($size, $handler->writeSerialized($path, $content));
+        $this->assertTrue(file_exists($full));
+
+        $this->assertEquals($serialized, file_get_contents($full));
+        $this->assertTrue($handler->deleteFile($path));
+        $this->assertFalse(file_exists($full));
+
+        $this->clearSandBox(false);
+        return $handler;
+    }
+
+
+
 }
