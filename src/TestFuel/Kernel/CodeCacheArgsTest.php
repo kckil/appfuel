@@ -18,6 +18,14 @@ class CodeCacheArgsTest extends FrameworkTestCase
 {
 
     /**
+     * @return  string
+     */
+    public function getFileHandlerInterface()
+    {
+        return 'Appfuel\\Filesystem\\FileHandlerInterface';
+    }
+
+    /**
      * @param   array   $spec
      * @return  CodeCacheArgs
      */
@@ -75,7 +83,7 @@ class CodeCacheArgsTest extends FrameworkTestCase
         $this->assertEquals($expected, $args->getCacheMetaFilePath());
     
         $fileHandler = $args->getFileHandler();
-        $interface = 'Appfuel\\Filesystem\FileHandlerInterface';
+        $interface = $this->getFileHandlerInterface();
         $this->assertInstanceOf($interface, $fileHandler);
         return $spec; 
     }
@@ -153,10 +161,29 @@ class CodeCacheArgsTest extends FrameworkTestCase
      */
     public function overrideFileHander(array $spec)
     {
-        $handler = $this->getMock('Appfuel\\Filesystem\\FileHandlerInterface');
+        $handler = $this->getMock($this->getFileHandlerInterface());
         $spec['file-handler'] = $handler;
         $args = $this->createArgs($spec);
         $this->assertSame($handler, $args->getFileHandler());
+
+        unset($spec['file-handler']);
+
+        return $spec;
+    }
+
+    /**
+     * @test
+     * @param   array   $spec
+     * @depends overrideFileHander
+     */
+    public function overrideFileHandlerFailure(array $spec)
+    {
+        $interface = $this->getFileHandlerInterface();
+        $msg = "file handler must implement -($interface)";
+        $this->setExpectedException('OutOfBoundsException', $msg);
+
+        $spec['file-handler'] = new stdClass;
+        $args = $this->createArgs($spec);
     }
 
     /**
