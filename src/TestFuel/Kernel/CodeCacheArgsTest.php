@@ -38,32 +38,6 @@ class CodeCacheArgsTest extends FrameworkTestCase
     }
 
     /**
-     * @return  array
-     */
-    public function provideInvalidStrings()
-    {
-        return array(
-            array(array(1,3,4)),
-            array(12345),
-            array(new StdClass),
-            array(true),
-            array(false)
-        );
-    }
-
-
-    /**
-     * @return  array
-     */
-    public function provideInvalidStringsIncludeEmpty()
-    {
-        $args = $this->provideInvalidStrings();
-        array_unshift($args, array(''));
-        
-        return $args;
-    }
-
-    /**
      * List of required arguments with valid values
      *
      * @return  array

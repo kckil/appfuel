@@ -43,7 +43,8 @@ class CodeCacheHandler
         }
    
         $fhandler = $args->getFileHandler();
-        $fhandler->throwExceptionOnFailure();
+        $fhandler->throwExceptionOnFailure()
+                 ->setFailureCode(500);
         
         $classes = $args->getClasses();
         $cache   = $args->getCacheFilePath();
@@ -56,7 +57,7 @@ class CodeCacheHandler
                 $reload = true;
             } 
             else {
-                $cacheTime = $fhandler->getLastModifyTime($cache);
+                $cacheTime = $fhandler->getLastModifiedTime($cache);
                 $metadata  = $fhandler->readSerialized($cache);
 
                 if (! isset($metadata[1]) || ! is_array($metadata[1])) {
@@ -72,7 +73,7 @@ class CodeCacheHandler
                 }
                 else {
                     foreach ($metadata[0] as $resource) {
-                        $rtime = $fhandler->getLastModifyTime($resource);
+                        $rtime = $fhandler->getLastModifiedTime($resource);
                         if (false === $rtime || $rtime > $cacheTime) {
                             $reload = $true
                         }
@@ -83,7 +84,7 @@ class CodeCacheHandler
 
 
         if (! $reload && $isCache) {
-            $fhandler->importCode($cache, true);
+            $fhandler->importScript($cache, true);
             return;
         }
 

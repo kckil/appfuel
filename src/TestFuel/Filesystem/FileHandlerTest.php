@@ -84,6 +84,84 @@ class FileHandlerTest extends FrameworkTestCase
 
     /**
      * @test
+     * @depends createFileHandlerMockFinder
+     * @param   FileHandler  $handler
+     * @return  FileHandler
+     */
+    public function throwingExceptionFlag(FileHandler $handler)
+    {
+        $this->assertFalse($handler->isThrowOnFailure());
+        $this->assertSame($handler, $handler->throwExceptionOnFailure());
+        $this->assertTrue($handler->isThrowOnFailure());
+        $this->assertSame($handler, $handler->disableExceptionsOnFailure());
+
+        return $handler;
+    }
+
+    /**
+     * @test
+     * @depends createFileHandlerMockFinder
+     * @param   FileHandler  $handler
+     * @return  FileHandler
+     */
+    public function settingFailureMsg(FileHandler $handler)
+    {
+        $this->assertNull($handler->getFailureMsg());
+        
+        $msg = "this is my message";
+        $this->assertSame($handler, $handler->setFailureMsg($msg));
+        $this->assertEquals($msg, $handler->getFailureMsg());
+
+        return $handler;
+    }
+
+    /**
+     * @test
+     * @depends createFileHandlerMockFinder
+     * @dataProvider    provideInvalidStrings
+     */
+    public function settingFailureMsgFailure($badMsg)
+    {
+        $msg = 'failure msg must be a string';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $handler = $this->createFileHandlerMockFinder();
+        $handler->setFailureMsg($badMsg);
+    }
+
+    /**
+     * @test
+     * @depends createFileHandlerMockFinder
+     * @param   FileHandler  $handler
+     * @return  FileHandler
+     */
+    public function settingFailureCode(FileHandler $handler)
+    {
+        $this->assertEquals(500, $handler->getFailureCode());
+        
+        $code = 404;
+        $this->assertSame($handler, $handler->setFailureCode($code));
+        $this->assertEquals($code, $handler->getFailureCode());
+
+        return $handler;
+    }
+
+    /**
+     * @test
+     * @depends createFileHandlerMockFinder
+     * @dataProvider    provideInvalidScalars
+     */
+    public function settingFailureCodeFailure($badCode)
+    {
+        $msg = 'failure code must be a scalar';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $handler = $this->createFileHandlerMockFinder();
+        $handler->setFailureCode($badCode);
+    }
+
+    /**
+     * @test
      * @depends settingAndGettingTheFinder
      * @param   FileHandler  $handler
      * @return  FileHandler

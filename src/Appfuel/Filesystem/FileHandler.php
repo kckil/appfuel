@@ -14,8 +14,8 @@ use SplFileInfo,
 class FileHandler implements FileHandlerInterface
 {
     /**
-     * Flag used to determine if an exception should be thrown when the 
-     * finder, reader or writer failures
+     * Flag used to determine if an exception should be thrown when a failure
+     * occurs
      * @var bool
      */
     protected $isThrowOnFailure = false;
@@ -24,13 +24,13 @@ class FileHandler implements FileHandlerInterface
      * Message used when throwing an exception
      * @var string
      */
-    protected $errMsg = null;
+    protected $failureMsg = null;
 
     /**
      * Code used when throwing an exception
      * @var string|int
      */
-    protected $errCode = 500;
+    protected $failureCode = 500;
 
     /**
      * @var FileFinderInterface
@@ -80,6 +80,51 @@ class FileHandler implements FileHandlerInterface
     }
 
     /**
+     * @return  string
+     */
+    public function getFailureMsg()
+    {
+        return $this->failureMsg;
+    }
+
+    /**
+     * @throws  InvalidArgumentException
+     * @param   string  $msg
+     * @return  FileHandler
+     */
+    public function setFailureMsg($msg)
+    {
+        if (! is_string($msg)) {
+            throw new InvalidArgumentException("failure msg must be a string");
+        }
+
+        $this->failureMsg = $msg;
+        return $this;
+    }
+
+    /**
+     * @return  scalar
+     */
+    public function getFailureCode()
+    {
+        return $this->failureCode;
+    }
+
+    /**
+     * @param   scalar  $code
+     * @return  FileHandler
+     */
+    public function setFailureCode($code)
+    {
+        if (! is_scalar($code)) {
+            throw new InvalidArgumentException("failure code must be a scalar");
+        }
+
+        $this->failureCode = $code;
+        return $this;
+    }
+
+    /**
      * @param   string  $token
      * @return  bool
      */
@@ -105,7 +150,7 @@ class FileHandler implements FileHandlerInterface
     {
         $finder = $this->getFileFinder();
         if (false === ($full = $finder->getExistingPath($path))) {
-            return $this->getReadFailureToken();
+            return $this->handleError('read');
         }
  
         return (true === $isOnce) ? require_once $full : require $full;
@@ -136,7 +181,7 @@ class FileHandler implements FileHandlerInterface
         $finder  = $this->getFileFinder();
         $content = $this->read($path);
         if ($this->isReadFailureToken($content)) {
-            return $content;
+            return $this->handleError('read');
         }
 
         return json_decode($content, $assoc, $depth, $options);
@@ -177,7 +222,7 @@ class FileHandler implements FileHandlerInterface
     { 
         $finder = $this->getFileFinder(); 
         if (false === ($full = $finder->getExistingPath($path))) { 
-            return $this->getReadFailureToken(); 
+            return $this->handleError('read'); 
         } 
 
         return file_get_contents($full); 
@@ -191,7 +236,7 @@ class FileHandler implements FileHandlerInterface
     {
         $content = $this->read($path);
         if ($this->isReadFailureToken($content)) {
-            return $content;
+            return $this->handleError('read');
         }
  
         return unserialize($content); 
@@ -206,10 +251,31 @@ class FileHandler implements FileHandlerInterface
     { 
         $finder = $this->getFileFinder();
         if (false === ($full = $finder->getExistingPath($path))) { 
-            return $this->getReadFailureToken();
+            return $this->handleError('read');
         }
         
         return file($full,$flags); 
+    }
+
+    /** 
+     * @param   string  $data 
+     * @param   string  $path 
+     * @param   int     $flags 
+     * @return  int 
+     */ 
+    public function write($data, $path, $flags = 0) 
+    { 
+        $finder = $this->getFileFinder(); 
+        if (! $full = $finder->getExistingPath($path)) {
+            return $finder->handleError('write'); 
+        }
+
+        $result = file_put_contents($full, $data, $flags); 
+        if (false === $result) { 
+            return $this->handleError('write'); 
+        }
+
+        return $result; 
     }
 
     /**
@@ -358,5 +424,26 @@ class FileHandler implements FileHandlerInterface
     {
         $this->finder = $finder;
         return $this;
+    }
+
+    /**
+     * @throws  DomainException
+     * @param   string $type
+     * @return  string
+     */
+    protected function handleError($type)
+    {
+        if (! $this->isThrowOnFailure()) {
+            return ('read' === $type) ? $this->getReadFailureToken() :
+                                        $this->getWriteFailureToken();
+        }
+
+        $msg = $this->getFailureMsg();
+        if (! $msg) {
+            $msg = "file handle error -($type) occured";
+        }
+        $code = $this->getFailureCode();
+
+        throw new DomainException($msg, $code);
     }
 }
