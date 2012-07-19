@@ -53,16 +53,16 @@ class FileWriter implements FileWriterInterface
      * @param   int     $flags
      * @return  int
      */
-    public function writeData($data, $path, $flags = 0)
+    public function write($data, $path, $flags = 0)
     {
         $finder = $this->getFileFinder();
         if (! $full = $finder->getExistingPath($path)) {
-            return $finder->getFindFailureToken();
+            return $finder->getFailureToken();
         }
 
         $result = file_put_contents($full, $data, $flags);
         if (false === $result) {
-            return $this->getWriteFailureToken();
+            return $this->getFailureToken();
         }
 
         return $result;
