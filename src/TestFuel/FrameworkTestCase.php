@@ -75,4 +75,17 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
      
         return $args;
     }
+
+    /**
+     * @return  array
+     */
+    public function provideInvalidInts()
+    {
+        return array(
+            array('abcde'),
+            array(''),
+            array(new stdClass),
+            array(array(1,2,3)),
+        );
+    }
 }
