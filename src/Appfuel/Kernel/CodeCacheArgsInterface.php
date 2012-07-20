@@ -54,4 +54,11 @@ interface CodeCacheArgsInterface
      * @return  bool
      */
     public function isAutoReload();
+
+    /**
+     * List of aleady declared classes, interfaces and traits
+     * @return  array
+     */
+    public function getPHPDeclared();
+
 }

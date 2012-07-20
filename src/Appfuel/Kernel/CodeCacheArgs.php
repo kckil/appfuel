@@ -191,7 +191,7 @@ class CodeCacheArgs implements CodeCacheArgsInterface
     /**
      * @return  array
      */
-    protected function getPHPDeclared()
+    public function getPHPDeclared()
     {
         $list = array_merge(get_declared_classes(), get_declared_interfaces());
         if (function_exists('get_declared_traits')) {

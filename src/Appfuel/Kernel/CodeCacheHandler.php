@@ -56,17 +56,17 @@ class CodeCacheHandler
      * @param   CodeCacheOptionsInterface   $options
      * @return  bool
      */
-    public function load(CodeCacheArgsInterface $args)
+    public static function load(CodeCacheArgsInterface $args)
     {
         $key = $args->getCacheKey();
-        if (! self::markAsLoaded()) {
+        if (! self::markAsLoaded($key)) {
             return;
         }
 
         $isAutoReload = $args->isAutoReload();
    
-        $fhandler = $args->getFileHandler();
-        $fhandler->throwExceptionFailure()
+        $fHandler = $args->getFileHandler();
+        $fHandler->throwExceptionOnFailure()
                  ->setFailureCode(500);
 
         $classes = $args->getClasses();
@@ -75,29 +75,36 @@ class CodeCacheHandler
         $isCache = $fHandler->isFile($cache);
         if ($isAutoReload) {
             $meta = $args->getCacheMetaFilePath();
-            if (! $isCache || $fhandler->isFile($meta)) {
+            if (! $isCache || $fHandler->isFile($meta)) {
                 $reload = true;
             }
             else {
-                $cTime  = $fhandler->getLastModifiedTime($cache);
-                $reload = self::isReload($classes, $cTime, $meta, $fhandler);
+                $cTime  = $fHandler->getLastModifiedTime($cache);
+                $reload = self::isReload($classes, $cTime, $meta, $fHandler);
             }
         }
 
         if (! $reload && $isCache) {
-            $fhandler->importScript($cache, true);
+            $fHandler->importScript($cache, true);
             return;
         }
 
         $declared = $args->getPHPDeclared();
-        $data = self::getContent($classes, $declared, $fhandler);
+        $result = self::getContent($classes, $declared, $fHandler);
+        $content = $result[0];
+        $files = $result[1];
 
-        $fhandler->setFailureMsg("failed to write to cache file -($cache)")
+        $cacheDir = $fHandler->getDirPath($cache);
+        if (! $fHandler->isDir($cacheDir)) {
+            $fHandler->createDir($cacheDir);
+        }
+
+        $fHandler->setFailureMsg("failed to write to cache file -($cache)")
                  ->write($cache, '<?php '.$content);
         
         if ($isAutoReload) {
-            $fhandler->setFailureMsg("failed to write to cache file -($meta)")
-                     ->writeSerialized($meta, array($classes, $declared));
+            $fHandler->setFailureMsg("failed to write to cache file -($meta)")
+                     ->writeSerialized($meta, array($files, $classes));
         }
     }
 
@@ -111,9 +118,9 @@ class CodeCacheHandler
     public static function isReload(array $classes,
                                     $cacheTime, 
                                     $metaFile,
-                                    FileHandlerInterface $fhandler)
+                                    FileHandlerInterface $fHandler)
     {
-        $metadata = $fhandler->readSerialized($metaFile);
+        $metadata = $fHandler->readSerialized($metaFile);
                 
         if (! isset($metadata[1]) || ! is_array($metadata[1])) {
             $err  = "meta data at -($metaFile) must unserialize into an array ";
@@ -128,9 +135,9 @@ class CodeCacheHandler
         }
         
         foreach ($metadata[0] as $resource) {
-            $rtime = $fhandler->getLastModifiedTime($resource);
+            $rtime = $fHandler->getLastModifiedTime($resource);
             if (false === $rtime || $rtime > $cacheTime) {
-                return true
+                return true;
             }
         }
 
@@ -141,39 +148,39 @@ class CodeCacheHandler
      * @param   array   $classes
      * @param   array   $excluded
      * @param   FileHandlerInterface    $fmanager
-     * @return  string
+     * @return  array
      */
     public static function getContent(array $classes, 
                                       array $excluded, 
-                                      FileHandlerInterface $fhandler)
+                                      FileHandlerInterface $fHandler)
     {
         $files = array();
         $content = '';
 
         $patterns = array('/^\s*<\?php/', '/\?>\s*$/');
         foreach (self::getOrderedClasses($classes) as $class) {
-            if (in_array($class->getName(), $declared)) {
+            if (in_array($class->getName(), $excluded)) {
                 continue;
             }
 
             $filename = $class->getFileName();
             $files[] = $filename;
 
-            $c = preg_replace($patterns, '', $fhandler->read($filename));
+            $c = preg_replace($patterns, '', $fHandler->read($filename));
             
             /* add namespace declaration for global code */
             if (! $class->inNamespace()) {
                 $c = "\nnamespace\n{\n" . self::stripComments($c) ."\n}\n";
             }
             else {
-                $c = self::fixNamespaceDeclaration('<?php ' . $c);
+                $c = self::fixNamespaceDeclarations('<?php ' . $c);
                 $c = preg_replace($patterns[0], '', $c);
             }
 
             $content .= $c;
         }
 
-        return $content;
+        return array($content, $files);
     }
 
     /**
@@ -195,11 +202,11 @@ class CodeCacheHandler
      */
     public static function markAsLoaded($key)
     {
-        if (! self::isLoaded($key)) {
+        if (self::isLoaded($key)) {
             return false;
         }
 
-        self::$loaded[$key];
+        self::$loaded[$key] = true;
         return true;
     }
 
@@ -242,11 +249,11 @@ class CodeCacheHandler
             if (is_string($token)) {
                 $output .= $token;
             }
-            elseif (in_array($token[0], array(T_COMMENT, T_DOC_COMMENT)) {
+            else if (in_array($token[0], array(T_COMMENT, T_DOC_COMMENT))) {
                 // strip comments
                 continue;
             }
-            elseif (T_NAMESPACE === $token[0]) {
+            else if (T_NAMESPACE === $token[0]) {
                 if ($inNamespace) {
                     $output .= "}\n";
                 }
@@ -256,7 +263,7 @@ class CodeCacheHandler
                        is_array($t) &&
                        in_array($t[0], array(T_WHITESPACE, T_NS_SEPARATOR, T_STRING))
                      ) {
-                    $output .= $token[1];
+                    $output .= $t[1];
                 }
                 if (is_string($t) && '{' === $t) {
                     $inNamespace = false;
@@ -275,7 +282,7 @@ class CodeCacheHandler
         }
 
         if ($inNamespace) {
-            $output = .="}\n";
+            $output .= "}\n";
         }
 
         return $output;
@@ -306,7 +313,7 @@ class CodeCacheHandler
             }
         }
 
-        $output = preg_replace(array('/\s+$/Sm', '/\n+/S'), $output);
+        $output = preg_replace(array('/\s+$/Sm', '/\n+/S'), "\n", $output);
 
         return $output;
     }
@@ -332,7 +339,7 @@ class CodeCacheHandler
                 throw new DomainException("Unable to load class -($class)");
             }
 
-            $map = array_merge($mag, self::getClassHierarchy($reflectionClass));
+            $map = array_merge($map, self::getClassHierarchy($reflectionClass));
         }
 
         return $map;        
