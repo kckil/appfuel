@@ -35,11 +35,11 @@ class AppInitializerTest extends FrameworkTestCase
 
     /**
      * @param   array   $spec
-     * @return  FileFinder
+     * @return  AppInitializer
      */
-    public function createInitializer($env)
+    public function createInitializer()
     {
-        return new AppInitializer($env);
+        return new AppInitializer();
     }
     
     /**
@@ -48,28 +48,14 @@ class AppInitializerTest extends FrameworkTestCase
      */
     public function creatingAnAppInitializer()
     {
-        $env = 'production';
-        $init = $this->createInitializer($env);
+        $init = $this->createInitializer();
 
         $interface = 'Appfuel\\Kernel\\AppInitializerInterface';
         $this->assertInstanceOf($interface, $init);
 
-        $this->assertEquals($env, $init->getEnv());
-
         return $init;
     }
     
-    /**
-     * @test
-     * @dataProvider    provideInvalidStringsIncludeEmpty
-     */
-    public function creatingAppInitializerFailure($badEnv)
-    {
-        $msg = 'environment name must be a non empty string';
-        $this->setExpectedException('InvalidArgumentException', $msg);
-        $init = $this->createInitializer($badEnv);
-    }
-
     /**
      * @test
      * @depends creatingAnAppInitializer

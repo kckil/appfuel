@@ -1,5 +1,4 @@
 AF_ENV ?= prod
-PHPUNIT_DIR := test
 PHPUNIT_XML := phpunit.xml.dist
 PHPUNIT_CMD := phpunit --configuration=$(PHPUNIT_XML)
 CONFIG_BUILD_CMD := bin/build-config

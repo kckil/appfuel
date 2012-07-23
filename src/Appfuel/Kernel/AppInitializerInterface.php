@@ -14,13 +14,6 @@ namespace Appfuel\Kernel;
 interface AppInitializerInterface
 {
     /**
-     * This represents the environment the application is currently running in.
-     *
-     * @return  string
-     */
-    public function getEnv();
-
-    /**
      * @return  AppInitializerInterface
      */
     public function showErrors();
@@ -68,4 +61,10 @@ interface AppInitializerInterface
      * @return  AppInitializerInterface
      */
     public function registerAppfuelFaultHandler();
+
+    /**
+     * @param   array
+     * @return  AppInitializerInterface
+     */
+    public function restrictWebAccessTo(array $list, $msg);
 }

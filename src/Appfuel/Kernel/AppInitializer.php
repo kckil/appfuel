@@ -16,34 +16,6 @@ use InvalidArgumentException;
 class AppInitializer implements AppInitializerInterface
 {
     /**
-     * @var string
-     */
-    protected $env = null;
-
-
-    /**                                                                          
-     * @param   string  $env                                                     
-     * @return  AppInitializer                                                      
-     */                                                                          
-    public function __construct($env)                                            
-    {                                                                            
-        if (! is_string($env) || empty($env)) {                                  
-            $err = "environment name must be a non empty string";                
-            throw new InvalidArgumentException($err);                            
-        }
-
-        $this->env = $env;
-    }
-
-    /**
-     * @return  string
-     */
-    public function getEnv()
-    {
-        return $this->env;
-    }
-
-    /**
      * @return  AppInitializer
      */
     public function showErrors()
@@ -135,5 +107,32 @@ class AppInitializer implements AppInitializerInterface
              ->registerErrorHandler(array($handler, 'handleError'));
 
         return $this;
+    }
+
+    /**
+     * @param   array   $list
+     * @return  AppInitializer
+     */
+    public function restrictWebAccessTo(array $list, $msg)
+    {
+        foreach ($list as $ip) {
+            if (! is_string($ip) || empty($ip)) {
+                $err  = "each item in the list must be a non empty string ";
+                $err .= "that represents an ip address";
+                throw new DomainException($err);
+            }
+        }
+
+        if (! is_string($msg)) {
+            $err = "script restriction message must be a string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (isset($_SERVER['HTTP_CLIENT_IP']) ||
+            isset($_SERVER['HTTP_X_FORWARDED_FOR']) ||
+            ! in_array(@$_SERVER['REMOTE_ADDR'], $list)) {
+            header('HTTP/1.0 403 Forbidden');
+            exit($msg);
+        }
     }
 }

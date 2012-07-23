@@ -11,6 +11,7 @@ use DomainException,
     Appfuel\Filesystem\FileHandler;
 
 /**
+ * Resolves configuration files and writes them to a cache
  */
 class ConfigHandler implements ConfigHandlerInterface
 {
