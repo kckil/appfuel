@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */
+require_once __DIR__ . '/../../../autoload.php';
+echo "\n", print_r(realpath(__DIR__),1), "\n";exit;
+
