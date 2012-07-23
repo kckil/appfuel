@@ -4,11 +4,11 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\App;
+namespace Testfuel\Kernel;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\App\AppInitializer;
+    Appfuel\Kernel\AppInitializer;
 
 class AppInitializerTest extends FrameworkTestCase 
 {
@@ -51,7 +51,7 @@ class AppInitializerTest extends FrameworkTestCase
         $env = 'production';
         $init = $this->createInitializer($env);
 
-        $interface = 'Appfuel\\App\\AppInitializerInterface';
+        $interface = 'Appfuel\\Kernel\\AppInitializerInterface';
         $this->assertInstanceOf($interface, $init);
 
         $this->assertEquals($env, $init->getEnv());

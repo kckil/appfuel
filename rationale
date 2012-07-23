@@ -1,0 +1,74 @@
+Author:     Robert Scott-Buccluech 
+Summary:    An Overview of Appfuel's Architecture
+Created:    July-22-2012 
+Modified:   - 
+Note: This is a rough draft
+-------------------------------------------------------------------------------- 
+[what is appfuel]
+
+[why another framework]
+
+[appfuel goals and mission]
+
+[appfuel life cycle]
+- Each environment has its own entry point script.
+- The entry point scripts are located in the www directory.
+- Each environment has its own entry point called a front controller script.
+- All front controller scripts are prefixed with index-
+- The web server rewrite rules are used to enforce the single point of entry 
+  into the front controller.
+- The front controller first bootstraps the application.
+- A bootstraping script located at <project-root>/app/bootstrap.php  is a simple
+  procedural script used to encapsulte autoloading and loading cached php files.
+- The bootstrap script should return the auto loader object.
+- By default Appfuel uses the composer's autoloader.
+- A variable called $settings is used to modify the behavior of the bootstrap
+  script. $settings['enable-caching'] = true is used to turn on php file 
+  caching. PHP file caching groups collections of php classes into a single
+  large file so that the operating system does not have load each file.
+- The front controller create an AppInitializer. This object is used to control
+  if errors are displayed, error reporting levels, default timezone.
+- The front controller will then create an Web Handler, which is used to handle
+  the http, event, routing, dependency injection, and action controller 
+  dispatching.
+- The front controller creates the request uri string. This is contains only
+  the path information and not the query string.
+- The front controller uses the web handler to initiailize the routing system
+  and create route collection. Initialization is used because if routing does
+  not exist it must be regenerated and cached. Initialization returns a route
+  collection, which is a list of route specifications to be matched against.
+- The front controller uses the web handler to match the uri string to a route
+  specification.
+- A RouteSpecification is a value object used to describe information about
+  the route. This includes which action controller is used, what request method
+  is to be used (get, post, put, delete), the scheme (http, https), details
+  used to generate a url for this route. (more to flush out).
+- [If] 
+    the WebHandler finds a match it returns MatchedRouteInterface
+  [Else] 
+    the WebHandler throws an RouteNotFound Exception. If nothing intercepts
+    this the http fault handler will translate this into a 404 response and 
+    display a page not found error page.
+- The web handler will use the MatchedRoute to create an HttpInput, the correct
+  Dependency Injection container and list Dependency Injectors. A Dependency
+  Handler to build the objects that are injected into the container:
+    -   The handler creates an injector. Injectors should have simple
+    	constructors with no parameters.
+    -   The handler asks the injector for its parameter keys. These are the 
+        keys of the parameters stored in the configuration files which are 
+        currently stored int he AppSettings Object which was injected into the
+        the dependency handler.
+    -   The handler collects the settings out of AppSettings and puts then
+        into the injector.
+    -   The handler executes the injector passing it the container the
+        injector needs to do its work.
+- Once the container is built a pre dispatch event is fired by the web handler
+  and any listeners will now have the opportunity to respond to this env.
+- The web handler will now dispatch the matched action.
+- The web handler will now  fire a post dispatch event. 
+- The web handler will collect the DI container from the action controller
+  and use it to create an HttpResponse from the containers view-string. 
+  any http headers in the container will also be used in the response. If
+  any actual response exists than that will be used instead.
+- The web handler will use the HttpOutput oject to output the HttpResponse
+  object.

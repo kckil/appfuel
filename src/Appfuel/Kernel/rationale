@@ -1,0 +1,18 @@
+Author:     Robert Scott-Buccluech
+Summary:    Describes Appfuel's Dependency Injection Architecture
+Created:    July-22-2012
+Modified:   -
+Module:     Kernel
+--------------------------------------------------------------------------------
+
+The Appfuel Kernel represents the low level functionality, abstractions and 
+interfaces that directly or indirectly support the application's life cycle.
+
+Components: 
+
+CodeCache: CodeCacheArgs, CodeCachHandler, CodeCacheLoader
+FaultHandler: AbstractFaultHandling
+Mvc: ActionController, DIActionContainer, Dispatcher,
+
+
+
