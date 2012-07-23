@@ -12,8 +12,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "symfony/symfony": "dev-master",
-        "monolog/monolog": "1.1.*"
+        "symfony/symfony": "dev-master"
     },
     "autoload": {
         "psr-0": {
