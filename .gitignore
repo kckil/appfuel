@@ -1,9 +1,9 @@
-/www/bundles/
-/app/bootstrap*
 /app/cache/*
 /app/logs/*
-/vendor/
-/app/config/parameters.yaml
+/vendor
 *.swp
 *.swo
 *~
+phpunit.xml
+composer.phar
+composer.lock
