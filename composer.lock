@@ -1,21 +1,21 @@
 {
-    "hash": "f37b01b0490661c206cfb0816df340bb",
+    "hash": "619634700a190e330cce36caaba44723",
     "packages": [
         {
             "package": "doctrine/common",
             "version": "2.2.2"
         },
         {
-            "package": "symfony/symfony",
-            "version": "dev-master",
-            "alias-pretty-version": "2.1.x-dev",
-            "alias-version": "2.1.9999999.9999999-dev"
+            "package": "monolog/monolog",
+            "version": "1.1.0"
+        },
+        {
+            "package": "swiftmailer/swiftmailer",
+            "version": "v4.1.8"
         },
         {
             "package": "symfony/symfony",
-            "version": "dev-master",
-            "source-reference": "2aaa4ed84e56ad8e3420e696f6a42231d30bc1d2",
-            "commit-date": "1343064472"
+            "version": "v2.0.16"
         },
         {
             "package": "twig/twig",
@@ -27,7 +27,7 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "symfony/symfony": 20
-    }
+    "stability-flags": [
+
+    ]
 }
