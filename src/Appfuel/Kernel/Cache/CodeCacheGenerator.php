@@ -17,14 +17,8 @@ use DomainException,
  * @author  orginal author Fabian Potencier <fabien@symfony.com>
  * @author  refactored by Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  */
-class CodeCacheHandler
+class CodeCacheGenerator
 {
-    /**
-     * Map used to determine if a particular cache has been loaded
-     * @var array
-     */
-    protected static $loaded = array();
-
     /**
      * Used to track files seen when collecting class hierarchies
      * @var array
@@ -32,127 +26,14 @@ class CodeCacheHandler
     protected static $seen = array();
 
     /**
-     * @param   array   $spec
-     * @return  bool
-     */
-    public static function loadCache(array $spec)
-    {
-        return self::load(self::createArgs($spec));
-    }
-
-    /**
-     * @throws  OutOfBoundsException
-     * @throws  InvalidArgumentException
-     *
-     * @param   array   $spec
-     * @return  CodeCacheArgs
-     */
-    public static function createArgs(array $spec)
-    {
-        return new CodeCacheArgs($spec);
-    }
-
-    /**
-     * @param   CodeCacheOptionsInterface   $options
-     * @return  bool
-     */
-    public static function load(CodeCacheArgsInterface $args)
-    {
-        $key = $args->getCacheKey();
-        if (! self::markAsLoaded($key)) {
-            return;
-        }
-
-        $isAutoReload = $args->isAutoReload();
-   
-        $fHandler = $args->getFileHandler();
-        $fHandler->throwExceptionOnFailure()
-                 ->setFailureCode(500);
-
-        $classes = $args->getClasses();
-        $cache   = $args->getCacheFilePath();
-        $reload  = false;
-        $isCache = $fHandler->isFile($cache);
-        if ($isAutoReload) {
-            $meta = $args->getCacheMetaFilePath();
-            if (! $isCache || $fHandler->isFile($meta)) {
-                $reload = true;
-            }
-            else {
-                $cTime  = $fHandler->getLastModifiedTime($cache);
-                $reload = self::isReload($classes, $cTime, $meta, $fHandler);
-            }
-        }
-
-        if (! $reload && $isCache) {
-            $fHandler->importScript($cache, true);
-            return;
-        }
-
-        $declared = $args->getPHPDeclared();
-        $result = self::getContent($classes, $declared, $fHandler);
-        $content = $result[0];
-        $files = $result[1];
-
-        $cacheDir = $fHandler->getDirPath($cache);
-        if (! $fHandler->isDir($cacheDir)) {
-            $fHandler->createDir($cacheDir);
-        }
-
-        $fHandler->setFailureMsg("failed to write to cache file -($cache)")
-                 ->write($cache, '<?php '.$content);
-        
-        if ($isAutoReload) {
-            $fHandler->setFailureMsg("failed to write to cache file -($meta)")
-                     ->writeSerialized($meta, array($files, $classes));
-        }
-    }
-
-    /**
-     * @param   array   $classes
-     * @param   string  $cacheFile
-     * @param   string  $metaFile
-     * @param   FileHandlerInterface
-     * @return  bool
-     */
-    public static function isReload(array $classes,
-                                    $cacheTime, 
-                                    $metaFile,
-                                    FileHandlerInterface $fHandler)
-    {
-        $metadata = $fHandler->readSerialized($metaFile);
-                
-        if (! isset($metadata[1]) || ! is_array($metadata[1])) {
-            $err  = "meta data at -($metaFile) must unserialize into an array ";
-            $err .= "containing two arrays of strings";
-            throw new RunTimeException($err);
-        }
-
-        sort($metadata[1]);
-
-        if ($metadata[1] !== $classes) {
-            return true;
-        }
-        
-        foreach ($metadata[0] as $resource) {
-            $rtime = $fHandler->getLastModifiedTime($resource);
-            if (false === $rtime || $rtime > $cacheTime) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-                                      
-    /**
      * @param   array   $classes
      * @param   array   $excluded
      * @param   FileHandlerInterface    $fmanager
      * @return  array
      */
-    public static function getContent(array $classes, 
-                                      array $excluded, 
-                                      FileHandlerInterface $fHandler)
+    public static function generate(array $classes, 
+                                    array $excluded, 
+                                    FileHandlerInterface $fHandler)
     {
         $files = array();
         $content = '';
@@ -180,50 +61,7 @@ class CodeCacheHandler
             $content .= $c;
         }
 
-        return array($content, $files);
-    }
-
-    /**
-     * @param   string  $key
-     * @return  bool
-     */
-    public static function isLoaded($key)
-    {
-        if (! is_string($key)) {
-            throw new InvalidArgumentException("cache key must be a string");
-        }
-
-        return isset(self::$loaded[$key]);
-    }
-
-    /**
-     * @param   string  $key
-     * @return  bool
-     */
-    public static function markAsLoaded($key)
-    {
-        if (self::isLoaded($key)) {
-            return false;
-        }
-
-        self::$loaded[$key] = true;
-        return true;
-    }
-
-    /**
-     * @return  null
-     */
-    public static function clearLoaded()
-    {
-        self::$loaded = array();
-    }
-
-    /**
-     * @return  array
-     */
-    public static function getLoaded()
-    {
-        return self::$loaded;
+        return $content;
     }
 
     /**

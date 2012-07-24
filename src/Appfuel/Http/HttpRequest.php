@@ -10,7 +10,7 @@ use DomainException,
     InvalidArgumentException,
     Appfuel\DataStructure\ArrayData;
 
-class HttpInput implements HttpInputInterface
+class HttpRequest implements HttpRequestInterface
 {
     /**
      * User input parameters separated by parameter type.

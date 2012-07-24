@@ -8,8 +8,7 @@ namespace Testfuel\Kernel\Cache;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\Cache\CodeCacheArgs,
-    Appfuel\kernel\Cache\CodeCacheHandler,
+    Appfuel\kernel\Cache\CodeCacheGenerator,
     Appfuel\Filesystem\FileHandlerInterface;
 
 require_once __DIR__ . '/Fixtures/ClassesWithParents/GInterface.php';
@@ -18,16 +17,8 @@ require_once __DIR__ . '/Fixtures/ClassesWithParents/B.php';
 require_once __DIR__ . '/Fixtures/ClassesWithParents/A.php';
 
 
-class CodeCacheHandlerTest extends FrameworkTestCase 
+class CodeCacheGeneratorTest extends FrameworkTestCase 
 {
-    /**
-     * @return null
-     */
-    public function setUp()
-    {
-        CodeCacheHandler::clearLoaded();
-    }
-
     /**
      * @return  string
      */
@@ -78,53 +69,6 @@ class CodeCacheHandlerTest extends FrameworkTestCase
                 'ClassesWithParents\\E',
             )),
         );
-    }
-
-    /**
-     * @param   array   $spec
-     * @return  CodeCacheArgs
-     */
-    public function createArgs(array $spec)
-    {
-        return new CodeCacheArgs($spec);
-    }
-
-    /**
-     * @test
-     */
-    public function creatingCacheArgs()
-    {
-        $spec = array(
-            'cache-dir' => 'my/dir',
-            'cache-key' => 'my-key',
-            'classes'   => array('MyClass', 'YourClass')
-        );
-
-        $args = CodeCacheHandler::createArgs($spec);
-        $this->assertInstanceOf('Appfuel\\Kernel\\Cache\\CodeCacheArgs', $args);
-    }
-
-    /**
-     * @test
-     * @depends creatingCacheArgs
-     */
-    public function trackingTheLoadedProperty()
-    {
-        $this->assertEquals(array(), CodeCacheHandler::getLoaded());
-
-        $key1 = "key-1";
-        $expected = array($key1 => true);
-        $this->assertFalse(CodeCacheHandler::isLoaded($key1));
-        $this->assertTrue(CodeCacheHandler::markAsLoaded($key1));
-        $this->assertTrue(CodeCacheHandler::isLoaded($key1));
-        $this->assertEquals($expected, CodeCacheHandler::getLoaded());
-
-        $key2 = "key-2";
-        $expected[$key2] = true;
-        $this->assertFalse(CodeCacheHandler::isLoaded($key2));
-        $this->assertTrue(CodeCacheHandler::markAsLoaded($key2));
-        $this->assertTrue(CodeCacheHandler::isLoaded($key2));
-        $this->assertEquals($expected, CodeCacheHandler::getLoaded());
     }
 
     /**
@@ -219,32 +163,5 @@ class CodeCacheHandlerTest extends FrameworkTestCase
         }, $list);  
 
         $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * @test
-     * @dataProvider provideDifferentClassOrders
-     */
-    public function loadingTheCache(array $classes)
-    {
-        CodeCacheHandler::clearLoaded();
-
-        $cacheDir = __DIR__ . '/Fixtures/cache-dir';
-        system("rm -rf $cacheDir");
-        
-        $spec = array(
-            'cache-dir'   => $cacheDir,
-            'cache-key'   => 'test-cache',
-            'auto-reload' => true,
-            'classes'     => $classes
-        );
-
-        $args = CodeCacheHandler::createArgs($spec);
-
-        $result = CodeCacheHandler::load($args);
-        $cacheFile = "$cacheDir/test-cache.php";
-        $metaFile = "$cacheDir/test-cache.php.meta";
-        $this->assertTrue(file_exists($cacheFile));
-        $this->assertTrue(file_exists($metaFile));
     }
 }

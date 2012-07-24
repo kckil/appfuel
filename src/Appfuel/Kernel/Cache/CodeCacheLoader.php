@@ -26,7 +26,7 @@ class CodeCacheLoader implements CodeCacheLoaderInterface
         'Appfuel\\Filesystem\\FileHandler',
         'Appfuel\\Kernel\\FaultHandler',
         'Appfuel\\Kernel\\AppInitializer',
-        'Appfuel\\Http\\HttpInput',
+        'Appfuel\\Http\\HttpRequest',
         'Appfuel\\Http\\HttpResponse',
         'Appfuel\\Http\\HttpHeaderList',
         'Appfuel\\Http\\HttpStatus',
@@ -69,8 +69,8 @@ class CodeCacheLoader implements CodeCacheLoaderInterface
     public function generate(array $classes, array $exclude = array())
     {
         $fHandler = $this->getFileHandler();
-        $content = CodeCacheHandler::getContent($classes, $exclude, $fHandler);
-        return '<?php ' . current($content); 
+        $content = CodeCacheHandler::generate($classes, $exclude, $fHandler);
+        return '<?php ' . $content; 
     }
 
     /**
