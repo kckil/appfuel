@@ -5,7 +5,11 @@
  * See LICENSE file at project root for details.
  */
 use Appfuel\Kernel\AppInitializer,
-    Appfuel\Kernel\ConsoleHandler;
+    Appfuel\Console\ConsoleHandler;
+
+if (PHP_SAPI !== 'cli') {
+    throw new Exception("this script is intented to be run in the console");
+}
 
 $loader = require_once __DIR__ . '/../src/bootstrap.php';
 if (isset($settings['autoload-classmap'])) {
@@ -21,7 +25,8 @@ if (isset($settings['autoload-classmap'])) {
 
 $init = new AppInitializer();
 
-return $init->showErrors()
-            ->enableFullErrorReporting()
-            ->registerAppfuelFaultHandler()
-            ->createConsoleHandler();
+$init->showErrors()
+     ->enableFullErrorReporting()
+     ->registerAppfuelFaultHandler();
+
+return new ConsoleHandler();

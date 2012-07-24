@@ -4,11 +4,11 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Component\Kernel;
+namespace Testfuel\Kernel\Cache;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\CodeCacheArgs,
+    Appfuel\Kernel\Cache\CodeCacheArgs,
     Appfuel\Filesystem\FileHandlerInterface;
 
 /**
@@ -69,7 +69,7 @@ class CodeCacheArgsTest extends FrameworkTestCase
         $spec = $this->getRequiredArguments();
         $args = $this->createArgs($spec);
 
-        $interface = 'Appfuel\\Kernel\\CodeCacheArgsInterface';
+        $interface = 'Appfuel\\Kernel\\Cache\\CodeCacheArgsInterface';
         $this->assertInstanceOf($interface, $args);
         $this->assertEquals($spec['classes'], $args->getClasses());
         $this->assertEquals($spec['cache-dir'], $args->getCacheDir());

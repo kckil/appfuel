@@ -94,6 +94,22 @@ class ConsoleInput implements ConsoleInputInterface
     }
 
     /**
+     * @return  mixed
+     */
+    public function getFirstArg()
+    {
+        return reset($this->args);
+    }
+
+    /**
+     * @return  mixed
+     */
+    public function getLastArg()
+    {
+        return end($this->args);
+    }
+
+    /**
      * @param   numeric $index
      * @param   mixed   $default
      * @return  mixed

@@ -4,12 +4,12 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Component\Kernel;
+namespace Testfuel\Kernel\Cache;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\CodeCacheArgs,
-    Appfuel\kernel\CodeCacheHandler,
+    Appfuel\Kernel\Cache\CodeCacheArgs,
+    Appfuel\kernel\Cache\CodeCacheHandler,
     Appfuel\Filesystem\FileHandlerInterface;
 
 require_once __DIR__ . '/Fixtures/ClassesWithParents/GInterface.php';
@@ -101,7 +101,7 @@ class CodeCacheHandlerTest extends FrameworkTestCase
         );
 
         $args = CodeCacheHandler::createArgs($spec);
-        $this->assertInstanceOf('Appfuel\Kernel\CodeCacheArgs', $args);
+        $this->assertInstanceOf('Appfuel\\Kernel\\Cache\\CodeCacheArgs', $args);
     }
 
     /**

@@ -5,10 +5,23 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-use Appfuel\Kernel\ConsoleHandler,
-    Appfuel\Kernel\CodeCacheHandler;
+use Appfuel\Filesystem\FileHandler,
+    Appfuel\Kernel\Cache\CodeCacheLoader;
 
 $console = require __DIR__ . '/cli-header.php';
+$input = $console->createConsoleInput();
+$cache = new CodeCacheLoader(new FileHandler());
 
-echo "\n", print_r($console,1), "\n";exit;
+$path = $input->getFirstArg();
+if (! $path) {
+    $console->outputError("first arg must be the path to the cache\n");
+    exit(1); 
+}
 
+$content = $cache->generate($cache->getFrameworkClasses());
+if (! $cache->write($path, $content)) {
+    $console->outputError("could not write cache to -($path)");
+    exit(1);
+}
+
+exit(0);

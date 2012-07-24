@@ -4,7 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Cache;
 
 /**
  * Holds the argument specification for the CodeCacheHandler. This should be
