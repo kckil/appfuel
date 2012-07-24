@@ -6,7 +6,7 @@
  */
 namespace Appfuel\Http;
 
-interface HttpInputInterface
+interface HttpRequestInterface
 {
     /**
      * @return string

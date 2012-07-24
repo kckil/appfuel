@@ -69,7 +69,7 @@ class CodeCacheLoader implements CodeCacheLoaderInterface
     public function generate(array $classes, array $exclude = array())
     {
         $fHandler = $this->getFileHandler();
-        $content = CodeCacheHandler::generate($classes, $exclude, $fHandler);
+        $content = CodeCacheGenerator::generate($classes, $exclude, $fHandler);
         return '<?php ' . $content; 
     }
 
