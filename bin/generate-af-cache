@@ -8,8 +8,7 @@
 use Appfuel\Kernel\ConsoleHandler,
     Appfuel\Kernel\CodeCacheHandler;
 
+$console = require __DIR__ . '/cli-header.php';
 
-$loader = require_once __DIR__ . '/../src/bootstrap.php';
-
-echo "\n", print_r($loader,1), "\n";exit;
+echo "\n", print_r($console,1), "\n";exit;
 
