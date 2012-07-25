@@ -1,0 +1,28 @@
+Author:     Robert Scott-Buccluech
+Summary:    Describes Appfuel's Dependency Injection Architecture
+Created:    July-22-2012
+Modified:   -
+Module:     Route
+--------------------------------------------------------------------------------
+
+RouteSpec           A value object used to hold details about a particular 
+                    route. Details include:
+                    key         unique string used to identify the route 
+                    pattern     regular expression used to match a route in an
+                                http uri path
+                    uri-group   used to indicate this route should be add to 
+                                a collection of routes that match a particular
+                                part of a uri path. Note: the resulting uri 
+                                path after the group match has the part of the
+                                path that matched removed so that you don't have
+                                to repeatedly match it
+                    uri-params  list of parameter that correspond to the uri 
+                                path parameters that we captured in the regex
+                                along with any default values. These params 
+                                server two purposes. One, urls will be 
+                                generated using this list. Two, it helps 
+                                organize regex captures so you don't have to use
+                                ugly (?P<name>), also applying default values
+
+
+RouteCollection     used to hold a list
