@@ -4,13 +4,12 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Console;
+namespace Appfuel\Kernel;
 
-use Appfuel\Kernel\AppKernelInterface;
+use Appfuel\Console\ArgParserInterface;
 
-interface ConsoleHandlerInterface extends AppKernelInterface
+interface ConsoleKernelInterface extends AppKernelInterface
 {
-
     /**
      * @param   array   $data
      * @param   ArgParserInterface  $parser
@@ -29,4 +28,9 @@ interface ConsoleHandlerInterface extends AppKernelInterface
      * @return  null
      */
     public function output($data);
+
+    /**
+     * @return  ArgParser
+     */
+    public function createArgParser();
 }

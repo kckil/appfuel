@@ -7,10 +7,10 @@
 namespace Testfuel\Kernel;
 
 use StdClass,
-    Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\AppInitializer;
+    Appfuel\Kernel\AppKernel,
+    Testfuel\FrameworkTestCase;
 
-class AppInitializerTest extends FrameworkTestCase 
+class AppKernelTest extends FrameworkTestCase 
 {
 
     /**
@@ -35,77 +35,90 @@ class AppInitializerTest extends FrameworkTestCase
 
     /**
      * @param   array   $spec
-     * @return  AppInitializer
+     * @return  AppKernel
      */
-    public function createInitializer()
+    public function createAppKernel($env)
     {
-        return new AppInitializer();
+        return new AppKernel($env);
     }
     
     /**
      * @test
-     * @return  AppInitializer
+     * @return  AppKernel
      */
-    public function creatingAnAppInitializer()
+    public function creatingAppKernel()
     {
-        $init = $this->createInitializer();
+        $kernel = $this->createAppKernel('dev');
 
-        $interface = 'Appfuel\\Kernel\\AppInitializerInterface';
-        $this->assertInstanceOf($interface, $init);
+        $interface = 'Appfuel\\Kernel\\AppKernelInterface';
+        $this->assertInstanceOf($interface, $kernel);
 
-        return $init;
+        return $kernel;
+    }
+
+    /**
+     * @test
+     * @depends         creatingAppKernel
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     */
+    public function creatingAppKernelEnvFailure($badEnv)
+    {
+        $msg = 'environment name must be a non empty string';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $kernel = $this->createAppKernel($badEnv);
     }
     
     /**
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function showingErrors(AppInitializer $init)
+    public function showingErrors(AppKernel $kernel)
     {
         $this->assertEquals('1', ini_set('display_errors', '0'));
         $this->assertEquals('0', ini_get('display_errors'));
 
-        $this->assertSame($init, $init->showErrors());
+        $this->assertSame($kernel, $kernel->showErrors());
         $this->assertEquals('1', ini_get('display_errors'));
     }
 
     /**
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function hidingErrors(AppInitializer $init)
+    public function hidingErrors(AppKernel $kernel)
     {
         $this->assertEquals('1', ini_get('display_errors'));
 
-        $this->assertSame($init, $init->hideErrors());
+        $this->assertSame($kernel, $kernel->hideErrors());
         $this->assertEquals('0', ini_get('display_errors'));
     }
 
     /**
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function disableErrorReporting(AppInitializer $init)
+    public function disableErrorReporting(AppKernel $kernel)
     {
         $this->assertEquals(-1, error_reporting());
-        $this->assertSame($init, $init->disableErrorReporting());
+        $this->assertSame($kernel, $kernel->disableErrorReporting());
         $this->assertEquals(0, error_reporting());
     }
 
     /**
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function enableFullErrorReporting(AppInitializer $init)
+    public function enableFullErrorReporting(AppKernel $kernel)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
         
-        $this->assertSame($init, $init->enableFullErrorReporting());
+        $this->assertSame($kernel, $kernel->enableFullErrorReporting());
         $this->assertEquals(-1, error_reporting());
     }
 
@@ -113,49 +126,49 @@ class AppInitializerTest extends FrameworkTestCase
      * This is a simple wrapper so there is no need for extensive testing
      *
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function setErrorReporting(AppInitializer $init)
+    public function setErrorReporting(AppKernel $kernel)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
         
         $level = E_ERROR;
-        $this->assertSame($init, $init->setErrorReporting($level));
+        $this->assertSame($kernel, $kernel->setErrorReporting($level));
         $this->assertEquals($level, error_reporting());
 
         $level = E_PARSE;
-        $this->assertSame($init, $init->setErrorReporting($level));
+        $this->assertSame($kernel, $kernel->setErrorReporting($level));
         $this->assertEquals($level, error_reporting());
     }
 
     /**
      * @test
      * @dataProvider    provideInvalidInts
-     * @depends         creatingAnAppInitializer
+     * @depends         creatingAppKernel
      */
     public function setErrorReportingFailure($badLevel)
     {
         $msg = 'error level must be an int';
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $init = $this->createInitializer('production');
-        $init->setErrorReporting($badLevel);
+        $kernel = $this->createAppKernel('production');
+        $kernel->setErrorReporting($badLevel);
     }
 
     /**
      * @test
-     * @depends creatingAnAppInitializer
-     * @return  AppInitializer
+     * @depends creatingAppKernel
+     * @return  AppKernel
      */
-    public function enableDebugging(AppInitializer $init)
+    public function enableDebugging(AppKernel $kernel)
     {
         $this->assertEquals('1', ini_set('display_errors', '0')); 
         $this->assertEquals('0', ini_get('display_errors'));
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
         
-        $this->assertSame($init, $init->enableDebugging());
+        $this->assertSame($kernel, $kernel->enableDebugging());
         $this->assertEquals(-1, error_reporting());
         $this->assertEquals('1', ini_get('display_errors'));
     }

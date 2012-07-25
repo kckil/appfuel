@@ -4,8 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-use Appfuel\Kernel\AppInitializer,
-    Appfuel\Console\ConsoleHandler;
+use Appfuel\Kernel\ConsoleKernel;
 
 if (PHP_SAPI !== 'cli') {
     throw new Exception("this script is intented to be run in the console");
@@ -23,10 +22,13 @@ if (isset($settings['autoload-classmap'])) {
     }
 }
 
-$init = new AppInitializer();
+if (! ($env = getenv('AF_ENV'))) {
+    $env = 'production';
+}
+$console = new ConsoleKernel($env);
 
-$init->showErrors()
-     ->enableFullErrorReporting()
-     ->registerAppfuelFaultHandler();
+$console->showErrors()
+        ->enableFullErrorReporting()
+        ->registerAppfuelFaultHandler();
 
-return new ConsoleHandler();
+return $console;
