@@ -270,7 +270,7 @@ class FileHandler implements FileHandlerInterface
     public function getRootPath()
     {
         return $this->getFileFinder()
-                    ->getRootPath();
+                    ->getRoot();
     }
 
     /**
@@ -280,7 +280,7 @@ class FileHandler implements FileHandlerInterface
     public function setRootPath($path)
     {
         $this->getFileFinder()
-             ->setRootPath($path);
+             ->setRoot($path);
 
         return $this;
     }

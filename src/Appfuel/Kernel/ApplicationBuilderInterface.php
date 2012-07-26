@@ -6,8 +6,21 @@
  */
 namespace Appfuel\Kernel;
 
-interface ApplicationInterface
+use Appfuel\Filesystem\FileHandlerInterface;
+
+interface ApplicationBuilderInterface
 {
+    /**
+     * @return  FileHandlerInterface
+     */
+    public function getFileHandler();
+
+    /**
+     * @param   FileHandlerInterface    $fileHandler
+     * @return  ApplicationBuilderInterface
+     */
+    public function setFileHandler(FileHandlerInterface $fileHandler);
+
     /**
      * @return  AppInitializerInterface
      */

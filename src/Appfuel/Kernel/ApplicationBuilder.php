@@ -7,9 +7,16 @@
 namespace Appfuel\Kernel;
 
 use DomainException,
-    InvalidArgumentException;
+    InvalidArgumentException,
+    Appfuel\Filesystem\FileHandler,
+    Appfuel\Filesystem\FileHandlerInterface,
+    Appfuel\DataStructure\ArrayDataInterface,
+    Appfuel\Kernel\Kernel\AppPathInterface,
+    Appfuel\Kernel\Route\RouteManagerInterface,
+    Appfuel\Kernel\DependencyInjection\DiManager,
+    Appfuel\Kernel\DependencyInjection\DiManagerInterface;
 
-class Application implements ApplicationInterface
+class ApplicationBuilder implements ApplicationBuilderInterface
 {
     /**
      * @var string
@@ -23,8 +30,41 @@ class Application implements ApplicationInterface
     protected $env = null;
 
     /**
+     * @var bool
+     */
+    protected $isDebug = false;
+    
+    /**
+     * Used for all file operations with the application root
+     * @var FileHandlerInterface
+     */
+    protected $fileHandler = null;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher = null;    
+
+    /**
+     * @var DiManagerInterface
+     */   
+    protected $diManager = null;
+
+    /**
+     * @var RouteManagerInterface
+     */
+    protected $routeManager = null;
+
+    /**
+     * List of application configuration settings
+     * @var ArrayDataInterface
+     */
+    protected $settings = null;
+ 
+    /**
      * @param   string  $root
      * @param   string  $env
+     * @param   FileHandlerInterface $fileHandler
      * @return  Application
      */
     public function __construct($root, $env)
@@ -115,14 +155,29 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * @return  AppInitiailzer
+     * @return  Application
      */
     public function enableDebugging()
     {
-        $this->showErrors()
-             ->enableFullErrorReporting();
-
+        $this->isDebug = true;
         return $this;
+    }
+
+    /**
+     * @return  Application
+     */
+    public function disableDebugging()
+    {
+        $this->isDebug = false;
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isDebuggingEnabled()
+    {
+        return  $this->isDebug;
     }
 
     /**
@@ -159,29 +214,74 @@ class Application implements ApplicationInterface
     }
 
     /**
-     * @param   array   $list
-     * @return  AppInitializer
+     * @return  FileHandlerInterface
      */
-    public function restrictWebAccessTo(array $list, $msg)
+    public function getFileHandler()
     {
-        foreach ($list as $ip) {
-            if (! is_string($ip) || empty($ip)) {
-                $err  = "each item in the list must be a non empty string ";
-                $err .= "that represents an ip address";
-                throw new DomainException($err);
-            }
-        }
+        return $this->fileHandler;
+    }
 
-        if (! is_string($msg)) {
-            $err = "script restriction message must be a string";
-            throw new InvalidArgumentException($err);
-        }
+    /**
+     * @param   FileHandlerInterface    $fileHandler
+     * @return  ApplicationBuilder
+     */
+    public function setFileHandler(FileHandlerInterface $fileHandler)
+    {
+        $this->fileHandler = $fileHandler;
+        return $this;
+    }
 
-        if (isset($_SERVER['HTTP_CLIENT_IP']) ||
-            isset($_SERVER['HTTP_X_FORWARDED_FOR']) ||
-            ! in_array(@$_SERVER['REMOTE_ADDR'], $list)) {
-            header('HTTP/1.0 403 Forbidden');
-            exit($msg);
-        }
+    /**
+     * @return  FileHandlerInterface
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param   FileHandlerInterface    $fileHandler
+     * @return  ApplicationBuilder
+     */
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
+    {
+        $this->eventDispatcher = $dispatcher;
+        return $this;
+    }
+
+    /**
+     * @return  DiManagerInterface
+     */
+    public function getDependencyInjectionManager()
+    {
+        return $this->diManager;
+    }
+
+    /**
+     * @param   DiManagerInterface  $manager
+     * @return  ApplicationBuilder
+     */
+    public function setDependencyInjectionManager(DiManagerInterface $manager)
+    {
+        $this->diManager = $manager;
+        return $this;
+    }
+
+    /**
+     * @return  ArrayDataInterface
+     */
+    public function getSettings()
+    {
+        return $this->settings;
+    }
+
+    /**
+     * @param   ArrayDataInterface  $data
+     * @return  ApplicationBuilder
+     */
+    public function setSettings(ArrayDataInterface $data)
+    {
+        $this->settings = $data;
+        return $this;
     }
 }
