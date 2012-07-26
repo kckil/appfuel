@@ -39,7 +39,7 @@ class PathCollection implements PathCollectionInterface
      * @param   string  $basePath
      * @return  AppPath
      */
-    public function __construct($root, array $list)
+    public function __construct($root, array $list = array())
     {
         $this->setRootPath($root);
 

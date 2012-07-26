@@ -34,13 +34,20 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @param   string  $root   app root dir
+     * @return  string
+     */
+    public function getPathCollectionInterface()
+    {
+        return 'Appfuel\\Kernel\\PathCollectionInterface';
+    }
+
+    /**
      * @param   string  $evn    name of env app is running in
      * @return  ApplicationBuilder
      */
-    public function createApplicationBuilder($root, $env)
+    public function createApplicationBuilder($env)
     {
-        return new ApplicationBuilder($root, $env);
+        return new ApplicationBuilder($env);
     }
     
     /**
@@ -49,44 +56,16 @@ class ApplicationBuilderTest extends FrameworkTestCase
      */
     public function creatingApplicationBuilder()
     {
-        $root = __DIR__;
         $env  = 'dev';
-        $builder = $this->createApplicationBuilder($root, $env);
+        $builder = $this->createApplicationBuilder($env);
 
         $interface = 'Appfuel\\Kernel\\ApplicationBuilderInterface';
         $this->assertInstanceOf($interface, $builder);
-        $this->assertEquals($root, $builder->getRootPath());
         $this->assertEquals($env, $builder->getEnv());
-        $this->assertFalse($builder->isDebuggingEnabled());
 
         return $builder;
     }
 
-    /**
-     * @test
-     * @depends         creatingApplicationBuilder
-     * @dataProvider    provideInvalidStringsIncludeEmpty
-     */
-    public function creatingApplicationBuilderRootPathFailure($badPath)
-    {
-        $msg = 'the application root path must be a non empty string';
-        $this->setExpectedException('InvalidArgumentException', $msg);
-
-        $builder = $this->createApplicationBuilder($badPath, 'dev');
-    }
-
-    /**
-     * @test
-     * @depends         creatingApplicationBuilder
-     */
-    public function creatingApplicationBuilderRootPathNotAbsoluteFailure($badPath)
-    {
-        $msg = 'the application root path must be an absolute path';
-        $this->setExpectedException('DomainException', $msg);
-
-        $builder = $this->createApplicationBuilder('some/path', 'dev');
-    }
-       
     /**
      * @test
      * @depends         creatingApplicationBuilder
@@ -97,7 +76,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
         $msg = 'environment name must be a non empty string';
         $this->setExpectedException('InvalidArgumentException', $msg);
 
-        $builder = $this->createApplicationBuilder(__DIR__, $badEnv);
+        $builder = $this->createApplicationBuilder($badEnv);
     }
     
     /**
@@ -203,6 +182,79 @@ class ApplicationBuilderTest extends FrameworkTestCase
         $this->assertFalse($builder->isDebuggingEnabled());
 
         return $builder;
+    }
+
+    /**
+     * @test    
+     * @depends creatingApplicationBuilder
+     * @return  ApplicationBuilder
+     */
+    public function creatingPathCollectionJustRoot(ApplicationBuilder $builder)
+    {
+        $root = '/my/root';
+        $paths = $builder->createPathCollection($root);
+        $interface = $this->getPathCollectionInterface();
+        $this->assertInstanceOf($interface, $paths);
+        $this->assertEquals($root, $paths->getRootPath());
+
+        $list = array('my-path' => 'some/path');
+        $paths = $builder->createPathCollection($root, $list);
+        $this->assertInstanceOf($interface, $paths);
+        $this->assertTrue($paths->isPath('my-path'));
+        
+        return $builder;
+    }
+
+    /**
+     * @test    
+     * @depends creatingPathCollectionJustRoot
+     * @return  ApplicationBuilder
+     */
+    public function pathCollection(ApplicationBuilder $builder)
+    {
+        $this->assertNull($builder->getPathCollection());
+
+        $interface = $this->getPathCollectionInterface();
+        $paths = $this->getMock($interface);
+        $this->assertSame($builder, $builder->setPathCollection($paths));
+        $this->assertSame($paths, $builder->getPathCollection());
+ 
+        return $builder;
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     */
+    public function loadStandardAppfuelPaths()
+    {
+        $builder = $this->createApplicationBuilder('dev');
+        $this->assertNull($builder->getPathCollection());
+
+        $root = '/my/path';
+        $this->assertSame($builder, $builder->loadStandardPaths($root));
+        $paths = $builder->getPathCollection();
+        
+        $interface = $this->getPathCollectionInterface();
+        $this->assertInstanceOf($interface, $paths);
+
+        $afpath = 'vendor/appfuel/appfuel';
+        $this->assertTrue($paths->isPath('appfuel'));
+        $this->assertEquals($afpath, $paths->getRelativePath('appfuel'));
+        $this->assertEquals("$root/$afpath", $paths->getPath('appfuel'));
+
+        $expected = "$afpath/src";
+        $this->assertTrue($paths->isPath('appfuel-src'));
+        $this->assertEquals($expected, $paths->getRelativePath('appfuel-src'));
+        $this->assertEquals("$root/$expected", $paths->getPath('appfuel-src'));
+
+        $expected = "$afpath/bin";
+        $this->assertTrue($paths->isPath('appfuel-bin'));
+        $this->assertEquals($expected, $paths->getRelativePath('appfuel-bin'));
+        $this->assertEquals("$root/$expected", $paths->getPath('appfuel-bin'));
+
+ 
+        return $builder; 
     }
 
     /**

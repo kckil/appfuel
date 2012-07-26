@@ -19,9 +19,10 @@ use DomainException,
 class ApplicationBuilder implements ApplicationBuilderInterface
 {
     /**
-     * @var string
+     * Decouples application paths from the classes that need them
+     * @var PathCollectionInterface
      */
-    protected $rootPath = null;
+    protected $pathCollection = null;
 
     /**
      * Name of the environment this kernel is running in
@@ -67,19 +68,8 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      * @param   FileHandlerInterface $fileHandler
      * @return  Application
      */
-    public function __construct($root, $env)
+    public function __construct($env)
     {
-        if (! is_string($root) || empty($root)) {
-            $err = "the application root path must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
-
-        if ('/' !== $root{0}) {
-            $err = "the application root path must be an absolute path";
-            throw new DomainException($err);
-        }
-        $this->rootPath = $root;
-
         if (! is_string($env) || empty($env)) {
             $err = "environment name must be a non empty string";
             throw new InvalidArgumentException($err);
@@ -91,17 +81,54 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     /**
      * @return  string
      */
-    public function getRootPath()
+    public function getEnv()
     {
-        return $this->rootPath;
+        return $this->env;
     }
 
     /**
      * @return  string
      */
-    public function getEnv()
+    public function getPathCollection()
     {
-        return $this->env;
+        return $this->pathCollection;
+    }
+
+    /**
+     * @param   PathCollectionInterface $collection
+     * @return  ApplicationBuilder
+     */
+    public function setPathCollection(PathCollectionInterface $collection)
+    {
+        $this->pathCollection = $collection;
+        return $this;
+    }
+
+    /**
+     * @param   string  $root
+     * @return  array   $paths
+     */
+    public function createPathCollection($root, array $paths = array())
+    {
+        return new PathCollection($root, $paths);
+    }
+
+    /**
+     * @param   string  $root   absolute path to the root of the app
+     * @return  ApplicationBuilder
+     */
+    public function loadStandardPaths($root)
+    {
+        $vendor = 'vendor/appfuel/appfuel';
+        $list = array(
+            'appfuel'     => $vendor,
+            'appfuel-src' => "$vendor/src",
+            'appfuel-bin' => "$vendor/bin",
+        );
+        $collection = $this->createPathCollection($root, $list);
+        $this->setPathCollection($collection);
+
+        return $this;
     }
 
     /**
