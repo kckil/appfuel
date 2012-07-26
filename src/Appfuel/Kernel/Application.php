@@ -6,15 +6,16 @@
  */
 namespace Appfuel\Kernel;
 
-use InvalidArgumentException;
+use DomainException,
+    InvalidArgumentException;
 
-/**
- * Application initialization involves error display, error level, register
- * error and exception handling and moving configuration data into the 
- * settings registry.
- */
-class AppKernel implements AppKernelInterface
+class Application implements ApplicationInterface
 {
+    /**
+     * @var string
+     */
+    protected $rootPath = null;
+
     /**
      * Name of the environment this kernel is running in
      * @var string
@@ -22,17 +23,37 @@ class AppKernel implements AppKernelInterface
     protected $env = null;
 
     /**
+     * @param   string  $root
      * @param   string  $env
-     * @return  AppKernel
+     * @return  Application
      */
-    public function __construct($env)
+    public function __construct($root, $env)
     {
+        if (! is_string($root) || empty($root)) {
+            $err = "the application root path must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if ('/' !== $root{0}) {
+            $err = "the application root path must be an absolute path";
+            throw new DomainException($err);
+        }
+        $this->rootPath = $root;
+
         if (! is_string($env) || empty($env)) {
             $err = "environment name must be a non empty string";
             throw new InvalidArgumentException($err);
         }
 
         $this->env = $env;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getRootPath()
+    {
+        return $this->rootPath;
     }
 
     /**

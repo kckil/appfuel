@@ -83,6 +83,23 @@ class EventDataTest extends FrameworkTestCase
         $event->setName($badName);
     }
 
+    /**
+     * @test
+     * @depends eventName
+     * @return  EventData
+     */
+    public function eventDispatcher(EventData $event)
+    {
+        $this->assertNull($event->getDispatcher());
+
+        $interface = 'Appfuel\\Event\\EventDispatcherInterface';
+        $dispatcher = $this->getMock($interface);
+
+        $this->assertSame($event, $event->setDispatcher($dispatcher));
+        $this->assertSame($dispatcher, $event->getDispatcher());
+
+        return $event;
+    }
 
 
 }

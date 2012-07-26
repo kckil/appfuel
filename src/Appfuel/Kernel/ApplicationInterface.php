@@ -6,12 +6,7 @@
  */
 namespace Appfuel\Kernel;
 
-/**
- * Application initialization involves error display, error level, register
- * error and exception handling and moving configuration data into the 
- * settings registry.
- */
-interface AppKernelInterface
+interface ApplicationInterface
 {
     /**
      * @return  AppInitializerInterface
@@ -61,10 +56,4 @@ interface AppKernelInterface
      * @return  AppInitializerInterface
      */
     public function registerAppfuelFaultHandler();
-
-    /**
-     * @param   array
-     * @return  AppInitializerInterface
-     */
-    public function restrictWebAccessTo(array $list, $msg);
 }

@@ -7,10 +7,10 @@
 namespace Testfuel\Kernel;
 
 use StdClass,
-    Appfuel\Kernel\AppKernel,
+    Appfuel\Kernel\Application,
     Testfuel\FrameworkTestCase;
 
-class AppKernelTest extends FrameworkTestCase 
+class ApplicationTest extends FrameworkTestCase 
 {
 
     /**
@@ -34,23 +34,26 @@ class AppKernelTest extends FrameworkTestCase
     }
 
     /**
-     * @param   array   $spec
-     * @return  AppKernel
+     * @param   string  $root   app root dir
+     * @param   string  $evn    name of env app is running in
+     * @return  Application
      */
-    public function createAppKernel($env)
+    public function createApplication($root, $env)
     {
-        return new AppKernel($env);
+        return new Application($root, $env);
     }
     
     /**
      * @test
-     * @return  AppKernel
+     * @return  Application
      */
-    public function creatingAppKernel()
+    public function creatingApplication()
     {
-        $kernel = $this->createAppKernel('dev');
+        $root = __DIR__;
+        $env  = 'dev';
+        $kernel = $this->createApplication($root, $env);
 
-        $interface = 'Appfuel\\Kernel\\AppKernelInterface';
+        $interface = 'Appfuel\\Kernel\\ApplicationInterface';
         $this->assertInstanceOf($interface, $kernel);
 
         return $kernel;
@@ -58,23 +61,23 @@ class AppKernelTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends         creatingAppKernel
+     * @depends         creatingApplication
      * @dataProvider    provideInvalidStringsIncludeEmpty
      */
-    public function creatingAppKernelEnvFailure($badEnv)
+    public function creatingApplicationEnvFailure($badEnv)
     {
         $msg = 'environment name must be a non empty string';
         $this->setExpectedException('InvalidArgumentException', $msg);
 
-        $kernel = $this->createAppKernel($badEnv);
+        $kernel = $this->createApplication(__DIR__, $badEnv);
     }
     
     /**
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function showingErrors(AppKernel $kernel)
+    public function showingErrors(Application $kernel)
     {
         $this->assertEquals('1', ini_set('display_errors', '0'));
         $this->assertEquals('0', ini_get('display_errors'));
@@ -85,10 +88,10 @@ class AppKernelTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function hidingErrors(AppKernel $kernel)
+    public function hidingErrors(Application $kernel)
     {
         $this->assertEquals('1', ini_get('display_errors'));
 
@@ -98,10 +101,10 @@ class AppKernelTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function disableErrorReporting(AppKernel $kernel)
+    public function disableErrorReporting(Application $kernel)
     {
         $this->assertEquals(-1, error_reporting());
         $this->assertSame($kernel, $kernel->disableErrorReporting());
@@ -110,10 +113,10 @@ class AppKernelTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function enableFullErrorReporting(AppKernel $kernel)
+    public function enableFullErrorReporting(Application $kernel)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
@@ -126,10 +129,10 @@ class AppKernelTest extends FrameworkTestCase
      * This is a simple wrapper so there is no need for extensive testing
      *
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function setErrorReporting(AppKernel $kernel)
+    public function setErrorReporting(Application $kernel)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
@@ -146,22 +149,22 @@ class AppKernelTest extends FrameworkTestCase
     /**
      * @test
      * @dataProvider    provideInvalidInts
-     * @depends         creatingAppKernel
+     * @depends         creatingApplication
      */
     public function setErrorReportingFailure($badLevel)
     {
         $msg = 'error level must be an int';
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $kernel = $this->createAppKernel('production');
+        $kernel = $this->createApplication(__DIR__, 'production');
         $kernel->setErrorReporting($badLevel);
     }
 
     /**
      * @test
-     * @depends creatingAppKernel
-     * @return  AppKernel
+     * @depends creatingApplication
+     * @return  Application
      */
-    public function enableDebugging(AppKernel $kernel)
+    public function enableDebugging(Application $kernel)
     {
         $this->assertEquals('1', ini_set('display_errors', '0')); 
         $this->assertEquals('0', ini_get('display_errors'));

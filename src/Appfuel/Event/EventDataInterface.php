@@ -33,4 +33,15 @@ interface EventDataInterface
      * @return  EventDataInterface
      */
     public function setName($name);
+
+    /**
+     * @return  EventDispatcherInterface
+     */
+    public function getDispatcher();
+
+    /**
+     * @param   EventDispatcherInterface
+     * @return  EventDataInterface
+     */
+    public function setDispatcher(EventDispatcherInterface $dispatcher);
 }

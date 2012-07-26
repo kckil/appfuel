@@ -77,4 +77,22 @@ class EventData implements EventDataInterface
         $this->name = $name;
         return $this;
     }
+
+    /**
+     * @return  EventDispatcherInterface
+     */
+    public function getDispatcher()
+    {
+        return $this->dispatcher;
+    }
+
+    /**
+     * @param   EventDispatcherInterface $dispatcher
+     * @return  EventData
+     */
+    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+        return $this;
+    }
 }
