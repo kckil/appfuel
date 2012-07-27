@@ -6,10 +6,12 @@
  */
 namespace Appfuel\Kernel;
 
-use DomainException,
+use LogicException,
+    DomainException,
     InvalidArgumentException,
     Appfuel\Filesystem\FileHandler,
     Appfuel\Filesystem\FileHandlerInterface,
+    Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface,
     Appfuel\Kernel\Kernel\AppPathInterface,
     Appfuel\Kernel\Route\RouteManagerInterface,
@@ -105,6 +107,14 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     }
 
     /**
+     * @return  bool
+     */
+    public function isPathCollection()
+    {
+        return $this->pathCollection instanceOf PathCollectionInterface;
+    }
+
+    /**
      * @param   string  $root
      * @return  array   $paths
      */
@@ -119,11 +129,14 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      */
     public function loadStandardPaths($root)
     {
+        $env = $this->getEnv();
         $vendor = 'vendor/appfuel/appfuel';
+        $settings = "app/cache/$env/app-settings.php";
         $list = array(
-            'appfuel'     => $vendor,
-            'appfuel-src' => "$vendor/src",
-            'appfuel-bin' => "$vendor/bin",
+            'appfuel'       => $vendor,
+            'appfuel-src'   => "$vendor/src",
+            'appfuel-bin'   => "$vendor/bin",
+            'app-settings'  => $settings
         );
         $collection = $this->createPathCollection($root, $list);
         $this->setPathCollection($collection);
@@ -254,7 +267,54 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      */
     public function setFileHandler(FileHandlerInterface $fileHandler)
     {
+        if (! $this->isPathCollection()) {
+            $err = 'The path collection must be set before the file handler';
+            throw new LogicException($err);
+        }
+
+        $paths = $this->getPathCollection();
+        if ($paths->getRootPath() !== $fileHandler->getRootPath()) {
+            $err  = 'The root path of the file handler and path collection ';
+            $err .= 'must be the same';
+            throw new LogicException($err);
+        }
+
         $this->fileHandler = $fileHandler;
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isFileHandler()
+    {
+        return $this->fileHandler instanceof FileHandlerInterface;
+    }
+
+    /**
+     * @param   string  $rootPath
+     * @return  FileHandler
+     */
+    public function createFileHandler($rootPath = null)
+    {
+        return new FileHandler($rootPath);
+    }
+
+    /**
+     * @return  ApplicationBuilder
+     */
+    public function loadFileHandler()
+    {
+        if (! $this->isPathCollection()) {
+            $err  = 'The path collection must be set before the file handler ';
+            $err .= 'is loaded';
+            throw new LogicException($err);
+        }
+        $paths = $this->getPathCollection();
+
+        $fileHandler = $this->createFileHandler($paths->getRootPath());
+        $this->setFileHandler($fileHandler);
+
         return $this;
     }
 
@@ -309,6 +369,50 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     public function setSettings(ArrayDataInterface $data)
     {
         $this->settings = $data;
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isSettings()
+    {
+        return $this->settings instanceof ArrayDataInterface;
+    }
+
+    /**
+     * Appfuel builds a settings file based on configuration yml files during
+     * the build process. Here we load that file into memory making sure it
+     * is an array and used it as the application settings.
+     *
+     * @return  ApplicationBuilder
+     */
+    public function loadSettings(array $extra = null)
+    {
+        if (! $this->isFileHandler()) {
+            $err = "The file handler must be set before settings are loaded";
+            throw new LogicException($err);
+        }
+        $handler = $this->getFileHandler();
+
+        if (! $this->isPathCollection()) {
+            $err = "The path collection must be set before settings are loaded";
+            throw new LogicException($err);
+        }
+        $paths = $this->getPathCollection();
+
+        $file = $paths->getRelativePath('app-settings');
+        $data = $handler->importScript($file);
+        if (! is_array($data)) {
+            $err = "settings -($file) must be a php file that returns an array";
+            throw new LogicException($err);
+        }
+
+        if (null !== $extra) {
+            $data = array_merge($data, $extra);
+        }
+
+        $this->setSettings(new ArrayData($data));
         return $this;
     }
 }

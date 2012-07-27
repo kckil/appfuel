@@ -42,6 +42,14 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
+     * @return  string
+     */
+    public function getFileHandlerInterface()
+    {
+        return 'Appfuel\\Filesystem\\FileHandlerInterface';
+    }
+
+    /**
      * @param   string  $evn    name of env app is running in
      * @return  ApplicationBuilder
      */
@@ -213,10 +221,12 @@ class ApplicationBuilderTest extends FrameworkTestCase
     public function pathCollection(ApplicationBuilder $builder)
     {
         $this->assertNull($builder->getPathCollection());
+        $this->assertFalse($builder->isPathCollection());
 
         $interface = $this->getPathCollectionInterface();
         $paths = $this->getMock($interface);
         $this->assertSame($builder, $builder->setPathCollection($paths));
+        $this->assertTrue($builder->isPathCollection());
         $this->assertSame($paths, $builder->getPathCollection());
  
         return $builder;
@@ -264,13 +274,115 @@ class ApplicationBuilderTest extends FrameworkTestCase
      */
     public function fileHandler(ApplicationBuilder $builder)
     {
-        $handler = $this->getMock('Appfuel\\Filesystem\\FileHandlerInterface');
+        $handler = $this->getMock($this->getFileHandlerInterface());
         $this->assertNull($builder->getFileHandler());
+        $this->assertFalse($builder->isFileHandler());
         $this->assertSame($builder, $builder->setFileHandler($handler));
+        $this->assertTrue($builder->isFileHandler());
         $this->assertSame($handler, $builder->getFileHandler());
         
         return $builder;
     }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     * @return  ApplicationBuilder
+     */
+    public function createFileHandler(ApplicationBuilder $builder)
+    {
+        $handler = $builder->createFileHandler();
+        $this->assertInstanceOf('Appfuel\\Filesystem\\FileHandler', $handler);
+        $this->assertNull($handler->getRootPath());
+
+        $root = '/my/root';
+        $handler = $builder->createFileHandler($root);
+        $this->assertInstanceOf('Appfuel\\Filesystem\\FileHandler', $handler);
+        $this->assertEquals($root, $handler->getRootPath());
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     */
+    public function loadFileHandler()
+    {
+        $builder = $this->createApplicationBuilder('dev');
+        $paths = $this->getMock($this->getPathCollectionInterface());
+        $paths->expects($this->any())
+              ->method('getRootPath')
+              ->will($this->returnValue('/my/path'));
+
+        $builder->setPathCollection($paths);
+        
+        $this->assertSame($builder, $builder->loadFileHandler());
+        $this->assertTrue($builder->isFileHandler());
+        
+        $handler = $builder->getFileHandler();
+        $this->assertEquals($paths->getRootPath(), $handler->getRootPath());
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     */
+    public function loadFileHandlerPathNotSetFailure()
+    {
+        $builder = $this->createApplicationBuilder('dev');
+        
+        $msg  = 'The path collection must be set before the file handler ';
+        $msg .= 'is loaded';
+        $this->setExpectedException('LogicException', $msg);
+
+        $builder->loadFileHandler();
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     */
+    public function setFileHandlerWhenNotPathCollectionFailure()
+    {
+        $builder = $this->createApplicationBuilder('dev');
+        $handler = $this->getMock($this->getFileHandlerInterface());
+        $this->assertFalse($builder->isPathCollection());
+
+        $msg = 'The path collection must be set before the file handler';
+        $this->setExpectedException('LogicException', $msg);
+
+        $builder->setFileHandler($handler);
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     */
+    public function setFileHandlerPathCollectionDifferentRootsFailure()
+    {
+        $builder = $this->createApplicationBuilder('dev');
+        $paths = $this->getMock($this->getPathCollectionInterface());
+        $paths->expects($this->once())
+              ->method('getRootPath')
+              ->will($this->returnValue('/my/path'));
+        
+        $builder->setPathCollection($paths);
+
+        $handler = $this->getMock($this->getFileHandlerInterface());
+        $handler->expects($this->once())
+                ->method('getRootPath')
+                ->will($this->returnValue('/your/path'));
+ 
+        $this->assertTrue($builder->isPathCollection());
+
+        $msg  = 'The root path of the file handler and path collection must ';
+        $msg .= 'be the same';
+        $this->setExpectedException('LogicException', $msg);
+
+        $builder->setFileHandler($handler);
+    }
+
+
+
 
     /**
      * @test
@@ -318,8 +430,34 @@ class ApplicationBuilderTest extends FrameworkTestCase
     {
         $data = $this->getMock('Appfuel\\DataStructure\\ArrayDataInterface');
         $this->assertNull($builder->getSettings());
+        $this->assertFalse($builder->isSettings());
         $this->assertSame($builder, $builder->setSettings($data));
+        $this->assertTrue($builder->isSettings());
         $this->assertSame($data, $builder->getSettings());
+        
+        return $builder;
+    }
+
+    /**
+     * @test
+     * @depends creatingApplicationBuilder
+     * @return  ApplicationBuilder
+     */
+    public function loadAppSettings()
+    {
+        $root = "{$this->getFixturePath()}/app-root";
+        $builder = $this->createApplicationBuilder('dev');
+        $builder->loadStandardPaths($root)
+                ->loadFileHandler();
+        
+       
+        $builder->loadSettings();
+        $this->assertTrue($builder->isSettings());
+
+        $settings = $builder->getSettings();
+        $data = $settings->get('section-a');
+        $expected = array('a', 'b', 'c');
+        $this->assertEquals($expected, $data);
         
         return $builder;
     }
