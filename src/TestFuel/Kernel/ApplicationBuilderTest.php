@@ -440,7 +440,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends creatingApplicationBuilder
+     * @depends appConfigSettings
      * @return  ApplicationBuilder
      */
     public function loadConfigSettings()
@@ -458,7 +458,70 @@ class ApplicationBuilderTest extends FrameworkTestCase
         $data = $settings->get('section-a');
         $expected = array('a', 'b', 'c');
         $this->assertEquals($expected, $data);
+
+        $extra = array('section-a' => array('b', 'd', 'e', 'f'));
         
+        $builder->loadConfigSettings($extra);
+        $settings = $builder->getConfigSettings();
+        $data = $settings->get('section-a');
+        $this->assertEquals($extra['section-a'], $data);
+
         return $builder;
     }
+
+    /**
+     * @test
+     * @depends loadConfigSettings
+     * @return  ApplicationBuilder
+     */
+    public function loadConfigSettingsNoPaths()
+    {
+        $root = "{$this->getFixturePath()}/app-root";
+        $builder = $this->createApplicationBuilder('dev');
+    
+        $msg = 'The path collection must be set before settings are loaded';
+        $this->setExpectedException('LogicException', $msg);   
+        $builder->loadConfigSettings();
+    }
+
+    /**
+     * @test
+     * @depends loadConfigSettingsNoPaths
+     * @return  ApplicationBuilder
+     */
+    public function loadConfigSettingsNoFileHandler()
+    {
+        $root = "{$this->getFixturePath()}/app-root";
+        $builder = $this->createApplicationBuilder('dev');
+        $builder->loadStandardPaths($root);
+
+        $msg = 'The file handler must be set before settings are loaded';
+        $this->setExpectedException('LogicException', $msg);   
+        $builder->loadConfigSettings();
+    }
+
+    /**
+     * @test
+     * @depends appConfigSettings
+     * @return  ApplicationBuilder
+     */
+    public function loadConfigSettingsBadConfigFile()
+    {
+        $root = "{$this->getFixturePath()}/app-root";
+        $builder = $this->createApplicationBuilder('dev');
+        $builder->loadStandardPaths($root)
+                ->loadFileHandler();
+       
+        $badFile = 'app/cache/dev/bad-settings.php'; 
+        $paths = $builder->getPathCollection();
+        $paths->addPath('app-settings', $badFile);
+    
+        $msg  = 'settings -(app/cache/dev/bad-settings.php) must be a php ';
+        $msg .= 'file that returns an array';
+        $this->setExpectedException('LogicException', $msg);
+
+        $builder->loadConfigSettings();
+    }
+
+
 }

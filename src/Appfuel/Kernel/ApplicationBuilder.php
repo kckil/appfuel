@@ -389,17 +389,17 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      */
     public function loadConfigSettings(array $extra = null)
     {
-        if (! $this->isFileHandler()) {
-            $err = "The file handler must be set before settings are loaded";
-            throw new LogicException($err);
-        }
-        $handler = $this->getFileHandler();
-
         if (! $this->isPathCollection()) {
             $err = "The path collection must be set before settings are loaded";
             throw new LogicException($err);
         }
         $paths = $this->getPathCollection();
+
+        if (! $this->isFileHandler()) {
+            $err = "The file handler must be set before settings are loaded";
+            throw new LogicException($err);
+        }
+        $handler = $this->getFileHandler();
 
         $file = $paths->getRelativePath('app-settings');
         $data = $handler->importScript($file);
@@ -409,7 +409,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         }
 
         if (null !== $extra) {
-            $data = array_merge($data, $extra);
+            $data = array_replace_recursive($data, $extra);
         }
 
         $this->setConfigSettings(new ArrayData($data));
