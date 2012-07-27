@@ -426,14 +426,14 @@ class ApplicationBuilderTest extends FrameworkTestCase
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
-    public function appSettings(ApplicationBuilder $builder)
+    public function appConfigSettings(ApplicationBuilder $builder)
     {
         $data = $this->getMock('Appfuel\\DataStructure\\ArrayDataInterface');
-        $this->assertNull($builder->getSettings());
-        $this->assertFalse($builder->isSettings());
-        $this->assertSame($builder, $builder->setSettings($data));
-        $this->assertTrue($builder->isSettings());
-        $this->assertSame($data, $builder->getSettings());
+        $this->assertNull($builder->getConfigSettings());
+        $this->assertFalse($builder->isConfigSettings());
+        $this->assertSame($builder, $builder->setConfigSettings($data));
+        $this->assertTrue($builder->isConfigSettings());
+        $this->assertSame($data, $builder->getConfigSettings());
         
         return $builder;
     }
@@ -443,7 +443,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
-    public function loadAppSettings()
+    public function loadConfigSettings()
     {
         $root = "{$this->getFixturePath()}/app-root";
         $builder = $this->createApplicationBuilder('dev');
@@ -451,16 +451,14 @@ class ApplicationBuilderTest extends FrameworkTestCase
                 ->loadFileHandler();
         
        
-        $builder->loadSettings();
-        $this->assertTrue($builder->isSettings());
+        $builder->loadConfigSettings();
+        $this->assertTrue($builder->isConfigSettings());
 
-        $settings = $builder->getSettings();
+        $settings = $builder->getConfigSettings();
         $data = $settings->get('section-a');
         $expected = array('a', 'b', 'c');
         $this->assertEquals($expected, $data);
         
         return $builder;
     }
-
-
 }

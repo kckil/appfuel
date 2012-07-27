@@ -357,7 +357,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     /**
      * @return  ArrayDataInterface
      */
-    public function getSettings()
+    public function getConfigSettings()
     {
         return $this->settings;
     }
@@ -366,7 +366,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      * @param   ArrayDataInterface  $data
      * @return  ApplicationBuilder
      */
-    public function setSettings(ArrayDataInterface $data)
+    public function setConfigSettings(ArrayDataInterface $data)
     {
         $this->settings = $data;
         return $this;
@@ -375,7 +375,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     /**
      * @return  bool
      */
-    public function isSettings()
+    public function isConfigSettings()
     {
         return $this->settings instanceof ArrayDataInterface;
     }
@@ -387,7 +387,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      *
      * @return  ApplicationBuilder
      */
-    public function loadSettings(array $extra = null)
+    public function loadConfigSettings(array $extra = null)
     {
         if (! $this->isFileHandler()) {
             $err = "The file handler must be set before settings are loaded";
@@ -412,7 +412,7 @@ class ApplicationBuilder implements ApplicationBuilderInterface
             $data = array_merge($data, $extra);
         }
 
-        $this->setSettings(new ArrayData($data));
+        $this->setConfigSettings(new ArrayData($data));
         return $this;
     }
 }
