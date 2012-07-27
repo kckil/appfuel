@@ -422,7 +422,6 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -439,7 +438,6 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends appConfigSettings
      * @return  ApplicationBuilder
      */
@@ -470,7 +468,6 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends loadConfigSettings
      * @return  ApplicationBuilder
      */
@@ -485,7 +482,6 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends loadConfigSettingsNoPaths
      * @return  ApplicationBuilder
      */
@@ -501,7 +497,6 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends appConfigSettings
      * @return  ApplicationBuilder
      */

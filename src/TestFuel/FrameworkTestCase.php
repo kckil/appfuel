@@ -6,7 +6,8 @@
  */ 
 namespace Testfuel;
 
-use stdClass,
+use StdClass,
+    SplFileInfo,
     PHPUnit_Framework_TestCase;
 
 class FrameworkTestCase extends PHPUnit_Framework_TestCase
@@ -37,7 +38,7 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
         return array( 
             array(array(1,3,4)), 
             array(12345), 
-            array(new stdClass), 
+            array(new StdClass), 
             array(true), 
             array(false) 
         ); 
@@ -60,8 +61,9 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
     public function provideInvalidScalars()
     {
         return array(
-            array(new stdClass),
+            array(new StdClass),
             array(array(1,2,3)),
+            array(new SplFileInfo('some/file'))                                  
         );
     }
 
@@ -71,7 +73,7 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
     public function provideInvalidScalarsIncludeNull()
     {
         $args = $this->provideInvalidScalars();
-        array_unshift($args, array(''));
+        array_unshift($args, array(null));
      
         return $args;
     }
@@ -84,7 +86,7 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
         return array(
             array('abcde'),
             array(''),
-            array(new stdClass),
+            array(new StdClass),
             array(array(1,2,3)),
         );
     }

@@ -6,17 +6,18 @@
  */
 namespace Appfuel\DataStructure;
 
+use Countable,
+    ArrayAccess,
+    Serializable,
+    IteratorAggregate;
+
 /**
  * Manages a list of data, handling get/setting and checking items. This 
  * eliminates the illegal offet warning when dealing with arrays
  */
-interface ArrayDataInterface
+interface ArrayDataInterface 
+    extends ArrayAccess, Serializable, Countable
 {
-    /**
-     * @return int
-     */
-    public function count();
-
     /**
      * @return array
      */
@@ -75,7 +76,7 @@ interface ArrayDataInterface
      * @param   mixed   $default 
      * @return  mixed
      */
-    public function getWhen($key, $type, $default = null);
+    public function getAs($key, $type, $default = null);
 
     /** 
      * select values for many keys at once
@@ -93,7 +94,7 @@ interface ArrayDataInterface
      * @param    array    $isArray                                               
      * @return    Dictionary                                                     
      */                                                                          
-    public function collectWhen(array $keys, $type, $isArray = false);
+    public function collectAs(array $keys, $type, $isArray = false);
 
     /**
      * @param   scalar $key
@@ -108,7 +109,7 @@ interface ArrayDataInterface
      * @param   mixed string|object  $type   type that thing should be
      * @return  bool
      */
-    public function existAs($key, $type);
+    public function existsAs($key, $type);
 
     /**                                                                          
      * @return  ViewTemplate                                                     
