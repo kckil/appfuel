@@ -59,11 +59,11 @@ interface ServiceBuilderInterface
      *
      * @return    array
      */
-    public function getKeys();
+    public function getSettingsKeys();
 
     /**
      * @param   array    $keys
      * @return  ServiceBuilder
      */
-    public function setKeys(array $keys);
+    public function setSettingsKeys(array $keys);
 }

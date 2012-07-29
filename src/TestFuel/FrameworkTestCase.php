@@ -30,6 +30,14 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
         return "$testPath/$relativePath/Fixtures"; 
     }
 
+    /**
+     * @return  string
+     */
+    public function getArrayDataInterface()
+    {
+        return 'Appfuel\\DataStructure\\ArrayDataInterface';
+    }
+
     /** 
      * @return  array 
      */ 

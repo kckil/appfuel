@@ -8,6 +8,8 @@ namespace Appfuel\DependencyInjection;
 
 use LogicException,
     DomainException,
+    OutOfBoundsException,
+    InvalidArgumentException,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface;
 
@@ -107,13 +109,42 @@ class ServiceBuilder implements ServiceBuilderInterface
     }
 
     /**
+     * @param   string  $msg
+     * @return  ServiceBuilder
+     */
+    public function setError($msg)
+    {
+        if (! is_string($msg) || empty($msg)) {
+            $err = "a service builder error must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->error = $msg;
+        return $this;
+    }
+
+    /**
+     * @return  ServiceBuilder
+     */
+    public function clearError()
+    {
+        $this->error = null;
+        return $this;
+    }
+
+    /**
+     * The reason I did not make this an abstract class has to do with the 
+     * fact that I can not have an abstract method and a declared interface
+     * method with the same name. Having a complete interface is more important
+     * then php language details.
+     *
      * @param   array   $data 
      * @param   MvcContextInterface $context
      * @return  bool
      */
     public function build(DIContainerInterface $container)
     {
-        return $container;
+        throw new LogicException('concrete class must extend this method');
     }
 
     /**
@@ -121,7 +152,7 @@ class ServiceBuilder implements ServiceBuilderInterface
      *
      * @return    array
      */
-    public function getKeys()
+    public function getSettingsKeys()
     {
         return $this->keys;
     }
@@ -130,31 +161,16 @@ class ServiceBuilder implements ServiceBuilderInterface
      * @param   array    $keys
      * @return  ServiceBuilder
      */
-    public function setKeys(array $keys)
+    public function setSettingsKeys(array $keys)
     {
         foreach ($keys as $key) {
             if (! is_string($key) || empty($key)) {
                 $err = "settings key must be a non empty string";
-                throw new DomainException($err);
+                throw new OutOfBoundsException($err);
             }
         }
 
         $this->keys = $keys;
-        return $this;
-    }
-
-    /**
-     * @param   string  $msg
-     * @return  ServiceBuilder
-     */
-    protected function setError($msg)
-    {
-        if (! is_string($msg) || empty($msg)) {
-            $err = "a service builder error must be a non empty string";
-            throw InvalidArgumentException($err);
-        }
-
-        $this->error = $msg;
         return $this;
     }
 }
