@@ -4,4 +4,25 @@ Created:    July-22-2012
 Modified:   -
 --------------------------------------------------------------------------------
 
+Service             is defined as any php object that is provides functionality
+                    in a given context. (context meaning any group of objects 
+                    that has access to the DIContainer)
 
+DependencyBuilder   is an object specifically designed to build a specific 
+                    service. It has all the knowledge of creatation and 
+                    configuration.
+
+Dependency          is an object that holds the service and service builder. 
+                    It will build the service only when it is requested and 
+                    controls if a single or multiple instances of the service 
+                    are created.
+
+Settings            A list of application and package settings. The dependency 
+                    manager collects parameters out of the settings and adds 
+                    them to the service builder.
+
+DIContainer         the dependency injection container. This holds a list of 
+                    dependency objects plus configuration settings.
+
+DIBuilder           The dependency injection builder is responsible for create
+                    and configurating the container

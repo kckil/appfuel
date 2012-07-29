@@ -6,7 +6,8 @@
  */
 namespace Appfuel\DataStructure;
 
-use DomainException,
+use ArrayIterator,
+    DomainException,
     InvalidArgumentException;
 
 /**
@@ -132,6 +133,14 @@ class ArrayData implements ArrayDataInterface
         if ($this->offsetExists($offset)) {
             unset($this->data[$offset]);
         }
+    }
+
+    /**
+     * @return  ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->data); 
     }
 
     /**

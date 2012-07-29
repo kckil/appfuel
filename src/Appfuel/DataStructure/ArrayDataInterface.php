@@ -16,7 +16,7 @@ use Countable,
  * eliminates the illegal offet warning when dealing with arrays
  */
 interface ArrayDataInterface 
-    extends ArrayAccess, Serializable, Countable
+    extends IteratorAggregate, ArrayAccess, Serializable, Countable
 {
     /**
      * @return array
