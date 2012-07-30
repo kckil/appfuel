@@ -46,8 +46,8 @@ class ServiceBuilder implements ServiceBuilderInterface
     }
 
     /**
-     * Used to determine this the object passed in is the service object that
-     * was built by this builder.
+     * Used to dermine that the $obj is an instance of the service that this
+     * builder builds.
      *
      * @param   mixed   $obj
      * @return  bool
@@ -87,12 +87,20 @@ class ServiceBuilder implements ServiceBuilderInterface
     public function setSettings(ArrayDataInterface $data)
     {
         if (! $this->isValidSettings($data)) {
-            $key = $this->getServiceKey();
             $msg = $this->getError();
-            throw new DomainException("settings for -($key) are invalid: $msg");
+            throw new DomainException("dependency settings are invalid: $msg");
         }
 
         $this->settings = $data;
+        return $this;
+    }
+
+    /**
+     * @return  ServiceBuilder
+     */
+    public function clearSettings()
+    {
+        $this->settings = null;
         return $this;
     }
 

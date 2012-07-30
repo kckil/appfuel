@@ -38,6 +38,30 @@ class DIContainerTest extends FrameworkTestCase
         return $dependency;
     }
 
+
+    /**
+     * @param   string  $key
+     * @return  Appfuel\DependencyInjection\LoadableDependencyInterface
+     */
+    public function createMockLoadableDependency($key)
+    {
+        $siface = 'Appfuel\\DependencyInjection\\ServiceBuilderInterface';
+        $builder = $this->getMock($siface);
+
+        $diface = 'Appfuel\\DependencyInjection\\LoadableDependencyInterface';
+        $dependency = $this->getMock($diface);
+        $dependency->expects($this->any())
+                   ->method('getServiceKey')
+                   ->will($this->returnValue($key));
+
+        $dependency->expects($this->any())
+                   ->method('getServiceBuilder')
+                   ->will($this->returnValue($builder));
+
+        return $dependency;
+    }
+
+
     /**
      * @test
      * @return  Dependency
@@ -130,5 +154,81 @@ class DIContainerTest extends FrameworkTestCase
         $container->isDependency($badKey); 
     }
 
+    /**
+     * @test
+     * @depends creatingContainer
+     * @return  DIContainer
+     */   
+    public function determineLoadableDependencies(DIContainer $container)
+    {
+        $dependency = $this->createMockDependency('service-a');
+        $lDependency = $this->createMockLoadableDependency('service-b');
+        
+        $this->assertFalse($container->isDependencyLoadable($dependency));
+        $this->assertTrue($container->isDependencyLoadable($lDependency));
 
+        return $container;
+    }
+
+    /**
+     * @test
+     * @depends determineLoadableDependencies
+     * @return  DIContainer
+     */
+    public function gettingNonLoadableExistingDepedency(DIContainer $container)
+    {
+        $key = 'my-service';
+        $dependency = $this->createMockDependency($key);
+        
+        $dependency->expects($this->once())
+                   ->method('isServiceAvailable')
+                   ->will($this->returnValue(true));
+
+        $service = new StdClass;
+        $dependency->expects($this->once())
+                   ->method('getService')
+                   ->will($this->returnValue($service));
+
+        $container->addDependency($dependency);
+        $this->assertSame($service, $container->getService($key));
+
+        return $container;
+    }
+
+    /**
+     * @test
+     * @depends gettingNonLoadableExistingDepedency
+     */
+    public function getServiceNoDependency(DIContainer $container)
+    {
+        $key = 'other-service';
+        $this->assertFalse($container->isDependency($key));
+
+        $msg  = 'a dependency has not been added for this service ';
+        $msg .= '-(other-service)';
+        $this->setExpectedException('LogicException', $msg);
+
+        $container->getService($key);
+    }
+
+    /**
+     * @test
+     * @depends gettingNonLoadableExistingDepedency
+     */
+    public function getServiceWithDependencyNotLoadable(DIContainer $container)
+    {
+        $key = 'service-a';
+        $dependency = $this->createMockDependency($key);
+        $dependency->expects($this->once())
+                   ->method('isServiceAvailable')
+                   ->will($this->returnValue(false));
+
+        $container->addDependency($dependency);
+
+        $msg  = 'service -(service-a) is not available and was not added as ';
+        $msg .= 'a loadable dependency';
+        $this->setExpectedException('LogicException', $msg);
+
+        $service = $container->getService($key);
+    }
 }

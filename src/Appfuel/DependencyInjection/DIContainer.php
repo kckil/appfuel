@@ -112,12 +112,11 @@ class DIContainer extends ArrayData implements DIContainerInterface
         }
 
         if (! $dependency->isServiceAvailable()) {
-            if (! $this->isLoadableDependency($dependency)) {
+            if (! $this->isDependencyLoadable($dependency)) {
                 $err  = "service -($key) is not available and was not added ";
                 $err .= "as a loadable dependency";
                 throw new LogicException($err);
             }
-
             $dependency->loadService($this);
         }
 
@@ -165,5 +164,14 @@ class DIContainer extends ArrayData implements DIContainerInterface
         $dependency->loadService($this);
 
         return $dependency->getService();
+    }
+
+    /**
+     * @param   mixed   $dependency
+     * @return  bool
+     */
+    public function isDependencyLoadable(DependencyInterface $dependency)
+    {
+        return $dependency instanceof LoadableDependencyInterface;
     }
 }

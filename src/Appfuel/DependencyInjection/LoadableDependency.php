@@ -49,28 +49,40 @@ class LoadableDependency
             return $this->getService();
         }
 
-        $service = $this->build($container);
+        $builder = $this->getServiceBuilder();
+        $keys = $builder->getSettingsKeys();
+        $builder->setSettings($container->collect($keys, false));
+        
+        $service = $this->executeBuild($builder, $container);
         $this->setService($service);
 
         return $service;
     }
 
     /**
-     *
-     * @param   array   $data 
-     * @param   MvcContextInterface $context
-     * @return  bool
+     * @param   DIContainerInterface $container 
+     * @return  mixed
      */
     public function build(DIContainerInterface $container)
     {
-        $builder = $this->getServiceBuilder();
+        return $this->executeBuild($this->getServiceBuilder(), $container); 
+    }
+
+    /**
+     * @param   ServiceBuilderInterface $builder
+     * @param   DIContainerInterface $container
+     * @return  mixed
+     */
+    protected function executeBuild(ServiceBuilderInterface $builder,
+                                    DIContainerInterface $container)
+    {
         $service = $builder->build($container);
         if (false === $service) {
             $key = $this->getServiceKey();
             $msg = $builder->getError();
             throw new DomainException("failed to build -($key, $msg)");
         }
-        
-        return $service;
+
+        return $service;     
     }
 }
