@@ -46,6 +46,18 @@ class ServiceBuilder implements ServiceBuilderInterface
     }
 
     /**
+     * Used to determine this the object passed in is the service object that
+     * was built by this builder.
+     *
+     * @param   mixed   $obj
+     * @return  bool
+     */
+    public function isService($obj)
+    {
+        throw new LogicException("concrete class must implement this method");
+    }
+
+    /**
      * @param   string  $key
      * @return  ServiceBuilder
      */
@@ -70,7 +82,7 @@ class ServiceBuilder implements ServiceBuilderInterface
 
     /**
      * @param   ArrayDataInterface  $data
-     * @return  StartupTask
+     * @return  ServiceBuilder
      */
     public function setSettings(ArrayDataInterface $data)
     {
@@ -81,6 +93,33 @@ class ServiceBuilder implements ServiceBuilderInterface
         }
 
         $this->settings = $data;
+        return $this;
+    }
+
+    /**
+     * @param   array | ArrayDataInterface
+     * @return  ServiceBuilder
+     */
+    public function overrideSettings($data)
+    {
+        if ($data instanceof ArrayDataInterface) {
+            $data = $data->getAll();
+        }
+        else if (! is_array($data)) {
+            $err  = "settings must be an array or an object that implements ";
+            $err .= "-(Appfuel\\DataStructure\\ArrayDataInterface)";
+            throw new DomainException($err);
+        }
+
+        $settings = $this->getSettings();
+        if (null === $settings) {
+            $this->setSettings($this->createArrayData($data));
+            return $this;
+        }
+
+        $settingData = $settings->getAll();
+        $result = array_replace_recursive($settingsData, $data);
+        $this->setSettings($this->createArrayData($result));
         return $this;
     }
 
