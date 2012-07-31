@@ -134,7 +134,6 @@ class ApplicationTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingApplicationDefaultDebug
      */
     public function eventDispatcher(Application $app)
@@ -146,7 +145,6 @@ class ApplicationTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingApplicationDefaultDebug
      */
     public function DiManager(Application $app)
@@ -159,7 +157,6 @@ class ApplicationTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingApplicationDefaultDebug
      */
     public function appConfigSettings(Application $app)

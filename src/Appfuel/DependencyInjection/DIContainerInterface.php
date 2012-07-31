@@ -58,25 +58,4 @@ interface DIContainerInterface extends ArrayDataInterface
      * @return  mixed
      */
     public function getService($key);
-
-    /**
-     * @throws  LogicException
-     *
-     * @param   string  $key
-     * @param   array|ArrayDataInterface $settings
-     * @param   bool    $replace
-     * @return  mixed
-     */
-    public function createService($key, $settings = null, $replace = false);
- 
-    /**
-     * @throws  LogicException
-     * 
-     * @param   string  $key
-     * @param   array|ArrayDataInterface $settings
-     * @param   bool    $replace
-     * @return  mixed
-     */   
-    public function loadService($key, $settings = null, $replace = false);
-
 }

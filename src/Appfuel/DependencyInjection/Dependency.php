@@ -16,6 +16,12 @@ use LogicException,
 class Dependency implements DependencyInterface
 {
     /**
+     * Flag used to detemine if this dependency can be replaced in the 
+     * DIContainer
+     */
+    protected $isUnique = false;
+
+    /**
      * Key used to find this service in the container
      * @var string  
      */
@@ -35,7 +41,7 @@ class Dependency implements DependencyInterface
      * @param   ServiceBuilderInterface $builder
      * @return  Dependency
      */
-    public function __construct($key, $service = null)
+    public function __construct($key, $isUnique = false, $service = null)
     {
         if (! is_string($key) || empty($key)) {
             $err = "service key must be a non empty string";
@@ -43,9 +49,13 @@ class Dependency implements DependencyInterface
         }
         $this->key = $key;
 
+        if (true === $isUnique) {
+            $this->isUnique = true;
+        }
+
         if (null !== $service) {
             $this->setService($service);
-        }    
+        }
     }
 
     /**
@@ -54,6 +64,14 @@ class Dependency implements DependencyInterface
     public function getServiceKey()
     {
         return $this->key;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isUniqueService()
+    {
+        return $this->isUnique;
     }
 
     /**
@@ -98,56 +116,11 @@ class Dependency implements DependencyInterface
     }
 
     /**
-     * @param   DIContainerInterface    $container
-     * @return  mixed
-     */
-    public function loadService(DIContainerInterface $container)
-    {
-        if ($this->isServiceAvailable()) {
-            return $this->getService();
-        }
-
-        $builder = $this->getServiceBuilder();
-        $service = $builder->build($container);
-        $this->setService($service);
-
-
-        return $service;
-    }
-
-    /**
      * @return  Dependency
      */
     public function clearService()
     {
         $this->service = null;
         return $this;
-    }
-
-    /**
-     * @return  ServiceBuilderInterface
-     */
-    public function getServiceBuilder()
-    {
-        return $this->builder;
-    }
-
-    /**
-     *
-     * @param   array   $data 
-     * @param   MvcContextInterface $context
-     * @return  bool
-     */
-    public function build(DIContainerInterface $container)
-    {
-        $builder = $this->getServiceBuilder();
-        $service = $builder->build($container);
-        if (false === $service) {
-            $key = $this->getServiceKey();
-            $msg = $builder->getError();
-            throw new DomainException("failed to build -($key, $msg)");
-        }
-        
-        return $service;
     }
 }

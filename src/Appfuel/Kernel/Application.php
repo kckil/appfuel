@@ -39,26 +39,6 @@ class Application implements ApplicationInterface
     protected $fileHandler = null;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher = null;    
-
-    /**
-     * @var DiManagerInterface
-     */   
-    protected $diManager = null;
-
-    /**
-     * @var RouteManagerInterface
-     */
-    protected $routeManager = null;
-
-    /**
-     * @var ArrayDataInterface
-     */
-    protected $settings = null;
- 
-    /**
      * @param   string  $root
      * @param   PathCollectionInterface  $p paths used by this app
      * @param   bool    $debug
@@ -156,24 +136,6 @@ class Application implements ApplicationInterface
     public function setDependencyInjectionManager(DiManagerInterface $manager)
     {
         $this->diManager = $manager;
-        return $this;
-    }
-
-    /**
-     * @return  ArrayDataInterface
-     */
-    public function getConfigSettings()
-    {
-        return $this->settings;
-    }
-
-    /**
-     * @param   ArrayDataInterface  $data
-     * @return  Application
-     */
-    public function setConfigSettings(ArrayDataInterface $data)
-    {
-        $this->settings = $data;
         return $this;
     }
 }

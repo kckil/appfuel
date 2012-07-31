@@ -32,9 +32,9 @@ class DependencyTest extends FrameworkTestCase
      * @param   Appfuel\DependencyInjection\ServiceBuilderInterface
      * @return  Dependency
      */
-    public function createDependency($key, $service = null)
+    public function createDependency($key, $isUnique = null, $service = null)
     {
-        return  new Dependency($key, $service);
+        return  new Dependency($key, $isUnique, $service);
     }
 
     /**
@@ -58,6 +58,7 @@ class DependencyTest extends FrameworkTestCase
         $interface = 'Appfuel\\DependencyInjection\\DependencyInterface';
         $this->assertInstanceOf($interface, $dependency);
         $this->assertEquals($key, $dependency->getServiceKey());
+        $this->assertFalse($dependency->isUniqueService());
 
         return $dependency;
     }
@@ -70,13 +71,15 @@ class DependencyTest extends FrameworkTestCase
     {
         $key = 'my-service';
         $service = new StdClass;
-        $dependency = $this->createDependency($key, $service);
+        $isUnique = false;
+        $dependency = $this->createDependency($key, $isUnique, $service);
         
         $interface = 'Appfuel\\DependencyInjection\\DependencyInterface';
         $this->assertInstanceOf($interface, $dependency);
         $this->assertEquals($key, $dependency->getServiceKey());
         $this->assertTrue($dependency->isServiceAvailable());
         $this->assertSame($service, $dependency->getService());
+        $this->assertFalse($dependency->isUniqueService());
     }
 
     /**

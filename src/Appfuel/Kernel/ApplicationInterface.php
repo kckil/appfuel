@@ -64,15 +64,4 @@ interface ApplicationInterface
      * @return  ApplicationInterface
      */
     public function setDependencyInjectionManager(DiManagerInterface $manager);
-
-    /**
-     * @return  ArrayDataInterface
-     */
-    public function getConfigSettings();
-
-    /**
-     * @param   ArrayDataInterface  $data
-     * @return  ApplicationInterface
-     */
-    public function setConfigSettings(ArrayDataInterface $data);
 }

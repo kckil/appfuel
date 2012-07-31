@@ -124,49 +124,6 @@ class DIContainer extends ArrayData implements DIContainerInterface
     }
 
     /**
-     * @param   string  $key
-     * @return  mixed
-     */
-    public function createService($key, $settings = null, $replace = false)
-    {
-        $dependency = $this->getDependency($key);
-        if (! $this->isLoadableDependency($dependency)) {
-            $err  = "service -($key) dependency exists but can not create ";
-            $err .= "new instances because it does not implemented as a ";
-            $err .= "loadable dependency";
-        }
-
-        if (! $dependency->isMultipleInstancesAllowed()) {
-            $err = "can not create multiple instances of -($key)";
-            throw new LogicException($err);
-        }
-
-        if (null !== $settings) {
-            $dependency->overrideSettings($settings, $replace);
-        }
-
-        return $dependency->build($this);
-    }
-
-    public function loadService($key, $settings = null, $replace = false)
-    {
-        $dependency = $this->getDependency($key);
-        if (! $this->isLoadableDependency($dependency)) {
-            $err  = "service -($key) dependency exists but can not create ";
-            $err .= "new instances because it does not implemented as a ";
-            $err .= "loadable dependency";
-        }
-
-        if (null !== $settings) {
-            $dependency->overrideSettings($settings, $replace);
-        }
-
-        $dependency->loadService($this);
-
-        return $dependency->getService();
-    }
-
-    /**
      * @param   mixed   $dependency
      * @return  bool
      */

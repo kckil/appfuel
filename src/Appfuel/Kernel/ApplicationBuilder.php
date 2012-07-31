@@ -9,6 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Console\ConsoleInputInterface,
     Appfuel\Filesystem\FileHandler,
     Appfuel\Filesystem\FileHandlerInterface,
     Appfuel\DataStructure\ArrayData,
@@ -415,4 +416,61 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         $this->setConfigSettings(new ArrayData($data));
         return $this;
     }
+
+    /**
+     * @return  Application
+     */
+    public function build($type)
+    {
+        if (! $this->isPathCollection()) {
+            throw new DomainException("can not build path collection required");
+        }
+        $paths = $this->getPathCollection();
+        $env = $this->getEnv();
+        $debug = $this->isDebuggingEnabled();
+        
+        if ('web' === $type) {
+            $app = $this->createWebApp($env, $paths, $debug);
+        }
+        else {
+            $app = $this->createConsoleApp($env, $paths, $debug);
+        }
+
+        if (! $this->isFileHandler()) {
+            $this->loadFileHandler();
+        }
+        $app->setFileHandler($this->getFileHandler());
+        
+        return $app;
+    }
+
+    /**
+     * @param   ConsoleInputInterface   $input
+     * @return  ConsoleApplication
+     */
+    public function buildForConsole(ConsoleInputInterface $input)
+    {
+        $console = $this->build('console');
+        $console->setInput($input);
+
+        return $console; 
+    }
+
+    protected function createWebApp($env, PathCollectionInterface $p, $debug)
+    {
+        return new Application($env, $p, $debug);
+    }
+
+    /**
+     * @param   string  $env
+     * @param   PathCollectionInterface $p
+     * @param   bool    $debug
+     * @return  ConsoleApplication
+     */
+    protected function createConsoleApp($env,PathCollectionInterface $p,$debug)
+    {
+        return new ConsoleApplication($env, $p, $debug);
+    }
+
+
 }

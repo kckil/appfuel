@@ -9,7 +9,7 @@ use Appfuel\Filesystem\FileHandler,
     Appfuel\Kernel\Cache\CodeCacheLoader;
 
 $console = require __DIR__ . '/cli-header.php';
-$input = $console->createConsoleInput();
+echo "\n", print_r($console,1), "\n";exit;
 $cache = new CodeCacheLoader(new FileHandler());
 
 $path = $input->getFirstArg();

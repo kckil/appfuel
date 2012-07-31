@@ -6,10 +6,7 @@
  */
 namespace Appfuel\DependencyInjection;
 
-use LogicException,
-    DomainException,
-    OutOfBoundsException,
-    InvalidArgumentException,
+use DomainException,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface;
 
@@ -22,13 +19,21 @@ class LoadableDependency
     protected $builder = null;
 
     /**
+     * @var Closure
+     */
+    protected $loader = null;
+
+    /**
      * @param   ServiceBuilderInterface $builder
      * @return  Dependency
      */
-    public function __construct($key, ServiceBuilderInterface $builder)
+    public function __construct($key, 
+                                ServiceBuilderInterface $builder, 
+                                $isUniqueService = false)
     {
-        parent::__construct($key);
+        parent::__construct($key, $isUniqueService);
         $this->builder = $builder;
+        $this->loader = $this->createLoader($key, $builder);
     }
 
     /**
@@ -37,6 +42,14 @@ class LoadableDependency
     public function getServiceBuilder()
     {
         return $this->builder;
+    }
+
+    /**
+     * @return  Closure
+     */
+    public function getLoader()
+    {
+        return $this->loader;
     }
 
     /**
@@ -49,11 +62,8 @@ class LoadableDependency
             return $this->getService();
         }
 
-        $builder = $this->getServiceBuilder();
-        $keys = $builder->getSettingsKeys();
-        $builder->setSettings($container->collect($keys, false));
-        
-        $service = $this->executeBuild($builder, $container);
+        $loader = $this->getLoader();
+        $service = $loader($container);  
         $this->setService($service);
 
         return $service;
@@ -65,24 +75,46 @@ class LoadableDependency
      */
     public function build(DIContainerInterface $container)
     {
-        return $this->executeBuild($this->getServiceBuilder(), $container); 
+        $loader = $this->getLoader();
+        return $loader($container);
     }
 
     /**
+     * @param   string  $key
      * @param   ServiceBuilderInterface $builder
-     * @param   DIContainerInterface $container
-     * @return  mixed
+     * @return  Closure
      */
-    protected function executeBuild(ServiceBuilderInterface $builder,
-                                    DIContainerInterface $container)
+    protected function createLoader($key,ServiceBuilderInterface $builder)
     {
-        $service = $builder->build($container);
-        if (false === $service) {
-            $key = $this->getServiceKey();
-            $msg = $builder->getError();
-            throw new DomainException("failed to build -($key, $msg)");
+        if ($this->isUniqueService()) {
+            return function ($container) use ($key, $builder) {
+                static $service = null;
+                if (null === $service) {
+                    $keys = $builder->getSettingsKeys();
+                    $builder->setSettings($container->collect($keys, false));
+                    $service = $builder->build($container);
+                    if (false === $service) {
+                        $err  = "static loading failed. build error: -($key, ";
+                        $err .= "{$builder->getError()})";
+                        throw new DomainException($err);
+                    }
+                }   
+
+                return $service;
+            };
         }
 
-        return $service;     
+        return function ($container) use ($key, $builder) {
+            $keys = $builder->getSettingsKeys();
+            $builder->setSettings($container->collect($keys, false));
+            $service = $builder->build($container);
+            if (false === $service) {
+                $err  = "static loading failed. build error: -($key, ";
+                $err .= "{$builder->getError()})";
+                    throw new DomainException($err);
+            }
+
+            return $service;
+        };   
     }
 }

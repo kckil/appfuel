@@ -8,21 +8,25 @@ Service             is defined as any php object that is provides functionality
                     in a given context. (context meaning any group of objects 
                     that has access to the DIContainer)
 
-DependencyBuilder   is an object specifically designed to build a specific 
+ServiceBuilder      is an object specifically designed to build a specific 
                     service. It has all the knowledge of creatation and 
-                    configuration.
+                    configuration. Configuration settings are stored in a 
+                    ArrayDataInterface. The Loadable Dependency picks out
+                    the settings from the container and adds them to the 
+                    builder.
 
-Dependency          is an object that holds the service and service builder. 
-                    It will build the service only when it is requested and 
-                    controls if a single or multiple instances of the service 
-                    are created.
+Dependency          Holds a service. This is used by the DIContainer, to 
+                    determine if the service is available and to retrieve the
+                    service
 
-Settings            A list of application and package settings. The dependency 
-                    manager collects parameters out of the settings and adds 
-                    them to the service builder.
+LoadableDependency  A dependency that holds a service builder and lazy loads the
+                    service when needed
 
 DIContainer         the dependency injection container. This holds a list of 
-                    dependency objects plus configuration settings.
+                    dependency objects (either Dependency or LoadableDependency)
+                    it also holds a list of parameters. The DIContainer extends
+                    the ArrayDataInterface, all parameters are accessed using 
+                    the ArrayDataInterface and all services use getService.
 
 DIBuilder           The dependency injection builder is responsible for create
-                    and configurating the container
+                    and configurating the container.

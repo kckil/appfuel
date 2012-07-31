@@ -8,6 +8,7 @@ namespace Testfuel\DependencyInjection;
 
 use StdClass,
     Testfuel\FrameworkTestCase,
+    Testfuel\DependencyInjection\Fixtures\FixtureServiceA\ServiceABuilder,
     Testfuel\DependencyInjection\Fixtures\FixtureServiceA\ServiceADependency,
     Appfuel\DependencyInjection\DIContainer,
     Appfuel\DependencyInjection\ServiceBuilder,
@@ -17,6 +18,8 @@ require_once __DIR__ . '/Fixtures/FixtureServiceA/ServiceA.php';
 require_once __DIR__ . '/Fixtures/FixtureServiceA/ServiceABuilder.php';
 require_once __DIR__ . '/Fixtures/FixtureServiceA/ServiceADependency.php';
 
+require_once __DIR__ . '/Fixtures/StaticService/StaticService.php';
+require_once __DIR__ . '/Fixtures/StaticService/StaticServiceBuilder.php';
 
 class LoadableDependencyTest extends FrameworkTestCase 
 {
@@ -36,6 +39,14 @@ class LoadableDependencyTest extends FrameworkTestCase
     public function createDIContainer()
     {
         return new DIContainer();
+    }
+
+    /**
+     * @return  ServiceABuilder
+     */
+    public function createServiceABuilder()
+    {
+        return new ServiceABuilder();
     }
 
     /**
@@ -136,14 +147,70 @@ class LoadableDependencyTest extends FrameworkTestCase
                 ->will($this->returnValue($error)); 
         
         $key  = $dependency->getServiceKey();
-        $msg  = "failed to build -($key, $error)";
+        $msg  = "static loading failed. build error: -($key, $error)";
         $this->setExpectedException('DomainException', $msg);
     
         $container = $this->createDIContainer();
         $service = $dependency->loadService($container);
     }
 
+    /**
+     * @test
+     * @return null
+     */
+    public function loadStaticService()
+    {
+        $key = 'my-service';
+        $builder = $this->createServiceABuilder();
+        $dependency = $this->createLoadableDependency($key, $builder, true);
 
+        $container = $this->createDIContainer();
+        $container->assign('key-a', 'this is a string')
+                  ->assign('key-b', true)
+                  ->assign('key-c', 12345);
 
+        $service1 = $dependency->loadService($container);
+        $class  = 'Testfuel\\DependencyInjection\\Fixtures\\FixtureServiceA'; 
+        $class .= '\\ServiceA'; 
+        $this->assertInstanceOf($class, $service1);
 
+        $service2 = $dependency->loadService($container);
+        $this->assertInstanceOf($class, $service2);
+        $this->assertSame($service1, $service2);
+       
+        /* no effect when you change the settings */
+        $container->assign('key-c', 12345);
+        $service3 = $dependency->loadService($container);
+        $this->assertSame($service1, $service3);
+    }
+
+    /**
+     * @test
+     * @return null
+     */
+    public function loadNonStaticService()
+    {
+        $key = 'my-service';
+        $builder = $this->createServiceABuilder();
+        $dependency = $this->createLoadableDependency($key, $builder, false);
+
+        $container = $this->createDIContainer();
+        $container->assign('key-a', 'this is a string')
+                  ->assign('key-b', true)
+                  ->assign('key-c', 12345);
+
+        $service1 = $dependency->loadService($container);
+        $class  = 'Testfuel\\DependencyInjection\\Fixtures\\FixtureServiceA'; 
+        $class .= '\\ServiceA'; 
+        $this->assertInstanceOf($class, $service1);
+
+        $service2 = $dependency->loadService($container);
+        $this->assertInstanceOf($class, $service2);
+        $this->assertSame($service1, $service2);
+       
+        /* no effect when you change the settings */
+        $container->assign('key-c', 12345);
+        $service3 = $dependency->loadService($container);
+        $this->assertSame($service1, $service3);
+    }
 }
