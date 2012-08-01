@@ -4,7 +4,7 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel\Cache;
+namespace Appfuel\Kernel;
 
 use DomainException,
     ReflectionClass,
@@ -17,8 +17,14 @@ use DomainException,
  * @author  orginal author Fabian Potencier <fabien@symfony.com>
  * @author  refactored by Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  */
-class CodeCacheGenerator
+class CodeCacheLoader
 {
+    /**
+     * Track cache files that are loaded
+     * @var array
+     */
+    protected static $loaded = array();
+
     /**
      * Used to track files seen when collecting class hierarchies
      * @var array
@@ -27,17 +33,70 @@ class CodeCacheGenerator
 
     /**
      * @param   array   $classes
-     * @param   array   $excluded
+     * @param   string  $cache
+     * @param   string  $meta
+     * @param   bool    $autoReload
+     * @param   FileHandlerInterface    $handler
+     * @return  
+     */
+    public static function load(array $classes, 
+                                $cacheFile,
+                                $metaFile,
+                                $autoReload,
+                                FileHandlerInterface $handler)
+    {
+        if (! is_string($cacheFile) || empty($cacheFile)) {
+            $err = "cache file must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (! is_string($metaFile) || empty($metaFile)) {
+            $err = "cache meta file must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (isset(self::$loaded[$cacheFile])) {
+            return;
+        }
+        self::$loaded[$cacheFile] = true;
+
+        $classes = array_unique($classes);
+
+        $reload = false;
+        if ($autoReload) {
+            $reload = true;
+        }
+
+        if (! $reload && $handler->isFile($cacheFile) && ! $forceReload) {
+            $handler->importScript($cacheFile, true);
+            return;
+        }
+
+        $result = self::generate($handler, $classes);
+        $content = $result[0];
+        $files = $result[1];
+
+        $handler->write($cacheFile, "<?php $content");
+        if ($autoReload) {
+            $handler->writeSerialized($metaFile, array($files, $classes));
+        }
+    }
+
+    /**
+     * @param   array   $classes
      * @param   FileHandlerInterface    $fmanager
+     * @param   array   $excluded
      * @return  array
      */
-    public static function generate(array $classes, 
-                                    array $excluded, 
-                                    FileHandlerInterface $fHandler)
+    public static function generate(FileHandlerInterface $handler,
+                                    array $classes,
+                                    array $excluded = array())
     {
+        $backupRoot = $handler->getRootPath();
+
         $files = array();
         $content = '';
-
+        
         $patterns = array('/^\s*<\?php/', '/\?>\s*$/');
         foreach (self::getOrderedClasses($classes) as $class) {
             if (in_array($class->getName(), $excluded)) {
@@ -47,7 +106,7 @@ class CodeCacheGenerator
             $filename = $class->getFileName();
             $files[] = $filename;
 
-            $c = preg_replace($patterns, '', $fHandler->read($filename));
+            $c = preg_replace($patterns, '', $handler->read($filename));
             
             /* add namespace declaration for global code */
             if (! $class->inNamespace()) {
@@ -61,7 +120,7 @@ class CodeCacheGenerator
             $content .= $c;
         }
 
-        return $content;
+        return array($content, $files);
     }
 
     /**

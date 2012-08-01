@@ -107,6 +107,11 @@ interface FileHandlerInterface
     public function setRootPath($path);
 
     /**
+     * @return  FileHandler
+     */
+    public function clearRootPath();
+
+    /**
      * @param   string  $path 
      * @return  string
      */

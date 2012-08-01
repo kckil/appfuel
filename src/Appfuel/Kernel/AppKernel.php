@@ -9,6 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Kernel\Cache\CodeCacheManager,
     Appfuel\Console\ConsoleInputInterface,
     Appfuel\Filesystem\PathCollection,
     Appfuel\Filesystem\PathCollectionInterface,
@@ -293,12 +294,23 @@ class AppKernel implements AppKernelInterface
             'vendor'             => 'vendor', 
             'cache-dir'          => 'app/cache', 
             'config-dir'         => 'app/config',
-            'framework-cache'    => 'app/cache/framework.cache.php',
+            'class-cache'        => 'app/cache/classes.cache.php',
+            'class-cache-meta'   => 'app/cache/class.cache.meta',
             'container-cache'    => "app/cache/{$env}/container.cache.php", 
             'app-settings'       => "app/config/settings-{$env}.yml", 
             'app-settings-cache' => "app/cache/{$env}/app-settings.cache.php", 
             'appfuel-src'        => "$vendor/src", 
             'appfuel-bin'        => "$vendor/bin",
         ); 
+    }
+
+    /**
+     * @param   string  $name   name of the cache in the path collection
+     * @return  AppKernel
+     */
+    public function loadClassCache($name)
+    {
+        $paths = $this->getPathCollection();
+        
     }
 }

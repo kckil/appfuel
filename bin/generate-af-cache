@@ -6,22 +6,43 @@
  * See LICENSE file at project root for details.
  */
 use Appfuel\Filesystem\FileHandler,
-    Appfuel\Kernel\Cache\CacheHandler;
+    Appfuel\Kernel\CodeCacheLoader;
 
 $console = require __DIR__ . '/cli-header.php';
 $fileHandler = $console->getFileHandler();
-echo "\n", print_r($fileHandler,1), "\n";exit;
 
-$path = $input->getFirstArg();
-if (! $path) {
+/*
+ * The code cache loader needs a handler that deals with absolutes and 
+ * not relative paths
+ */
+$root = $fileHandler->getRootPath();
+$fileHandler->clearRootPath();
+
+$cacheFile = $input->getFirstArg();
+if (! $cacheFile) {
     $console->outputError("first arg must be the path to the cache\n");
     exit(1); 
 }
+/* make cache file an absolute path */
+$cacheFile = "$root/$cacheFile";
+$metaFile = "$cacheFile.meta";
 
-$content = $cache->generate($cache->getFrameworkClasses());
-if (! $cache->write($path, $content)) {
-    $console->outputError("could not write cache to -($path)");
-    exit(1);
-}
+$classes = array(
+    'Appfuel\\DataStructure\\ArrayData',
+    'Appfuel\\Filesystem\\FileFinder',
+    'Appfuel\\Filesystem\\FileHandler',
+    'Appfuel\\Filesystem\\PathCollection',
+    'Appfuel\\Kernel\\FaultHandler',
+    'Appfuel\\Kernel\\WebApplication',
+    'Appfuel\\Http\\HttpRequest',
+    'Appfuel\\Http\\HttpResponse',
+    'Appfuel\\Http\\HttpHeaderList',
+    'Appfuel\\Http\\HttpStatus',
+);
+
+$fileHandler->deleteFile($cacheFile);
+$fileHandler->deleteFile($metaFile);
+
+CodeCacheLoader::load($classes, $cacheFile, $metaFile, true, $fileHandler);
 
 exit(0);

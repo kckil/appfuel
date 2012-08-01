@@ -286,6 +286,17 @@ class FileHandler implements FileHandlerInterface
     }
 
     /**
+     * @return  FileHandler
+     */
+    public function clearRootPath()
+    {
+        $this->getFileFinder()
+             ->clearRoot();
+
+        return $this;
+    }
+
+    /**
      * @param   string  $path 
      * @return  string
      */
