@@ -239,7 +239,7 @@ class AppKernel implements AppKernelInterface
      * @param   array   $list
      * @return  PathCollection
      */
-    public function createPathCollection($root, array $paths)
+    public function createPathCollection($root, array $paths = null)
     {
         return new PathCollection($root, $paths);
     }

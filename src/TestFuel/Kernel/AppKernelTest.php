@@ -38,7 +38,7 @@ class AppKernelTest extends FrameworkTestCase
      */
     public function getPathCollectionInterface()
     {
-        return 'Appfuel\\Kernel\\PathCollectionInterface';
+        return 'Appfuel\\Filesystem\\PathCollectionInterface';
     }
 
     /**
@@ -60,7 +60,7 @@ class AppKernelTest extends FrameworkTestCase
     
     /**
      * @test
-     * @return  ApplicationBuilder
+     * @return  AppKernel
      */
     public function creatingAppKernelWithDebugging()
     {
@@ -71,453 +71,361 @@ class AppKernelTest extends FrameworkTestCase
         $interface = 'Appfuel\\Kernel\\AppKernelInterface';
         $this->assertInstanceOf($interface, $app);
         $this->assertEquals($env, $app->getEnv());
+        $this->assertTrue($app->isDebuggingEnabled());
 
         return $app;
     }
 
     /**
-     * 
-     * @depends         creatingApplicationBuilder
+     * @test
+     * @depends  creatingAppKernelWithDebugging
+     */
+    public function creatingAppKernelWithDebuggingErrorDisplayReportLevel()
+    {
+        $this->assertEquals('1', ini_set('display_errors', '0'));
+        $this->assertEquals('0', ini_get('display_errors'));
+        $this->assertEquals(-1, error_reporting(0));
+
+
+        $root = '/my/root/path';
+        $env  = 'dev';
+        $isDebug = true;
+        $app = $this->createAppKernel($root, $env, $isDebug);
+
+        $this->assertEquals('1', ini_get('display_errors'));
+        $this->assertEquals(-1, error_reporting(0));
+    }
+
+    /**
+     * @test
+     * @depends  creatingAppKernelWithDebugging
+     */
+    public function creatingAppKernelWithDebuggingErrorHandling()
+    {
+        $errorHandler = function ($nbr, $str, $file, $line, $context) {
+            return true;
+        };
+
+        $root = '/my/root/path';
+        $env  = 'dev';
+        $isDebug = true;
+        $app = $this->createAppKernel($root, $env, $isDebug);
+        
+        $result = set_error_handler($errorHandler); 
+        $this->assertInternalType('array', $result);
+        $this->assertEquals(2, count($result));
+
+        $obj = current($result);
+        $this->assertInstanceOf('Appfuel\\Kernel\\FaultHandler', $obj);
+
+        $method = next($result);
+        $this->assertEquals('handleError', $method);
+
+        return $app;
+    } 
+ 
+    /**
+     * @test
+     * @depends  creatingAppKernelWithDebugging
+     */
+    public function creatingAppKernelWithDebuggingExceptionHandling()
+    {
+        $exceptionHandler = function ($e) {
+            return true;
+        };
+
+        $root = '/my/root/path';
+        $env  = 'dev';
+        $isDebug = true;
+        $app = $this->createAppKernel($root, $env, $isDebug);
+        
+        $result = set_exception_handler($exceptionHandler); 
+        $this->assertInternalType('array', $result);
+        $this->assertEquals(2, count($result));
+
+        $obj = current($result);
+        $this->assertInstanceOf('Appfuel\\Kernel\\FaultHandler', $obj);
+
+        $method = next($result);
+        $this->assertEquals('handleException', $method);
+    } 
+ 
+    /**
+     * @test
+     * @depends creatingAppKernelWithDebugging
+     * @return  AppKernel
+     */
+    public function creatingAppKernelStandardPaths(AppKernel $app)
+    {
+        $paths = $app->getPathCollection();
+
+        $root = '/my/root/path';
+        $interface = $this->getPathCollectionInterface();
+        $this->assertInstanceOf($interface, $paths);
+        
+        $this->assertEquals($root, $paths->getRoot());
+        $list = $app->getDefaultPaths();
+        $this->assertEquals($list, $paths->getMap());
+        
+        return $app;
+    }
+
+    /**
+     * @test
+     * @depends creatingAppKernelWithDebugging
+     * @return  AppKernel
+     */
+    public function creatingAppKernelFileHandler(AppKernel $app)
+    {
+        $paths = $app->getPathCollection();
+        $handler = $app->getFileHandler();
+        $interface = 'Appfuel\\Filesystem\\FileHandlerInterface';
+        $this->assertInstanceOf($interface, $handler);
+        
+        $this->assertEquals($handler->getRootPath(), $paths->getRoot());
+        
+        return $app;
+    }
+
+    /**
+     * @test
+     * @return  AppKernel
+     */
+    public function creatingAppKernelNoDebugging()
+    {
+        $this->assertEquals('1', ini_set('display_errors', '1'));
+        $this->assertEquals('1', ini_get('display_errors'));
+        $this->assertEquals(-1, error_reporting(0));
+
+        $root = '/my/root/path';
+        $env  = 'prod';
+        $app = $this->createAppKernel($root, $env);
+        $interface = 'Appfuel\\Kernel\\AppKernelInterface';
+        $this->assertInstanceOf($interface, $app);
+        $this->assertEquals($env, $app->getEnv());
+        $this->assertFalse($app->isDebuggingEnabled());
+
+        $this->assertEquals('0', ini_get('display_errors'));
+        $this->assertEquals(-1, error_reporting(0));
+        return $app;
+    }
+
+    /**
+     * @test
+     * @depends         creatingAppKernelNoDebugging
      * @dataProvider    provideInvalidStringsIncludeEmpty
      */
-    public function creatingApplicationBuilderEnvFailure($badEnv)
+    public function creatingAppKernelEnvFailure($badEnv)
     {
         $msg = 'environment name must be a non empty string';
         $this->setExpectedException('InvalidArgumentException', $msg);
 
-        $builder = $this->createApplicationBuilder($badEnv);
+        $root = '/my/root/path';
+        $app = $this->createAppKernel($root, $badEnv);
     }
-    
+ 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends         creatingAppKernelNoDebugging
+     * @dataProvider    provideInvalidStringsIncludeEmpty
      */
-    public function showingErrors(ApplicationBuilder $builder)
+    public function creatingAppKernelRootFailure($badRoot)
+    {
+        $msg = 'root path must be a non empty string';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $env = 'dev';
+        $app = $this->createAppKernel($badRoot, $env);
+    }
+       
+    /**
+     * @test
+     * @depends creatingAppKernelWithDebugging
+     * @return  AppKernel
+     */
+    public function showingErrors(AppKernel $app)
     {
         $this->assertEquals('1', ini_set('display_errors', '0'));
         $this->assertEquals('0', ini_get('display_errors'));
 
-        $this->assertSame($builder, $builder->showErrors());
+        $this->assertSame($app, $app->showErrors());
         $this->assertEquals('1', ini_get('display_errors'));
+
+        return $app;
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test 
+     * @depends showingErrors
+     * @return  AppKernel
      */
-    public function hidingErrors(ApplicationBuilder $builder)
+    public function hidingErrors(AppKernel $app)
     {
         $this->assertEquals('1', ini_get('display_errors'));
 
-        $this->assertSame($builder, $builder->hideErrors());
+        $this->assertSame($app, $app->hideErrors());
         $this->assertEquals('0', ini_get('display_errors'));
+
+        return $app;
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends hidingErrors
+     * @return  AppKernel
      */
-    public function disableErrorReporting(ApplicationBuilder $builder)
+    public function disableErrorReporting(AppKernel $app)
     {
         $this->assertEquals(-1, error_reporting());
-        $this->assertSame($builder, $builder->disableErrorReporting());
+        $this->assertSame($app, $app->disableErrorReporting());
         $this->assertEquals(0, error_reporting());
+
+        return $app;
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends disableErrorReporting
+     * @return  AppKernel
      */
-    public function enableFullErrorReporting(ApplicationBuilder $builder)
+    public function enableFullErrorReporting(AppKernel $app)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
         
-        $this->assertSame($builder, $builder->enableFullErrorReporting());
+        $this->assertSame($app, $app->enableFullErrorReporting());
         $this->assertEquals(-1, error_reporting());
+
+        return $app;
     }
 
     /**
      * This is a simple wrapper so there is no need for extensive testing
      *
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends enableFullErrorReporting
+     * @return  AppKernel
      */
-    public function setErrorReporting(ApplicationBuilder $builder)
+    public function setErrorReporting(AppKernel $app)
     {
         $this->assertEquals(-1, error_reporting(0));
         $this->assertEquals(0, error_reporting());
         
         $level = E_ERROR;
-        $this->assertSame($builder, $builder->setErrorReporting($level));
+        $this->assertSame($app, $app->setErrorReporting($level));
         $this->assertEquals($level, error_reporting());
 
         $level = E_PARSE;
-        $this->assertSame($builder, $builder->setErrorReporting($level));
+        $this->assertSame($app, $app->setErrorReporting($level));
         $this->assertEquals($level, error_reporting());
+    
+        return $app;
     }
 
     /**
-     * 
+     * @test
      * @dataProvider    provideInvalidInts
-     * @depends         creatingApplicationBuilder
+     * @depends         setErrorReporting
      */
     public function setErrorReportingFailure($badLevel)
     {
         $msg = 'error level must be an int';
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $builder = $this->createApplicationBuilder(__DIR__, 'production');
-        $builder->setErrorReporting($badLevel);
+        
+        $root = '/my/root';
+        $env = 'prod';
+        $app = $this->createAppKernel($root, $env);
+        $app->setErrorReporting($badLevel);
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test 
+     * @depends creatingAppKernelWithDebugging
+     * @return  AppKernel
      */
-    public function applicationDebugging(ApplicationBuilder $builder)
+    public function applicationDebugging(AppKernel $app)
     {
-        $this->assertFalse($builder->isDebuggingEnabled());
+        $this->assertTrue($app->isDebuggingEnabled());
         
-        $this->assertSame($builder, $builder->enableDebugging());
-        $this->assertTrue($builder->isDebuggingEnabled());
+        $this->assertSame($app, $app->disableDebugging());
+        $this->assertFalse($app->isDebuggingEnabled());
         
-        $this->assertSame($builder, $builder->disableDebugging());
-        $this->assertFalse($builder->isDebuggingEnabled());
-
-        return $builder;
+        $this->assertSame($app, $app->enableDebugging());
+        $this->assertTrue($app->isDebuggingEnabled());
+        
+        return $app;
     }
 
     /**
-     *     
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends applicationDebugging
+     * @return  AppKernel
      */
-    public function creatingPathCollectionJustRoot(ApplicationBuilder $builder)
+    public function creatingPathCollection(AppKernel $app)
     {
         $root = '/my/root';
-        $paths = $builder->createPathCollection($root);
+        $paths = $app->createPathCollection($root);
         $interface = $this->getPathCollectionInterface();
         $this->assertInstanceOf($interface, $paths);
-        $this->assertEquals($root, $paths->getRootPath());
+        $this->assertEquals($root, $paths->getRoot());
 
         $list = array('my-path' => 'some/path');
-        $paths = $builder->createPathCollection($root, $list);
+        $paths = $app->createPathCollection($root, $list);
         $this->assertInstanceOf($interface, $paths);
-        $this->assertTrue($paths->isPath('my-path'));
+        $this->assertTrue($paths->exists('my-path'));
         
-        return $builder;
+        return $app;
     }
 
     /**
-     *     
-     * @depends creatingPathCollectionJustRoot
-     * @return  ApplicationBuilder
+     * @test
+     * @depends creatingPathCollection
+     * @return  AppKernel
      */
-    public function pathCollection(ApplicationBuilder $builder)
+    public function pathCollection(AppKernel $app)
     {
-        $this->assertNull($builder->getPathCollection());
-        $this->assertFalse($builder->isPathCollection());
+        $backup = $app->getPathCollection();
 
         $interface = $this->getPathCollectionInterface();
         $paths = $this->getMock($interface);
-        $this->assertSame($builder, $builder->setPathCollection($paths));
-        $this->assertTrue($builder->isPathCollection());
-        $this->assertSame($paths, $builder->getPathCollection());
+        $this->assertSame($app, $app->setPathCollection($paths));
+        $this->assertSame($paths, $app->getPathCollection());
  
-        return $builder;
+        $app->setPathCollection($backup);
+        return $app;
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
+     * @test
+     * @depends pathCollection
+     * @return  AppKernel
      */
-    public function loadStandardAppfuelPaths()
+    public function fileHandler(AppKernel $app)
     {
-        $builder = $this->createApplicationBuilder('dev');
-        $this->assertNull($builder->getPathCollection());
+        $backup = $app->getFileHandler();
 
-        $root = '/my/path';
-        $this->assertSame($builder, $builder->loadStandardPaths($root));
-        $paths = $builder->getPathCollection();
-        
-        $interface = $this->getPathCollectionInterface();
-        $this->assertInstanceOf($interface, $paths);
-
-        $afpath = 'vendor/appfuel/appfuel';
-        $this->assertTrue($paths->isPath('appfuel'));
-        $this->assertEquals($afpath, $paths->getRelativePath('appfuel'));
-        $this->assertEquals("$root/$afpath", $paths->getPath('appfuel'));
-
-        $expected = "$afpath/src";
-        $this->assertTrue($paths->isPath('appfuel-src'));
-        $this->assertEquals($expected, $paths->getRelativePath('appfuel-src'));
-        $this->assertEquals("$root/$expected", $paths->getPath('appfuel-src'));
-
-        $expected = "$afpath/bin";
-        $this->assertTrue($paths->isPath('appfuel-bin'));
-        $this->assertEquals($expected, $paths->getRelativePath('appfuel-bin'));
-        $this->assertEquals("$root/$expected", $paths->getPath('appfuel-bin'));
-
- 
-        return $builder; 
-    }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
-     */
-    public function fileHandler(ApplicationBuilder $builder)
-    {
         $handler = $this->getMock($this->getFileHandlerInterface());
-        $this->assertNull($builder->getFileHandler());
-        $this->assertFalse($builder->isFileHandler());
-        $this->assertSame($builder, $builder->setFileHandler($handler));
-        $this->assertTrue($builder->isFileHandler());
-        $this->assertSame($handler, $builder->getFileHandler());
+        $this->assertSame($app, $app->setFileHandler($handler));
+        $this->assertSame($handler, $app->getFileHandler());
         
-        return $builder;
+        $app->setFileHandler($backup);
+        return $app;
     }
 
     /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
+     * @test
+     * @depends fileHandler
+     * @return  AppKernel
      */
-    public function createFileHandler(ApplicationBuilder $builder)
+    public function createFileHandler(AppKernel $app)
     {
-        $handler = $builder->createFileHandler();
+        $handler = $app->createFileHandler();
         $this->assertInstanceOf('Appfuel\\Filesystem\\FileHandler', $handler);
         $this->assertNull($handler->getRootPath());
 
         $root = '/my/root';
-        $handler = $builder->createFileHandler($root);
+        $handler = $app->createFileHandler($root);
         $this->assertInstanceOf('Appfuel\\Filesystem\\FileHandler', $handler);
         $this->assertEquals($root, $handler->getRootPath());
     }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     */
-    public function loadFileHandler()
-    {
-        $builder = $this->createApplicationBuilder('dev');
-        $paths = $this->getMock($this->getPathCollectionInterface());
-        $paths->expects($this->any())
-              ->method('getRootPath')
-              ->will($this->returnValue('/my/path'));
-
-        $builder->setPathCollection($paths);
-        
-        $this->assertSame($builder, $builder->loadFileHandler());
-        $this->assertTrue($builder->isFileHandler());
-        
-        $handler = $builder->getFileHandler();
-        $this->assertEquals($paths->getRootPath(), $handler->getRootPath());
-    }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     */
-    public function loadFileHandlerPathNotSetFailure()
-    {
-        $builder = $this->createApplicationBuilder('dev');
-        
-        $msg  = 'The path collection must be set before the file handler ';
-        $msg .= 'is loaded';
-        $this->setExpectedException('LogicException', $msg);
-
-        $builder->loadFileHandler();
-    }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     */
-    public function setFileHandlerWhenNotPathCollectionFailure()
-    {
-        $builder = $this->createApplicationBuilder('dev');
-        $handler = $this->getMock($this->getFileHandlerInterface());
-        $this->assertFalse($builder->isPathCollection());
-
-        $msg = 'The path collection must be set before the file handler';
-        $this->setExpectedException('LogicException', $msg);
-
-        $builder->setFileHandler($handler);
-    }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     */
-    public function setFileHandlerPathCollectionDifferentRootsFailure()
-    {
-        $builder = $this->createApplicationBuilder('dev');
-        $paths = $this->getMock($this->getPathCollectionInterface());
-        $paths->expects($this->once())
-              ->method('getRootPath')
-              ->will($this->returnValue('/my/path'));
-        
-        $builder->setPathCollection($paths);
-
-        $handler = $this->getMock($this->getFileHandlerInterface());
-        $handler->expects($this->once())
-                ->method('getRootPath')
-                ->will($this->returnValue('/your/path'));
- 
-        $this->assertTrue($builder->isPathCollection());
-
-        $msg  = 'The root path of the file handler and path collection must ';
-        $msg .= 'be the same';
-        $this->setExpectedException('LogicException', $msg);
-
-        $builder->setFileHandler($handler);
-    }
-
-
-
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
-     */
-    public function eventDispatcher(ApplicationBuilder $builder)
-    {
-        $dispatch = $this->getMock('Appfuel\\Kernel\\EventDispatcherInterface');
-        $this->assertNull($builder->getEventDispatcher());
-        $this->assertSame($builder, $builder->setEventDispatcher($dispatch));
-        $this->assertSame($dispatch, $builder->getEventDispatcher());
-        
-        return $builder;
-    }
-
-    /**
-     * 
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
-     */
-    public function DiManager(ApplicationBuilder $builder)
-    {   
-        $iface = 'Appfuel\\Kernel\\DependencyInjection\\DiManagerInterface';
-        $diManager = $this->getMock($iface);
-        $this->assertNull($builder->getDependencyInjectionManager());
-        $this->assertSame(
-            $builder,
-            $builder->setDependencyInjectionManager($diManager)
-        );
-        $this->assertSame(
-            $diManager, 
-            $builder->getDependencyInjectionManager()
-        );
-        
-        return $builder;
-    }
-
-    /**
-     * @depends creatingApplicationBuilder
-     * @return  ApplicationBuilder
-     */
-    public function appConfigSettings(ApplicationBuilder $builder)
-    {
-        $data = $this->getMock('Appfuel\\DataStructure\\ArrayDataInterface');
-        $this->assertNull($builder->getConfigSettings());
-        $this->assertFalse($builder->isConfigSettings());
-        $this->assertSame($builder, $builder->setConfigSettings($data));
-        $this->assertTrue($builder->isConfigSettings());
-        $this->assertSame($data, $builder->getConfigSettings());
-        
-        return $builder;
-    }
-
-    /**
-     * @depends appConfigSettings
-     * @return  ApplicationBuilder
-     */
-    public function loadConfigSettings()
-    {
-        $root = "{$this->getFixturePath()}/app-root";
-        $builder = $this->createApplicationBuilder('dev');
-        $builder->loadStandardPaths($root)
-                ->loadFileHandler();
-        
-       
-        $builder->loadConfigSettings();
-        $this->assertTrue($builder->isConfigSettings());
-
-        $settings = $builder->getConfigSettings();
-        $data = $settings->get('section-a');
-        $expected = array('a', 'b', 'c');
-        $this->assertEquals($expected, $data);
-
-        $extra = array('section-a' => array('b', 'd', 'e', 'f'));
-        
-        $builder->loadConfigSettings($extra);
-        $settings = $builder->getConfigSettings();
-        $data = $settings->get('section-a');
-        $this->assertEquals($extra['section-a'], $data);
-
-        return $builder;
-    }
-
-    /**
-     * @depends loadConfigSettings
-     * @return  ApplicationBuilder
-     */
-    public function loadConfigSettingsNoPaths()
-    {
-        $root = "{$this->getFixturePath()}/app-root";
-        $builder = $this->createApplicationBuilder('dev');
-    
-        $msg = 'The path collection must be set before settings are loaded';
-        $this->setExpectedException('LogicException', $msg);   
-        $builder->loadConfigSettings();
-    }
-
-    /**
-     * @depends loadConfigSettingsNoPaths
-     * @return  ApplicationBuilder
-     */
-    public function loadConfigSettingsNoFileHandler()
-    {
-        $root = "{$this->getFixturePath()}/app-root";
-        $builder = $this->createApplicationBuilder('dev');
-        $builder->loadStandardPaths($root);
-
-        $msg = 'The file handler must be set before settings are loaded';
-        $this->setExpectedException('LogicException', $msg);   
-        $builder->loadConfigSettings();
-    }
-
-    /**
-     * @depends appConfigSettings
-     * @return  ApplicationBuilder
-     */
-    public function loadConfigSettingsBadConfigFile()
-    {
-        $root = "{$this->getFixturePath()}/app-root";
-        $builder = $this->createApplicationBuilder('dev');
-        $builder->loadStandardPaths($root)
-                ->loadFileHandler();
-       
-        $badFile = 'app/cache/dev/bad-settings.php'; 
-        $paths = $builder->getPathCollection();
-        $paths->addPath('app-settings', $badFile);
-    
-        $msg  = 'settings -(app/cache/dev/bad-settings.php) must be a php ';
-        $msg .= 'file that returns an array';
-        $this->setExpectedException('LogicException', $msg);
-
-        $builder->loadConfigSettings();
-    }
-
-
 }
