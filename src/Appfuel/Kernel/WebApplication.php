@@ -10,7 +10,7 @@ use InvalidArgumentException;
 
 /**
  */
-class WebApplication extends AppKernel implements WebApplicationInterface
+class WebApplication extends AppKernel implements WebInterface
 {
     /**
      * @return  HttpRequestInterface

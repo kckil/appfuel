@@ -8,7 +8,7 @@ namespace Appfuel\Kernel;
 
 use Appfuel\Console\ConsoleInputInterface;
 
-interface ConsoleInterface extends ApplicationInterface
+interface ConsoleInterface extends AppKernelInterface
 {
     /**
      * @return  ConsoleInterface

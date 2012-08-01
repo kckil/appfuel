@@ -33,6 +33,22 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
     /**
      * @return  string
      */
+    public function getPathCollectionInterface()
+    {
+        return 'Appfuel\\Filesystem\\PathCollectionInterface';
+    }
+
+    /**
+     * @return  string
+     */
+    public function getFileHandlerInterface()
+    {
+        return 'Appfuel\\Filesystem\\FileHandlerInterface';
+    }
+
+    /**
+     * @return  string
+     */
     public function getArrayDataInterface()
     {
         return 'Appfuel\\DataStructure\\ArrayDataInterface';

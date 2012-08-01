@@ -6,7 +6,7 @@
  */
 use Appfuel\Console\ArgParser,
     Appfuel\Console\ConsoleInput,
-    Appfuel\Kernel\ApplicationBuilder;
+    Appfuel\Kernel\ConsoleApplication;
 
 if (PHP_SAPI !== 'cli') {
     throw new Exception("this script is intented to be run in the console");
@@ -40,10 +40,6 @@ else if (! ($env = getenv('AF_ENV'))) {
 }
 
 
-$builder = new ApplicationBuilder($env, $root);
-$console = $builder->showErrors()
-                   ->enableFullErrorReporting()
-                   ->registerAppfuelFaultHandler()
-                   ->buildForConsole($input);
-
+$console = new ConsoleApplication($root, $env, true);
+$console->setInput($input);
 return $console;

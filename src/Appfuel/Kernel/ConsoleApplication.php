@@ -9,7 +9,7 @@ namespace Appfuel\Kernel;
 use DomainException,
     Appfuel\Console\ConsoleInputInterface;
 
-class ConsoleApplication extends Application implements ConsoleInterface
+class ConsoleApplication extends AppKernel implements ConsoleInterface
 {
     /**
      * @var ConsoleInputInterface
