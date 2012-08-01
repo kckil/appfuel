@@ -6,11 +6,11 @@
  * See LICENSE file at project root for details.
  */
 use Appfuel\Filesystem\FileHandler,
-    Appfuel\Kernel\Cache\CodeCacheLoader;
+    Appfuel\Kernel\Cache\CacheHandler;
 
 $console = require __DIR__ . '/cli-header.php';
-echo "\n", print_r($console,1), "\n";exit;
-$cache = new CodeCacheLoader(new FileHandler());
+$fileHandler = $console->getFileHandler();
+echo "\n", print_r($fileHandler,1), "\n";exit;
 
 $path = $input->getFirstArg();
 if (! $path) {

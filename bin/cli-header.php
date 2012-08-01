@@ -40,12 +40,10 @@ else if (! ($env = getenv('AF_ENV'))) {
 }
 
 
-$builder = new ApplicationBuilder($env);
-$console = $builder->loadStandardPaths($root)
-                   ->showErrors()
+$builder = new ApplicationBuilder($env, $root);
+$console = $builder->showErrors()
                    ->enableFullErrorReporting()
                    ->registerAppfuelFaultHandler()
-                   ->loadFileHandler()
                    ->buildForConsole($input);
 
 return $console;

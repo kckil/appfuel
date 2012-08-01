@@ -11,6 +11,9 @@ use LogicException,
     InvalidArgumentException,
     Appfuel\Console\ConsoleInputInterface,
     Appfuel\Filesystem\FileHandler,
+    Appfuel\Filesystem\PathFinder,
+    Appfuel\Filesystem\PathCollection,
+    Appfuel\Filesystem\PathCollectionInterface,
     Appfuel\Filesystem\FileHandlerInterface,
     Appfuel\DataStructure\ArrayData,
     Appfuel\DataStructure\ArrayDataInterface,
@@ -22,17 +25,11 @@ use LogicException,
 class ApplicationBuilder implements ApplicationBuilderInterface
 {
     /**
-     * Decouples application paths from the classes that need them
-     * @var PathCollectionInterface
-     */
-    protected $pathCollection = null;
-
-    /**
      * Name of the environment this kernel is running in
      * @var string
      */
     protected $env = null;
-
+    
     /**
      * @var bool
      */
@@ -60,18 +57,12 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     protected $routeManager = null;
 
     /**
-     * List of application configuration settings
-     * @var ArrayDataInterface
-     */
-    protected $settings = null;
- 
-    /**
      * @param   string  $root
      * @param   string  $env
      * @param   FileHandlerInterface $fileHandler
      * @return  Application
      */
-    public function __construct($env)
+    public function __construct($env, $root, array $paths = array())
     {
         if (! is_string($env) || empty($env)) {
             $err = "environment name must be a non empty string";
@@ -79,6 +70,8 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         }
 
         $this->env = $env;
+
+        $this->loadFileHandler($root, $paths);
     }
 
     /**
@@ -88,31 +81,45 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     {
         return $this->env;
     }
-
-    /**
-     * @return  string
-     */
-    public function getPathCollection()
+    
+    public function getDefaultPaths()
     {
-        return $this->pathCollection;
+        $env = $this->getEnv();
+        $vendor = 'vendor/appfuel/appfuel';
+        return array(
+            'www'                => 'www',
+            'bin'                => 'bin',
+            'src'                => 'src',
+            'app'                => 'app',
+            'vendor'             => 'vendor',
+            'cache-dir'          => 'app/cache',
+            'config-dir'         => 'app/config',
+            'framework-cache'    => 'app/cache/framework.cache.php',
+            'container-cache'    => "app/cache/{$env}/container.cache.php",
+            'app-settings'       => "app/config/settings-{$env}.yml",
+            'app-settings-cache' => "app/cache/{$env}/app-settings.cache.php",
+            'appfuel-src'        => "$vendor/src",
+            'appfuel-bin'        => "$vendor/bin",
+            
+        );
     }
 
     /**
-     * @param   PathCollectionInterface $collection
+     * @param   string  $root
+     * @param   array   $paths
      * @return  ApplicationBuilder
      */
-    public function setPathCollection(PathCollectionInterface $collection)
+    public function loadFileHandler($root, array $list = null)
     {
-        $this->pathCollection = $collection;
+        $paths = $this->getDefaultPaths();
+        if (null != $list) {
+            $paths = array_merge($paths, $list);
+        }
+        $collection = $this->createPathCollection($root, $paths);
+        $finder = $this->createPathFinder($collection);
+        $this->setFileHandler($this->createFileHandler($finder));
+        
         return $this;
-    }
-
-    /**
-     * @return  bool
-     */
-    public function isPathCollection()
-    {
-        return $this->pathCollection instanceOf PathCollectionInterface;
     }
 
     /**
@@ -125,24 +132,12 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     }
 
     /**
-     * @param   string  $root   absolute path to the root of the app
-     * @return  ApplicationBuilder
+     * @param   PathCollectionInterface $paths
+     * @return  PathFinder
      */
-    public function loadStandardPaths($root)
+    public function createPathFinder(PathCollectionInterface $paths)
     {
-        $env = $this->getEnv();
-        $vendor = 'vendor/appfuel/appfuel';
-        $settings = "app/cache/$env/app-settings.php";
-        $list = array(
-            'appfuel'       => $vendor,
-            'appfuel-src'   => "$vendor/src",
-            'appfuel-bin'   => "$vendor/bin",
-            'app-settings'  => $settings
-        );
-        $collection = $this->createPathCollection($root, $list);
-        $this->setPathCollection($collection);
-
-        return $this;
+        return new PathFinder($paths);
     }
 
     /**
@@ -268,18 +263,6 @@ class ApplicationBuilder implements ApplicationBuilderInterface
      */
     public function setFileHandler(FileHandlerInterface $fileHandler)
     {
-        if (! $this->isPathCollection()) {
-            $err = 'The path collection must be set before the file handler';
-            throw new LogicException($err);
-        }
-
-        $paths = $this->getPathCollection();
-        if ($paths->getRootPath() !== $fileHandler->getRootPath()) {
-            $err  = 'The root path of the file handler and path collection ';
-            $err .= 'must be the same';
-            throw new LogicException($err);
-        }
-
         $this->fileHandler = $fileHandler;
         return $this;
     }
@@ -299,24 +282,6 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     public function createFileHandler($rootPath = null)
     {
         return new FileHandler($rootPath);
-    }
-
-    /**
-     * @return  ApplicationBuilder
-     */
-    public function loadFileHandler()
-    {
-        if (! $this->isPathCollection()) {
-            $err  = 'The path collection must be set before the file handler ';
-            $err .= 'is loaded';
-            throw new LogicException($err);
-        }
-        $paths = $this->getPathCollection();
-
-        $fileHandler = $this->createFileHandler($paths->getRootPath());
-        $this->setFileHandler($fileHandler);
-
-        return $this;
     }
 
     /**
@@ -356,91 +321,24 @@ class ApplicationBuilder implements ApplicationBuilderInterface
     }
 
     /**
-     * @return  ArrayDataInterface
-     */
-    public function getConfigSettings()
-    {
-        return $this->settings;
-    }
-
-    /**
-     * @param   ArrayDataInterface  $data
-     * @return  ApplicationBuilder
-     */
-    public function setConfigSettings(ArrayDataInterface $data)
-    {
-        $this->settings = $data;
-        return $this;
-    }
-
-    /**
-     * @return  bool
-     */
-    public function isConfigSettings()
-    {
-        return $this->settings instanceof ArrayDataInterface;
-    }
-
-    /**
-     * Appfuel builds a settings file based on configuration yml files during
-     * the build process. Here we load that file into memory making sure it
-     * is an array and used it as the application settings.
-     *
-     * @return  ApplicationBuilder
-     */
-    public function loadConfigSettings(array $extra = null)
-    {
-        if (! $this->isPathCollection()) {
-            $err = "The path collection must be set before settings are loaded";
-            throw new LogicException($err);
-        }
-        $paths = $this->getPathCollection();
-
-        if (! $this->isFileHandler()) {
-            $err = "The file handler must be set before settings are loaded";
-            throw new LogicException($err);
-        }
-        $handler = $this->getFileHandler();
-
-        $file = $paths->getRelativePath('app-settings');
-        $data = $handler->importScript($file);
-        if (! is_array($data)) {
-            $err = "settings -($file) must be a php file that returns an array";
-            throw new LogicException($err);
-        }
-
-        if (null !== $extra) {
-            $data = array_replace_recursive($data, $extra);
-        }
-
-        $this->setConfigSettings(new ArrayData($data));
-        return $this;
-    }
-
-    /**
      * @return  Application
      */
     public function build($type)
     {
-        if (! $this->isPathCollection()) {
-            throw new DomainException("can not build path collection required");
+        if (! $this->isFileHandler()) {
+            throw new DomainException("file handler is required");
         }
-        $paths = $this->getPathCollection();
-        $env = $this->getEnv();
-        $debug = $this->isDebuggingEnabled();
         
+        $env = $this->getEnv();
+        $debug = $this->isDebuggingEnabled();  
+        $handler = $this->getFileHandler(); 
         if ('web' === $type) {
-            $app = $this->createWebApp($env, $paths, $debug);
+            $app = $this->createWebApp($env, $handler, $debug);
         }
         else {
-            $app = $this->createConsoleApp($env, $paths, $debug);
+            $app = $this->createConsoleApp($env, $handler, $debug);
         }
 
-        if (! $this->isFileHandler()) {
-            $this->loadFileHandler();
-        }
-        $app->setFileHandler($this->getFileHandler());
-        
         return $app;
     }
 
@@ -456,21 +354,25 @@ class ApplicationBuilder implements ApplicationBuilderInterface
         return $console; 
     }
 
-    protected function createWebApp($env, PathCollectionInterface $p, $debug)
+    /**
+     * @param   string  $env
+     * @param   FileHandlerInterface $p
+     * @param   bool    $debug
+     * @return  ConsoleApplication
+     */
+    protected function createWebApp($env, FileHandlerInterface $f, $debug)
     {
-        return new Application($env, $p, $debug);
+        return new Application($env, $f, $debug);
     }
 
     /**
      * @param   string  $env
-     * @param   PathCollectionInterface $p
+     * @param   FileHandlerInterface $p
      * @param   bool    $debug
      * @return  ConsoleApplication
      */
-    protected function createConsoleApp($env,PathCollectionInterface $p,$debug)
+    protected function createConsoleApp($env, FileHandlerInterface $f, $debug)
     {
-        return new ConsoleApplication($env, $p, $debug);
+        return new ConsoleApplication($env, $f, $debug);
     }
-
-
 }

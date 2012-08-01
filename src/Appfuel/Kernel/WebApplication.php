@@ -10,13 +10,21 @@ use InvalidArgumentException;
 
 /**
  */
-class WebApplication extends Application implements WebApplicationInterface
+class WebApplication extends AppKernel implements WebApplicationInterface
 {
+    /**
+     * @return  HttpRequestInterface
+     */
+    public function createStandardWebRequest()
+    {
+
+    }
+
     /**
      * @param   array   $list
      * @return  AppInitializer
      */
-    public function restrictWebAccessTo(array $list, $msg)
+    public function restrictAccessTo(array $list, $msg)
     {
         foreach ($list as $ip) {
             if (! is_string($ip) || empty($ip)) {

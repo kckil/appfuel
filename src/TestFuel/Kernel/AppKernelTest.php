@@ -7,10 +7,10 @@
 namespace Testfuel\Kernel;
 
 use StdClass,
-    Testfuel\FrameworkTestCase,
-    Appfuel\Kernel\ApplicationBuilder;
+    Appfuel\Kernel\AppKernel,
+    Testfuel\FrameworkTestCase;
 
-class ApplicationBuilderTest extends FrameworkTestCase 
+class AppKernelTest extends FrameworkTestCase 
 {
 
     /**
@@ -53,29 +53,30 @@ class ApplicationBuilderTest extends FrameworkTestCase
      * @param   string  $evn    name of env app is running in
      * @return  ApplicationBuilder
      */
-    public function createApplicationBuilder($env)
+    public function createAppKernel($root, $env, $debug = null, $list = null)
     {
-        return new ApplicationBuilder($env);
+        return new AppKernel($root, $env, $debug, $list);
     }
     
     /**
      * @test
      * @return  ApplicationBuilder
      */
-    public function creatingApplicationBuilder()
+    public function creatingAppKernelWithDebugging()
     {
+        $root = '/my/root/path';
         $env  = 'dev';
-        $builder = $this->createApplicationBuilder($env);
+        $isDebug = true;
+        $app = $this->createAppKernel($root, $env, $isDebug);
+        $interface = 'Appfuel\\Kernel\\AppKernelInterface';
+        $this->assertInstanceOf($interface, $app);
+        $this->assertEquals($env, $app->getEnv());
 
-        $interface = 'Appfuel\\Kernel\\ApplicationBuilderInterface';
-        $this->assertInstanceOf($interface, $builder);
-        $this->assertEquals($env, $builder->getEnv());
-
-        return $builder;
+        return $app;
     }
 
     /**
-     * @test
+     * 
      * @depends         creatingApplicationBuilder
      * @dataProvider    provideInvalidStringsIncludeEmpty
      */
@@ -88,7 +89,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
     
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -102,7 +103,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -115,7 +116,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -127,7 +128,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -143,7 +144,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     /**
      * This is a simple wrapper so there is no need for extensive testing
      *
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -162,7 +163,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @dataProvider    provideInvalidInts
      * @depends         creatingApplicationBuilder
      */
@@ -175,7 +176,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -193,7 +194,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test    
+     *     
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -214,7 +215,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test    
+     *     
      * @depends creatingPathCollectionJustRoot
      * @return  ApplicationBuilder
      */
@@ -233,7 +234,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      */
     public function loadStandardAppfuelPaths()
@@ -268,7 +269,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -285,7 +286,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -302,7 +303,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      */
     public function loadFileHandler()
@@ -323,7 +324,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      */
     public function loadFileHandlerPathNotSetFailure()
@@ -338,7 +339,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      */
     public function setFileHandlerWhenNotPathCollectionFailure()
@@ -354,7 +355,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      */
     public function setFileHandlerPathCollectionDifferentRootsFailure()
@@ -385,7 +386,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
 
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */
@@ -400,7 +401,7 @@ class ApplicationBuilderTest extends FrameworkTestCase
     }
 
     /**
-     * @test
+     * 
      * @depends creatingApplicationBuilder
      * @return  ApplicationBuilder
      */

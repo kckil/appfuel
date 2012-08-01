@@ -28,20 +28,9 @@ interface ApplicationInterface
     public function isDebuggingEnabled();
 
     /**
-     * @return  string
-     */
-    public function getPathCollection();
-
-    /**
      * @return  FileHandlerInterface
      */
     public function getFileHandler();
-
-    /**
-     * @param   FileHandlerInterface    $fileHandler
-     * @return  ApplicationInterface
-     */
-    public function setFileHandler(FileHandlerInterface $fileHandler);
 
     /**
      * @return  FileHandlerInterface
