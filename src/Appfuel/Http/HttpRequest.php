@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Http;
 
-use DomainException,    
+use LogicException,
+    DomainException,    
     InvalidArgumentException,
     Appfuel\DataStructure\ArrayData;
 
@@ -29,6 +30,12 @@ class HttpRequest implements HttpRequestInterface
      * @var array
      */
     protected $server = array();
+
+    /**
+     * Http method used to make the request. This is always lower-case
+     * @var string
+     */
+    protected $method = null;
 
     /**
      * @var   string
@@ -73,9 +80,13 @@ class HttpRequest implements HttpRequestInterface
      * @return  string 
      */ 
     public function getMethod() 
-    { 
-        if ($this->exists('HTTP_X_HTTP_METHOD_OVERRIDE')) { 
-            $method = $this->get('HTTP_X_HTTP_METHOD_OVERRIDE'); 
+    {
+        if (null !== $this->method) {
+            return $this->method;
+        }
+
+        if ($this->exists('X-HTTP-METHOD-OVERRIDE')) { 
+            $method = $this->get('X-HTTP-METHOD-OVERRIDE'); 
         } 
         else if ($this->exists('REQUEST_METHOD')) { 
             $method = $this->get('REQUEST_METHOD'); 
@@ -84,8 +95,15 @@ class HttpRequest implements HttpRequestInterface
             $err = 'http request method was not set'; 
             throw new LogicException($err); 
         } 
- 
-        return $method;  
+
+        if (! is_string($method) || empty($method)) {
+            $err = 'http reqest method must be a non empty string';
+            throw new LogicException($err);
+        }
+
+        $this->method = strtoupper($method);
+
+        return $this->method;  
     }
 
     /**
@@ -96,19 +114,104 @@ class HttpRequest implements HttpRequestInterface
         $isHttps = false;
         if ($this->exists('HTTPS')) {
             $value = strtolower($this->get('HTTPS'));
-            if ('on' === $value || 1 === $value) {
+            if ('on' === $value || 1 == $value) {
                 $isHttps = true;
             }
+            
+            return $isHttps;
         }
         
-        if ($this->exists('SSL_HTTPS')) {
+        if (self::isProxyTrusted() && $this->exists('SSL_HTTPS')) {
             $value = strtolower($this->get('SSL_HTTPS'));
-            if ('on' === $value || 1 === $value) {
+            if ('on' === $value || 1 == $value) {
                 $isHttps = true;
             }
         }
 
         return $isHttps;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getScheme()
+    {
+        return $this->isSecure() ? 'https' : 'http';
+    }
+
+    /**
+     * @return  string
+     */
+    public function getPort()
+    {
+        if (self::isProxyTrusted() && $this->exists('X-Forwarded-Port')) {
+            return $this->get('X-Forwarded-Port');
+        }
+
+        return $this->get('SERVER_PORT');
+    }
+
+    /**
+     * @return  string|null
+     */
+    public function getUser()
+    {
+        return $this->get('PHP_AUTH_USER');
+    }
+
+    /**
+     * @return  string|null
+     */
+    public function getPassword()
+    {
+        return $this->get('PHP_AUTH_PW');
+    }
+    
+    /**
+     * @return  string
+     */
+    public function getHost()
+    {
+        if (self::isProxyTrusted() && $host = $this->getForwardedHost()) {
+            $items = explode(',', $host);
+            $host  = trim($items[count($items) -1]);
+        }
+        else {
+            if (! $host = $this->get('HTTP_HOST')) {
+                if (! $host = $this->get('SERVER_NAME')) {
+                    $host = $this->get('SERVER_ADDR', '');
+                }
+            }
+        }
+
+        // remove port number from host
+        $host = preg_replace('/:\d+$/', '', $host);
+
+        return trim(strtolower($host));
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isForwarded()
+    {
+        return $this->exists('HTTP_X_FORWARDED_HOST');
+    }
+
+    /**
+     * @return  string | null
+     */
+    public function getForwardedHost()
+    {
+        return $this->get('HTTP_X_FORWARDED_HOST');
+    }
+
+    /**
+     * @return  string
+     */
+    public function getScriptName()
+    {
+        return $this->get('SCRIPT_NAME');
     }
 
     /**
