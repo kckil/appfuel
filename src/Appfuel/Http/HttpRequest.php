@@ -10,169 +10,149 @@ use DomainException,
     InvalidArgumentException,
     Appfuel\DataStructure\ArrayData;
 
+/**
+ * This class was dervived from code of Symfony 2 
+ * 
+ * Code is subject to MIT license
+ * http://http://symfony.com/doc/current/contributing/code/license.html
+ * Copyright (c) 2004-2012 Fabien Potencier
+ */
 class HttpRequest implements HttpRequestInterface
 {
     /**
-     * User input parameters separated by parameter type.
-     * @var array
-     */
-    protected $params = array();
-
-    /**
-     * Method used for this request get, post, put, delete or cli
      * @var string
      */
-    protected $method = null;
+    protected static $isProxyTrusted = false;
 
     /**
-     * @var ValidationHandlerInterface
+     * List of variables form the $_SERVER super global
+     * @var array
      */
-    protected $handler = null;
+    protected $server = array();
 
     /**
-     * @param   string  $method    
+     * @var   string
+     */
+    protected $requestUri = null;
+    
+    /**
      * @param   array   $params
-     * @return  HttpInput
+     * @return  HttpRequest
      */
-    public function __construct($method, array $params = array())
+    public function __construct(array $params)
     {
-        $this->setMethod($method);
-        $this->setParams($params);
+        $this->server = $params;
     }
 
     /**
-     * @return string
+     * @return null
      */
-    public function getMethod()
+    public static function markProxyAsTrusted()
     {
-        return $this->method;
-    }
-   
-    /**
-     * @return bool
-     */
-    public function isPost()
-    {
-        return 'post' === $this->method;
+        self::$isProxyTrusted = true;
     }
 
     /**
-     * @return string
+     * @return  null
      */
-    public function isGet()
+    public static function markProxyAsUnsafe()
     {
-        return 'get' === $this->method;
+        self::$isProxyTrusted = false;
     }
 
     /**
      * @return  bool
      */
-    public function isPut()
+    public static function isProxyTrusted()
     {
-        return 'put' === $this->method;
+        return self::$isProxyTrusted;
+    }
+
+    /** 
+     * @throws  LogicException 
+     * @return  string 
+     */ 
+    public function getMethod() 
+    { 
+        if ($this->exists('HTTP_X_HTTP_METHOD_OVERRIDE')) { 
+            $method = $this->get('HTTP_X_HTTP_METHOD_OVERRIDE'); 
+        } 
+        else if ($this->exists('REQUEST_METHOD')) { 
+            $method = $this->get('REQUEST_METHOD'); 
+        } 
+        else { 
+            $err = 'http request method was not set'; 
+            throw new LogicException($err); 
+        } 
+ 
+        return $method;  
     }
 
     /**
      * @return  bool
      */
-    public function isDelete()
+    public function isSecure()
     {
-        return 'delete' === $this->method;
+        $isHttps = false;
+        if ($this->exists('HTTPS')) {
+            $value = strtolower($this->get('HTTPS'));
+            if ('on' === $value || 1 === $value) {
+                $isHttps = true;
+            }
+        }
+        
+        if ($this->exists('SSL_HTTPS')) {
+            $value = strtolower($this->get('SSL_HTTPS'));
+            if ('on' === $value || 1 === $value) {
+                $isHttps = true;
+            }
+        }
+
+        return $isHttps;
     }
 
     /**
-     * @param   string  $key 
+     * @return  array
+     */
+    public function getAll()
+    {
+        return $this->server;
+    }
+
+    /**
+     * @param   string  $key
      * @param   mixed   $default
      * @return  mixed
      */
-    public function getParam($key, $default = null)
+    public function get($key, $default = null)
     {
-        return $this->get($this->getMethod(), $key, $default);
-    }
-
-    /**
-     * The params member is a general array that holds any or all of the
-     * parameters for this request. This method will search on a particular
-     * parameter and return its value if it exists or return the given default
-     * if it does not
-     *
-     * @param   string  $key        used to find the label
-     * @param   string  $type       type of parameter get, post, cookie etc
-     * @param   mixed   $default    value returned when key is not found
-     * @return  mixed
-     */
-    public function get($type, $key, $default = null)
-    {
-        if (! is_string($type) || empty($type)) {
-            return $default;
-        }
-        $type = strtolower($type);
-
-        if (! is_string($key) || empty($key)) {
-            return $default;
-        }
-
-        if (! array_key_exists($key, $this->params[$type])) {
-            return $default;
-        }
-
-        return $this->params[$type][$key];
-    }
-
-    /**
-     * Used to collect serval parameters based on an array of keys.
-     * 
-     * @param   array   $type   type of parameter stored
-     * @param   array   $key    which request type get, post, argv etc..
-     * @param   array   $isArray 
-     * @return  ArrayData
-     */
-    public function collect($type, array $keys, $isArray = false) 
-    {
-        $result = array();
-        $notFound = '__AF_KEY_NOT_FOUND__';
-        foreach ($keys as $key) {
-            $value = $this->get($type, $key, $notFound);
-
-            /* 
-             * null or false could be accepted values and we need to
-             * know when default comes back as true not not found vs 
-             * the real value and default being the same
-             */
-            if ($value === $notFound) {
-                continue;
-            }
-            $result[$key] = $value;
-        }
-
-        if (true === $isArray) {
-            return $result;
-        }
-
-        return new ArrayData($result);
-    }
-
-    /**
-     * @param   string  $type
-     * @return  array
-     */
-    public function getAll($type = null)
-    {
-        if (null === $type) {
-            return $this->params;
-        }
-
-        if (! is_string($type)) {
-            $err = "param type -(http method) must be a string";
+         if (! is_string($key) || empty($key)) {
+            $err = "server key must be a non empty string";
             throw new InvalidArgumentException($err);
         }
 
-        if (! isset($this->params[$type])) {
-            return false;
+
+        if (! array_key_exists($key, $this->server)) {
+            return $default;
         }
 
-        return $this->params[$type];
+        return $this->server[$key];
     }
+
+    /**
+     * @param   string  $key
+     * @return  bool
+     */
+    public function exists($key)
+    {
+         if (! is_string($key) || empty($key)) {
+            $err = "server key must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        return array_key_exists($key, $this->server);      
+    }
+
 
     /**
      * Check for the direct ip address of the client machine, try for the 
@@ -181,29 +161,36 @@ class HttpRequest implements HttpRequestInterface
      * 
      * @return    int
      */
-    public function getIp($isInt = true)
+    public function getClientIp($isInt = false)
     {
-        $client  = 'HTTP_CLIENT_IP';
-        $forward = 'HTTP_X_FORWARDED_FOR';
-        $remote  = 'REMOTE_ADDR'; 
-        if (isset($_SERVER[$client]) && is_string($_SERVER[$client])) {
-            $ip = $_SERVER[$client];
-        }
-        else if (isset($_SERVER[$forward]) && is_string($_SERVER[$forward])) {
-            $ip = $_SERVER[$forward];
-        }
-        else if (isset($_SERVER[$remote]) && is_string($_SERVER[$remote])) {
-            $ip = $_SERVER[$remote];
+        $ip = false;
+        if (self::isProxyTrusted()) {
+            if ($this->exists('HTTP_CLIENT_IP')) {
+                $ip = $this->get('HTTP_CLIENT_IP');
+            }
+            else if ($this->exists('HTTP_X_FORWARDED_FOR')) {
+                $clientList = explode(',', $this->get('HTTP_X_FORWARDED_FOR'));
+
+                foreach ($clientList as $data) {
+                    $ipAddress = trim($data);
+                    if (false !== filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+                        $ip = $ipAddress;
+                        break;
+                    }
+                }
+            }
+            else if ($this->exists('REMOTE_ADDR')) {
+                $ip = $this->get('REMOTE_ADDR');
+            }
         }
         else {
-            $ip = false;
+            $ip = $this->get('REMOTE_ADDR');
         }
 
         if (false === $ip) {
             return false;
         }
 
-        $isInt = ($isInt === false) ? false : true;
         $format = "%s";
         if (true === $isInt) {
             $format = "%u";
@@ -211,45 +198,5 @@ class HttpRequest implements HttpRequestInterface
         }
 
         return sprintf($format, $ip);
-    }
-
-    /**
-     * @param    string    $method
-     * @return    null
-     */
-    protected function setMethod($method)
-    {
-        if (! is_string($method) || empty($method)) {
-            $err = "input method must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
-
-        $this->method = strtolower($method);
-    }
-
-    /**
-     * @param    array    $params
-     * @return    null
-     */
-    protected function setParams(array $params)
-    {
-        $result = array();
-        foreach ($params as $type => $data) {
-            if (! is_string($type) || empty($type)) {
-                $err = "param type must be a non empty string";
-                throw new DomainException($err);
-            }
-
-            if (! is_array($data)) {
-                $datatype = gettype($data);
-                $err = "data for -($type) must be an array: -($datatype) given";
-                throw new DomainException($err);
-            }
-
-            $type = strtolower($type);
-            $result[$type] = $data;
-        }
-
-        $this->params = $result;
     }
 }

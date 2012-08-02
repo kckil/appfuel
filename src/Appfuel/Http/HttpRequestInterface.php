@@ -6,68 +6,29 @@
  */
 namespace Appfuel\Http;
 
+use DomainException,    
+    InvalidArgumentException,
+    Appfuel\DataStructure\ArrayData;
+
 interface HttpRequestInterface
 {
     /**
-     * @return string
+     * @return  array
      */
-    public function getMethod();
-   
+    public function getAll();
+    
     /**
-     * @return bool
-     */
-    public function isPost();
-
-    /**
-     * @return string
-     */
-    public function isGet();
-
-    /**
-     * @return  bool
-     */
-    public function isPut();
-
-    /**
-     * @return  bool
-     */
-    public function isDelete();
-
-    /**
-     * @param   string  $key 
+     * @param   string  $key
      * @param   mixed   $default
      * @return  mixed
      */
-    public function getParam($key, $default = null);
+    public function get($key, $default = null);
 
     /**
-     * The params member is a general array that holds any or all of the
-     * parameters for this request. This method will search on a particular
-     * parameter and return its value if it exists or return the given default
-     * if it does not
-     *
-     * @param   string  $key        used to find the label
-     * @param   string  $type       type of parameter get, post, cookie etc
-     * @param   mixed   $default    value returned when key is not found
-     * @return  mixed
+     * @param   string  $key
+     * @return  bool
      */
-    public function get($type, $key, $default = null);
-
-    /**
-     * Used to collect serval parameters based on an array of keys.
-     * 
-     * @param   array   $type   type of parameter stored
-     * @param   array   $key    which request type get, post, argv etc..
-     * @param   array   $isArray 
-     * @return  ArrayData
-     */
-    public function collect($type, array $keys, $isArray = false);
-
-    /**
-     * @param   string  $type
-     * @return  array
-     */
-    public function getAll($type = null);
+    public function exists($key);
 
     /**
      * Check for the direct ip address of the client machine, try for the 
@@ -76,5 +37,5 @@ interface HttpRequestInterface
      * 
      * @return    int
      */
-    public function getIp($isInt = true);
+    public function getClientIp($isInt = false);
 }

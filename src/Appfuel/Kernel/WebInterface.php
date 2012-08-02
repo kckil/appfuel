@@ -11,11 +11,6 @@ use InvalidArgumentException;
 interface WebInterface extends AppKernelInterface
 {
     /**
-     * @return  HttpRequestInterface
-     */
-    public function createStandardWebRequest();
-
-    /**
      * @param   array   $list
      * @return  AppInitializer
      */
