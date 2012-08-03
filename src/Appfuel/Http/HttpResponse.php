@@ -7,7 +7,8 @@
 namespace Appfuel\Http;
 
 
-use InvalidArgumentException;
+use DomainException,
+    InvalidArgumentException;
 
 /**
  * Manage http headers, protocol, and status. 
@@ -16,55 +17,57 @@ class HttpResponse implements HttpResponseInterface
 {
     /**
      * List of headers to be sent 
-     * @var headerListInterface
+     * @var HttpHeaderListInterface
      */
-    protected $headerList = null;
+    protected $headers = null;
 
     /**
      * Data to be sent in this response
      * @var string
      */
-    protected $content = null;
+    protected $content = '';
 
     /**
      * Http protocal being used
      * @var string
      */
-    protected $version = null;
+    protected $version = '1.0';
 
     /**
      * Holds the details of the http status
      * @var HttpStatusInterface
      */
-    protected $status = null;
+    protected $status = 200;
 
     /**
-     * @param   mixed   $data       content to be sent out
-     * @param   int     $status     status code of the response
-     * @param   array   $headers    list of header objects to be used
+     * @param   mixed   $data 
+     * @param   int     $status 
+     * @param   array|HttpHeaderListInterface   $headers 
      * @return  HttpResponse
      */
-    public function __construct($data = '',
-                                $status = 200,
-                                $version = '1.0',
-                                array $headers = null)
+    public function __construct($data = null, $status = null, $headers = null)
     {
-        $this->setContent($data);
+        if (null != $data) {
+            $this->setContent($data);
+        }
         
-        $headerList = new HttpHeaderList();
-        if (null !== $headers) {
-            $headerList->loadHeaders($headers);
+        if (null === $headers) {
+            $headers = new HttpHeaderList();
         }
-        $this->setHeaderList($headerList);
+        else if (is_array($headers)) {
+            $headers = new HttpHeaderList($headers);
+        }
+        else if (! $headers instanceof HeaderListInterface) {
+            $err  = 'header list must be an array or an object them implments ';
+            $err .= '-(Appfuel\\Http\\HttpHeaderListInterface)';
+            throw new DomainException($err);   
+        }
+        $this->setHeaderList($headers);
 
-        if (null === $version) {
-            $version = '1.1';
-        }
-        $this->setProtocolVersion($version);
-    
         if (null === $status) {
             $status = 200;
         }
+            
         $this->setStatus($status);
     }
 
@@ -73,7 +76,7 @@ class HttpResponse implements HttpResponseInterface
      */
     public function getHeaderList()
     {
-        return $this->headerList;
+        return $this->headers;
     }
 
     /**
@@ -82,7 +85,8 @@ class HttpResponse implements HttpResponseInterface
      */
     public function setHeaderList(HttpHeaderListInterface $list)
     {
-        $this->headerList = $list;
+        $this->headers = $list;
+        return $this;
     }
 
     /**
@@ -97,7 +101,7 @@ class HttpResponse implements HttpResponseInterface
             $type = gettype($data);
             $err  = "Http response content must be a string or an object ";
             $err .= "implementing __toString(). parameter type -($type)";
-            throw new InvalidArgumentException($err);
+            throw new DomainException($err);
         }
 
         $this->content = (string) $data;
@@ -132,6 +136,16 @@ class HttpResponse implements HttpResponseInterface
     public function getProtocolVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * @param   string  $version
+     * @return  null
+     */
+    public function setProtocolVersion($version)
+    {
+        $this->version = $version;
+        return $this;
     }
 
     /**
@@ -212,42 +226,6 @@ class HttpResponse implements HttpResponseInterface
         $this->getHeaderList()
              ->loadHeaders($headers);
 
-        return $this;
-    }
-
-    /**
-     * @param   string  $version
-     * @return  null
-     */
-    protected function setProtocolVersion($version)
-    {
-        $valid = array('1.0', '1.1');
-
-        if (is_int($version) || is_float($version)) {
-            $version =(string) $version;
-            if ('1' === $version) {
-                $version = '1.0';
-            }
-        }
-        
-        if (empty($version) || 
-            !is_string($version) || !in_array($version, $valid, true)) {
-            $type = gettype($version);
-            $err   = "Failed to instantiate HttpResponse: ";
-            $err  .= "Can not set http protocol version must be one of the ";
-            $err  .= "following strings '1.0' or '1.1' type given -($type) ";
-            throw new InvalidArgumentException($err);
-        }
-        $this->version = $version;
-    }
-
-    /**
-     * @param   HttpStatus  $status
-     * @return  HttpResponse
-     */
-    protected function updateStatusLineHeader()
-    {
-        $this->statusLine = new HttpHeaderField($statusLine);
         return $this;
     }
 }

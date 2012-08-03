@@ -23,6 +23,17 @@ class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
     protected $headers = array();
 
     /**
+     * @param   array   $list   
+     * @return  HttpHeaderList
+     */
+    public function __construct(array $list = null)
+    {
+        if (null !== $list) {
+            $this->loadHeaders($list);
+        }
+    }
+
+    /**
      * @return    int
      */
     public function count()

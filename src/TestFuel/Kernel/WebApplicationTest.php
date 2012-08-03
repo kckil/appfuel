@@ -18,9 +18,6 @@ class WebApplicationTest extends FrameworkTestCase
      */
     public function setUp()
     {
-        unset($_SERVER['REQUEST_METHOD']);
-        unset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
-
         ini_set('display_errors', '1');
         error_reporting(-1);
         restore_error_handler();
@@ -82,75 +79,4 @@ class WebApplicationTest extends FrameworkTestCase
 
         return $app;
     }
-
-    /**
-     * @test
-     * @depends creatingWebApplicationWithDebugging
-     * @return  WebApplication
-     */
-    public function gettingTheRequestMethodNormal(WebApplication $app)
-    {
-        $method = 'post';
-        $_SERVER['REQUEST_METHOD'] = $method;
-        $this->assertEquals($method, $app->getRequestMethod());
-
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $this->assertEquals('post', $app->getRequestMethod());
-        
-        $_SERVER['REQUEST_METHOD'] = 'PosT';
-        $this->assertEquals('post', $app->getRequestMethod());
-
-        return $app;
-    }
-
-    /**
-     * @test
-     * @depends gettingTheRequestMethodNormal
-     * @return  WebApplication
-     */
-    public function gettingTheRequestMethodXOverride(WebApplication $app)
-    {
-        $method = 'get';
-        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = $method;
-        $this->assertEquals($method, $app->getRequestMethod());
-
-        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'GET';
-        $this->assertEquals('get', $app->getRequestMethod());
-        
-        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'GeT';
-        $this->assertEquals('get', $app->getRequestMethod());
-
-        return $app;
-    }
-
-    /**
-     * @test
-     * @depends gettingTheRequestMethodXOverride
-     * @return  WebApplication
-     */
-    public function gettingTheRequestMethodBoth(WebApplication $app)
-    {
-        $_SERVER['REQUEST_METHOD'] = 'post';
-        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'get';
-        
-        $this->assertEquals('get', $app->getRequestMethod());
-
-        return $app;
-    }
-
-    /**
-     * @test
-     * @depends gettingTheRequestMethodBoth
-     * @return  null
-     */
-    public function gettingTheRequestMethodNone(WebApplication $app)
-    {
-        $msg = 'http request method was not set';
-        $this->setExpectedException('LogicException', $msg);
-
-        $result = $app->getRequestMethod();
-    }
-
-
-
 }

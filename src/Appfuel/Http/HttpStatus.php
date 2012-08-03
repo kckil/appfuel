@@ -7,7 +7,8 @@
 namespace Appfuel\Http;
 
 
-use InvalidArgumentException;
+use DomainException,
+    InvalidArgumentException;
 
 /**
  * Maps the http status code to status text. Used in the http response mainly
@@ -77,7 +78,7 @@ class HttpStatus implements HttpStatusInterface
 
     /**
      * @param   int $status status code of the response
-     * @return  HttpResponseStatus
+     * @return  HttpStatus
      */
     public function __construct($code = 200, $text = null)
     {
@@ -89,7 +90,7 @@ class HttpStatus implements HttpStatusInterface
 
         $code = (int)$code;
         if (! is_int($code) || $code < 100 || $code >= 600) {
-            throw new InvalidArgumentException("invalid http status code");
+            throw new DomainException("invalid http status code");
         }
         
         $this->code = $code;
@@ -106,7 +107,7 @@ class HttpStatus implements HttpStatusInterface
     /**
      * @return  array
      */
-    public function getStatusMap()
+    public static function getStatusMap()
     {
         return self::$statusMap;
     }

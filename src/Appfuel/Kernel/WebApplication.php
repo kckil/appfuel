@@ -16,50 +16,21 @@ use LogicException,
 class WebApplication extends AppKernel implements WebInterface
 {
     /**
-     * @return  string
+     * @var HttpOutputInterface
      */
-    public function getRequestUri()
-    {
-        if (! isset($_SERVER['REQUEST_URI'])) {
-            $err = "The request uri has not be set in the server super global";
-            throw new LogicException($err);
-        }
-
-        $uri = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
-        if (false === $uri) {
-            $err = "The uri given is invalid";
-            throw new DomainException($err);
-        }
-        
-        return urldecode($uri);
-    }
-
-    /** 
-     * @throws  LogicException 
-     * @return  string 
-     */ 
-    public function getRequestMethod() 
-    { 
-        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) { 
-            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']; 
-        } 
-        else if (isset($_SERVER['REQUEST_METHOD'])) { 
-            $method = $_SERVER['REQUEST_METHOD']; 
-        } 
-        else { 
-            $err = 'http request method was not set'; 
-            throw new LogicException($err); 
-        } 
- 
-        return strtolower($method);  
-    }
+    protected $httpOutput = null;
 
     /**
-     * @param   string  
+     * @param   HttpRequestInterface    $request
+     * @return  HttpResponseInterface
      */
-    public function createDefaultBrowserInput()
+    public function handle(HttpRequestInterface $request)
     {
+        if (! $this->isStarted()) {
+            $this->runStartup();
+        }
 
+        return $this->createHttpResponse('hello world');
     }
 
     /**
@@ -112,6 +83,41 @@ class WebApplication extends AppKernel implements WebInterface
     public function createHttpInput($method, array $params = array())
     {
         return new HttpInput($method, $params);
+    }
+    
+    /**
+     * @return  HttpRequest
+     */
+    public function createStandardHttpRequest()
+    {
+        return $this->createHttpRequest($_SERVER);
+    }
+
+    /**
+     * @param   array   $params
+     * @return  HttpRequest
+     */
+    public function createHttpRequest(array $params)
+    {
+        return new HttpRequest($params);
+    }
+
+    /**
+     * @param   string  $data
+     * @param   int     $status
+     * @param   array   $hdrs
+     */
+    public function createHttpResponse($data=null, $status=null, $hdrs=null)
+    {
+        return new HttpResponse($data, $status, $hdrs);
+    } 
+
+    /**
+     * @return  HttpOutputInterface
+     */
+    public function createHttpOutput()
+    {
+
     }
 
     /**
