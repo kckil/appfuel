@@ -32,19 +32,44 @@ class WebApplication extends AppKernel implements WebInterface
         $routes = $this->getRouteCollection();
         
         $matchedRoute = null;
+        $matches = array();
         foreach ($routes as $route) {
-            if (preg_match($route->getPattern(), $pathInfo)) {
+            if (preg_match($route->getPattern(), $pathInfo, $matches)) {
                 $matchedRoute = $route;
+                break;
             }
+            $matches = array();
         }
 
         if (! $matchedRoute) {
             return $this->createHttpResponse('', 404);
         }
-
+ 
         $controller = $matchedRoute->getController();
-        $action = new $controller();
-        $response = $action->execute();
+        $action = new $controller();   
+
+        $captures = array();    
+        if (! empty($matches)) {
+            $params = $matchedRoute->getParams();
+            foreach ($matches as $key => $capture) {
+                $type = gettype($key);
+                if ('string' === $type) {
+                    $captures[$key] = $captures;
+                    continue;
+                }
+                
+                if (isset($params[$key])) {
+                    $captureKey = $params[$key];
+                    $captures[$captureKey] = $capture;
+                }
+            }
+            $call = array($action, 'execute');
+            $response = call_user_func_array($call, array_values($captures));
+        }
+        else {
+            $response = $action->execute();
+        }
+
         if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }
@@ -62,8 +87,9 @@ class WebApplication extends AppKernel implements WebInterface
 
         $demo = new RouteSpec(array(
             'key' => 'hello-world',
-            'pattern' => '#^/demo/hello#',
+            'pattern' => '#^/demo/hello/(\w+)#',
             'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',
+            'params' => array('name')
         ));
 
 
