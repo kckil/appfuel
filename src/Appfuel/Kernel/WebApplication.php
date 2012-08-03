@@ -9,6 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Route\RouteSpec,
     Appfuel\Http\HttpInput,
     Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpRequest,
@@ -26,7 +27,47 @@ class WebApplication extends AppKernel implements WebInterface
      */
     public function handle(HttpRequestInterface $request)
     {
-        return $this->createHttpResponse('hello world');
+        $pathInfo = $request->getPathInfo();
+        
+        $routes = $this->getRouteCollection();
+        
+        $matchedRoute = null;
+        foreach ($routes as $route) {
+            if (preg_match($route->getPattern(), $pathInfo)) {
+                $matchedRoute = $route;
+            }
+        }
+
+        if (! $matchedRoute) {
+            return $this->createHttpResponse('', 404);
+        }
+
+        $controller = $matchedRoute->getController();
+        $action = new $controller();
+        $response = $action->execute();
+        if (! $response instanceof HttpResponseInterface) {
+            $response = $this->getHttpResponse();
+        }
+
+        return $response;
+    }
+
+    public function getRouteCollection()
+    {
+        $welcome = new RouteSpec(array(
+            'key' => 'welcome',
+            'pattern' => '#^/#',
+            'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
+        ));
+
+        $demo = new RouteSpec(array(
+            'key' => 'hello-world',
+            'pattern' => '#^/demo/hello#',
+            'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',
+        ));
+
+
+        return array($welcome, $demo);
     }
 
     /**
