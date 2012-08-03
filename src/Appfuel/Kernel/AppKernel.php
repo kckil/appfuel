@@ -42,6 +42,12 @@ class AppKernel implements AppKernelInterface
     protected $fileHandler = null;
 
     /**
+     * Used to determine if the startup tasks have been run
+     * @var bool
+     */
+    protected $isStarted = false;
+
+    /**
      * @param   string  $root
      * @param   string  $env
      * @param   FileHandlerInterface $fileHandler
@@ -87,6 +93,14 @@ class AppKernel implements AppKernelInterface
     public function getEnv()
     {
         return $this->env;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isStarted()
+    {
+        return $this->isStarted;
     }
 
     /**

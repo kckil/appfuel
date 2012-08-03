@@ -26,10 +26,6 @@ class WebApplication extends AppKernel implements WebInterface
      */
     public function handle(HttpRequestInterface $request)
     {
-        if (! $this->isStarted()) {
-            $this->runStartup();
-        }
-
         return $this->createHttpResponse('hello world');
     }
 
