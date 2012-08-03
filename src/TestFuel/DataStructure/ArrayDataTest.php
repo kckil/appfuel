@@ -149,6 +149,19 @@ class ArrayDataTest extends FrameworkTestCase
 
     /**
      * @test
+     * @return
+     */
+    public function usingIntTypeArrayData()
+    {
+        $data = array('a','b','c');
+        $array = $this->createArrayData($data, 'int');
+        $this->assertSame($array, $array->add(3, 'd'));
+        $this->assertNull($array->offsetSet(null, 'e'));
+        $this->assertSame($array, $array->append('f'));
+    }
+
+    /**
+     * @test
      */
     public function indexType()
     {
@@ -186,7 +199,7 @@ class ArrayDataTest extends FrameworkTestCase
      */
     public function indexTypeNotAValidTypeFailure()
     {
-        $msg = 'valid typ must be -(any, int, string, non-empty-string)';
+        $msg = 'valid type must be -(any, int, string, non-empty-string)';
         $this->setExpectedException('DomainException', $msg);
 
         $array = $this->createArrayData(array(1,2), 'not-valid');
@@ -250,7 +263,7 @@ class ArrayDataTest extends FrameworkTestCase
      */
     public function usingOffsetSetWhenIntSetAndNotInt($badKey)
     {
-        $msg = 'offset key in not valid for -(int)';
+        $msg = 'offset key is not valid for an index type of int';
         $this->setExpectedException('DomainException', $msg);
 
         $array = $this->createArrayData(null, 'int');

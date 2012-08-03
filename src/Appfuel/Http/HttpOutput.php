@@ -15,7 +15,8 @@ class HttpOutput
      * @param   HttpResponseInterface $response
      * @return  null
      */
-    public static function render(HttpResponseInterface $response)
+    public static function render(HttpResponseInterface $response, 
+                                  $replaceSimilar = false)
     {
         if (headers_sent()) {
             return;
@@ -25,9 +26,9 @@ class HttpOutput
         
         $headerList = $response->getHeaderList();
 
-        $replaceSimilar = false;
+        $isReplace = ($replaceSimilar === true) ? true : false;
         foreach($headerList as $header) {
-            header($header, $replaceSimilar);
+            header($header, $isReplace);
         }
 
         echo $response->getContent();

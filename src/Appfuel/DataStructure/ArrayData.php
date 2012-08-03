@@ -64,7 +64,7 @@ class ArrayData implements ArrayDataInterface
         $valid = array('any', 'int', 'string', 'non-empty-string');
         if (! in_array($type, $valid, true)) {
             $types = implode(', ', $valid);
-            $err = "valid typ must be -($types)";
+            $err = "valid type must be -($types)";
             throw new DomainException($err);
         }
 
@@ -93,7 +93,8 @@ class ArrayData implements ArrayDataInterface
         }
         
         if (! $this->isValidKey($offset)) {
-            $err = "offset key in not valid for -({$this->getIndexType()})";
+            $err  = "offset key is not valid for an index type of ";
+            $err .= "{$this->getIndexType()}";
             throw new DomainException($err);
         } 
 
@@ -209,6 +210,16 @@ class ArrayData implements ArrayDataInterface
     public function assign($key, $value)
     {
         $this->offsetSet($key, $value);
+        return $this;
+    }
+
+    /**
+     * @param   mixed   $value
+     * @return  ArrayData
+     */
+    public function append($value)
+    {
+        $this->data[] = $value;
         return $this;
     }
 

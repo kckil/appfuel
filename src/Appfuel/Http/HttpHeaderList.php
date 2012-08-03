@@ -11,9 +11,6 @@ use Countable,
     Iterator,
     InvalidArgumentException;
 
-/**
- * Manages a list of http headers
- */
 class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
 {
     /**
