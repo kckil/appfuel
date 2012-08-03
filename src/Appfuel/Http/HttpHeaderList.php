@@ -109,8 +109,7 @@ class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
      */
     public function addHeader($header)
     {
-        if (empty($header) || 
-            !is_string($header) || !($header = trim($header))) {
+        if (empty($header) || !is_string($header)) {
             $err = "header must be a non empty string";
             throw new InvalidArgumentException($err);
         }

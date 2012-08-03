@@ -9,13 +9,13 @@ namespace Appfuel\Http;
 /**
  * Handle specific details for outputting http data
  */
-class HttpOutput implements HttpOutputInterface
+class HttpOutput
 {
     /**
      * @param   HttpResponseInterface $response
      * @return  null
      */
-    public function render(HttpResponseInterface $response)
+    public static function render(HttpResponseInterface $response)
     {
         if (headers_sent()) {
             return;

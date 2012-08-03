@@ -16,11 +16,6 @@ use LogicException,
 class WebApplication extends AppKernel implements WebInterface
 {
     /**
-     * @var HttpOutputInterface
-     */
-    protected $httpOutput = null;
-
-    /**
      * @param   HttpRequestInterface    $request
      * @return  HttpResponseInterface
      */
@@ -115,9 +110,9 @@ class WebApplication extends AppKernel implements WebInterface
     /**
      * @return  HttpOutputInterface
      */
-    public function createHttpOutput()
+    public function httpOutput(HttpResponseInterface $response)
     {
-
+        HttpOutput::render($response);
     }
 
     /**
