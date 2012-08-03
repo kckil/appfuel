@@ -9,7 +9,12 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
-    Appfuel\Http\HttpInput;
+    Appfuel\Http\HttpInput,
+    Appfuel\Http\HttpOutput,
+    Appfuel\Http\HttpRequest,
+    Appfuel\Http\HttpResponse,
+    Appfuel\Http\HttpRequestInterface,
+    Appfuel\Http\HttpResponseInterface;
 
 /**
  */
