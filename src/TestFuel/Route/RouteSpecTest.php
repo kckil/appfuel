@@ -47,6 +47,27 @@ class RouteSpecTest extends FrameworkTestCase
         $this->assertEquals($spec['key'], $route->getKey());
         $this->assertEquals($spec['pattern'], $route->getPattern());
         $this->assertEquals($spec['controller'], $route->getController());
+        $this->assertEquals(array(), $route->getParams());
+
+        return $spec;
+    }
+
+    /**
+     * @test
+     * @return  array
+     */
+    public function creatingRouteSpecWithParams()
+    {
+        $spec = $this->getRouteSpecData();
+        $spec['params'] = array('name', 'type');
+        $route = $this->createRouteSpec($spec);
+        $interface = 'Appfuel\\Route\\RouteSpecInterface';
+        $this->assertInstanceOf($interface, $route);
+
+        $this->assertEquals($spec['key'], $route->getKey());
+        $this->assertEquals($spec['pattern'], $route->getPattern());
+        $this->assertEquals($spec['controller'], $route->getController());
+        $this->assertEquals($spec['params'], $route->getParams());
 
         return $spec;
     }
@@ -140,6 +161,23 @@ class RouteSpecTest extends FrameworkTestCase
 
         $spec = $this->getRouteSpecData();
         $spec['controller'] = $badController;
+
+        $route = $this->createRouteSpec($spec);
+    }
+
+    /**
+     * @test
+     * @depends         creatingRouteSpecWithParams
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @return          null
+     */
+    public function createRouteSpecBadRouteParam($badParam)
+    {
+        $msg = 'route parameter must be a non empty string';
+        $this->setExpectedException('OutOfBoundsException', $msg);
+
+        $spec = $this->getRouteSpecData();
+        $spec['params'] = array('name', $badParam, 'type');
 
         $route = $this->createRouteSpec($spec);
     }

@@ -35,6 +35,13 @@ class RouteSpec implements RouteSpecInterface
     protected $controller = null;
 
     /**
+     * Used to aid in generating urls for this route as well as naming 
+     * regex captures so you don't have to use (?<name>) syntax.
+     * @var array
+     */
+    protected $params = array();
+
+    /**
      * @param   array   $data
      * @return  RouteSpec
      */
@@ -58,6 +65,10 @@ class RouteSpec implements RouteSpecInterface
             throw new OutOfBoundsException($err);
         }
         $this->setController($data['controller']);
+
+        if (isset($data['params'])) {
+            $this->setParams($data['params']);
+        }
     }
 
     /**
@@ -82,6 +93,14 @@ class RouteSpec implements RouteSpecInterface
     public function getController()
     {
         return $this->controller;
+    }
+
+    /**
+     * @return  array
+     */
+    public function getParams()
+    {
+        return $this->params;
     }
 
     /**
@@ -124,5 +143,21 @@ class RouteSpec implements RouteSpecInterface
         }
 
         $this->controller = $class;
+    }
+
+    /**
+     * @param   array   $params 
+     * @return  null
+     */
+    protected function setParams(array $params)
+    {
+        foreach ($params as $param) {
+            if (! is_string($param) || empty($param)) {
+                $err = 'route parameter must be a non empty string';
+                throw new OutOfBoundsException($err);
+            }
+        }
+
+        $this->params = $params;
     }
 }

@@ -25,8 +25,13 @@ interface RouteSpecInterface
     public function getPattern();
 
     /**
-     * @param   string  $class
-     * @return  null
+     * @return  string
      */
     public function getController();
+
+    /**
+     * @return  array
+     */
+    public function getParams();
+    
 }
