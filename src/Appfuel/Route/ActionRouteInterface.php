@@ -6,14 +6,8 @@
  */
 namespace Appfuel\Route;
 
-interface RouteSpecInterface
+interface ActionRouteInterface
 {
-    /**
-     * @param   array   $data
-     * @return  RouteSpecInterface
-     */
-    public function __construct(array $data);
-
     /**
      * @return  string
      */
@@ -22,16 +16,16 @@ interface RouteSpecInterface
     /**
      * @return  string
      */
-    public function getPattern();
+//    public function getPattern();
 
     /**
      * @return  string
      */
-    public function getController();
+//    public function getController();
 
     /**
      * @return  array
      */
-    public function getParams();
+//    public function getParams();
     
 }

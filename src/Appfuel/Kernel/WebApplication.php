@@ -28,48 +28,15 @@ class WebApplication extends AppKernel implements WebInterface
     public function handle(HttpRequestInterface $request)
     {
         $pathInfo = $request->getPathInfo();
-        
-        $routes = $this->getRouteCollection();
-        
-        $matchedRoute = null;
-        $matches = array();
-        foreach ($routes as $route) {
-            if (preg_match($route->getPattern(), $pathInfo, $matches)) {
-                $matchedRoute = $route;
-                break;
-            }
-            $matches = array();
-        }
+        $routes  = $this->getRouteCollection();
+        $matcher = $this->createRouteMatcher(); 
+        $route = $matcher->match($pathInfo, $routes);
 
-        if (! $matchedRoute) {
-            return $this->createHttpResponse('', 404);
-        }
- 
-        $controller = $matchedRoute->getController();
-        $action = new $controller();   
+        $controller = $route->createController();
+        // set container here
 
-        $captures = array();    
-        if (! empty($matches)) {
-            $params = $matchedRoute->getParams();
-            foreach ($matches as $key => $capture) {
-                $type = gettype($key);
-                if ('string' === $type) {
-                    $captures[$key] = $captures;
-                    continue;
-                }
-                
-                if (isset($params[$key])) {
-                    $captureKey = $params[$key];
-                    $captures[$captureKey] = $capture;
-                }
-            }
-            $call = array($action, 'execute');
-            $response = call_user_func_array($call, array_values($captures));
-        }
-        else {
-            $response = $action->execute();
-        }
-
+        $values = $route->getCaptureValues();
+        $response = call_user_func($controller, $values);
         if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }
