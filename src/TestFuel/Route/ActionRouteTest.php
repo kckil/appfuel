@@ -6,11 +6,10 @@
  */
 namespace Testfuel\Kernel;
 
-use StdClass,
-    Testfuel\FrameworkTestCase,
-    Appfuel\Route\RouteCollection;
+use Appfuel\Route\ActionRoute,
+    Testfuel\FrameworkTestCase;
 
-class RouteCollectionTest extends FrameworkTestCase 
+class ActionRouteTest extends FrameworkTestCase 
 {
 
     /**
@@ -19,7 +18,7 @@ class RouteCollectionTest extends FrameworkTestCase
      */
     public function createRouteCollection(array $spec)
     {
-        return new RouteCollection($spec);
+        return new ActionRoute($spec);
     }
 
     /**
@@ -42,7 +41,7 @@ class RouteCollectionTest extends FrameworkTestCase
     {
         $spec = $this->getDefaultSpec();
         $routes = $this->createRouteCollection($spec);
-        $interface = 'Appfuel\\Route\\RouteCollectionInterface';
+        $interface = 'Appfuel\\Route\\ActionRouteInterface';
         $this->assertInstanceOf($interface, $routes);
         $this->assertEquals($spec['route-key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());
@@ -145,7 +144,6 @@ class RouteCollectionTest extends FrameworkTestCase
         $routes = $this->createRouteCollection($spec); 
     }
 
-    
     /** 
      * @test 
      * @depends         creatingRouteCollection
@@ -172,7 +170,7 @@ class RouteCollectionTest extends FrameworkTestCase
         $spec = $this->getDefaultSpec();
         $spec['route-params'] = array('name', 'type', 'id');
         $routes = $this->createRouteCollection($spec);
-        $interface = 'Appfuel\\Route\\RouteCollectionInterface';
+        $interface = 'Appfuel\\Route\\ActionRouteInterface';
         $this->assertInstanceOf($interface, $routes);
         $this->assertEquals($spec['route-key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());

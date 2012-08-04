@@ -10,7 +10,7 @@ use LogicException,
     OutOfBoundsException,
     InvalidArgumentException;
 
-class RouteCollection implements RouteCollectionInterface, ActionRouteInterface
+class ActionRoute implements ActionRouteInterface
 {
     /**
      * @var string  $key
