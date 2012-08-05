@@ -23,15 +23,22 @@ class ActionRoute implements ActionRouteInterface
     protected $pattern = null;
 
     /**
+     * Action controller used by the framework once a match is satified
      * @var string
      */
     protected $controller = null;
 
-    /**                                                                          
-     * Used to aid in generating urls for this route as well as naming           
-     * regex captures so you don't have to use (?<name>) syntax.                 
-     * @var array                                                                
-     */                                                                          
+    /**
+     * Action controller used when the all other matches fail. This is optional
+     * @var string
+     */
+    protected $defaultController = null;
+
+    /**  
+     * Used to aid in generating urls for this route as well as naming
+     * regex captures so you don't have to use (?<name>) syntax.
+     * @var array
+     */ 
     protected $params = array();
 
     /**
@@ -67,6 +74,10 @@ class ActionRoute implements ActionRouteInterface
         if (isset($spec['route-params'])) {
             $this->setParams($spec['route-params']);
         }
+
+        if (isset($spec['default-controller'])) {
+            $this->setDefaultController($spec['default-controller']);
+        }
     }
 
     /**
@@ -94,6 +105,14 @@ class ActionRoute implements ActionRouteInterface
     }
 
     /**
+     * @return  string
+     */
+    public function getDefaultController()
+    {
+        return $this->defaultController;
+    }
+
+    /**
      * @return  array
      */
     public function getParams()
@@ -106,7 +125,7 @@ class ActionRoute implements ActionRouteInterface
      * @param   ActionRouteInterface    $route
      * @return  RouteCollection
      */
-    public function addRoute(ActionRouteInterface $route)
+    public function add(ActionRouteInterface $route)
     {
         $myKey = $this->getKey();
         $routeKey = $route->getKey();
@@ -127,7 +146,7 @@ class ActionRoute implements ActionRouteInterface
             $err = "can not add route. could not find -(key=$routeKey)";
             throw new LogicException($err);
         }
-        $target->addRoute($route);
+        $target->add($route);
         return $this;
     }
 
@@ -135,9 +154,9 @@ class ActionRoute implements ActionRouteInterface
      * @param   string  $key
      * @return  ActionRouteInterface | false
      */
-    public function getRoute($key)
+    public function get($key)
     {
-        if (! is_string($key) || empty($key)) {
+        if (! $this->isValidString($key)) {
             $err = "route key must be a non empty string";
             throw new InvalidArgumentException($err);
         }
@@ -147,6 +166,7 @@ class ActionRoute implements ActionRouteInterface
             $err = "route -(key=$key) must be a child of (key=$myKey)";
             throw new LogicException($err);
         }
+
         $targetKey = substr($key, strlen($myKey) + 1);
         if (! $this->isDelimitor($targetKey)) {
             $this->routes[$targetKey] = $route;
@@ -157,12 +177,44 @@ class ActionRoute implements ActionRouteInterface
     }
 
     /**
+     * @param   ActionRouteInterface | string   $key
+     * @return  bool
+     */
+    public function exists($key)
+    {
+        if ($key instanceof ActionRouteInterface) {
+            $key = $key->getKey();
+        }
+        else if (! $this->isValidString($key)) {
+            $err = "route key must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        $myKey = $this->getKey();
+        if (0 !== $pos = strpos($key, $myKey)) {
+            $err = "route -(key=$key) must be a child of (key=$myKey)";
+            throw new LogicException($err);
+        }
+
+        $targetKey = substr($key, strlen($myKey) + 1);
+        if (! $this->isDelimitor($targetKey)) {
+            return isset($this->routes[$targetKey]);
+        }
+
+        if (false === $this->findRoute($this->extractKeys($targetKeys))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param   string  $name
      * @return  RouteCollectionInterface | false
      */
-    public function getDirectRoute($name)
+    public function getDirect($name)
     {
-         if (! is_string($name) || empty($name)) {
+         if (! $this->isValidString($name)) {
             $err = "route key must be a non empty string";
             throw new InvalidArgumentException($err);
         }
@@ -178,10 +230,13 @@ class ActionRoute implements ActionRouteInterface
      * @param   array   $keys
      * @return  ActionRouteInterface | false
      */
-    public function findRoute(array $keys)
+    protected function findRoute(array $keys)
     {
         $target = array_pop($keys);
         $routes = $this->routes;
+        if (empty($routes)) {
+            return false;
+        }
 
         if (1 === count($keys) && isset($routes[$target])) {
             return $routes[$target];
@@ -197,7 +252,7 @@ class ActionRoute implements ActionRouteInterface
             }
         }
 
-        return $routes->getDirectRoute($target);
+        return $routes->getDirect($target);
     }
 
     /**
@@ -233,7 +288,7 @@ class ActionRoute implements ActionRouteInterface
      */
     protected function setKey($key)
     {
-        if (! is_string($key) || empty($key)) {
+        if (! $this->isValidString($key)) {
             $err = "route key must be a non empty string";
             throw new InvalidArgumentException($err);
         }
@@ -247,7 +302,7 @@ class ActionRoute implements ActionRouteInterface
      */
     protected function setPattern($pattern)
     {
-        if (! is_string($pattern) || empty($pattern)) {
+        if (! $this->isValidString($pattern)) {
             $err = "uri pattern must be a non empty string";
             throw new InvalidArgumentException($err);
         }
@@ -261,12 +316,26 @@ class ActionRoute implements ActionRouteInterface
      */
     protected function setController($className)
     {
-        if (! is_string($className) || empty($className)) {
+        if (! $this->isValidString($className)) {
             $err = "controller class must be a non empty string";
             throw new InvalidArgumentException($err);
         }
     
         $this->controller = $className;
+    }
+
+    /**
+     * @param  string  $key
+     * @return  null
+     */
+    protected function setDefaultController($className)
+    {
+        if (! $this->isValidString($className)) {
+            $err = "default controller class must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+    
+        $this->defaultController = $className;
     }
 
     /**
@@ -276,7 +345,7 @@ class ActionRoute implements ActionRouteInterface
     protected function setParams(array $params)
     {
         foreach ($params as $param) {
-            if (! is_string($param) || empty($param)) {
+            if (! $this->isValidString($param)) {
                 $err = 'route parameter must be a non empty string';
                 throw new OutOfBoundsException($err);
             }
@@ -285,4 +354,16 @@ class ActionRoute implements ActionRouteInterface
         $this->params = $params;
     }
 
+    /**
+     * @param   string  $key
+     * @return  bool
+     */
+    protected function isValidString($key)
+    {
+         if (! is_string($key) || empty($key)) {
+            return false;
+        }
+    
+        return true;
+    }
 }

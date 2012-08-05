@@ -16,7 +16,7 @@ class ActionRouteTest extends FrameworkTestCase
      * @param   array $spec
      * @return  RouteMatcher
      */
-    public function createRouteCollection(array $spec)
+    public function createActionRoute(array $spec)
     {
         return new ActionRoute($spec);
     }
@@ -27,7 +27,7 @@ class ActionRouteTest extends FrameworkTestCase
     public function getDefaultSpec()
     {
         return array(
-            'route-key' => 'section',
+            'route-key' => 'sections',
             'pattern'   => '#^sections',
             'controller' => 'My\\Controller\\ControllerClass',
         );
@@ -35,12 +35,12 @@ class ActionRouteTest extends FrameworkTestCase
 
     /**
      * @test
-     * @return  RouteCollection
+     * @return  ActionRoute
      */
-    public function creatingRouteCollection()
+    public function creatingActionRoute()
     {
         $spec = $this->getDefaultSpec();
-        $routes = $this->createRouteCollection($spec);
+        $routes = $this->createActionRoute($spec);
         $interface = 'Appfuel\\Route\\ActionRouteInterface';
         $this->assertInstanceOf($interface, $routes);
         $this->assertEquals($spec['route-key'], $routes->getKey());
@@ -53,7 +53,7 @@ class ActionRouteTest extends FrameworkTestCase
 
     /** 
      * @test 
-     * @depends creatingRouteCollection
+     * @depends creatingActionRoute
      * @return  null 
      */
     public function creatingCollectionNoRouteKey() 
@@ -63,12 +63,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         unset($spec['route-key']); 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends         creatingRouteCollection
+     * @depends         creatingActionRoute
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
@@ -79,12 +79,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         $spec['route-key'] = $badKey; 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends creatingRouteCollection
+     * @depends creatingActionRoute
      * @return  null 
      */
     public function creatingCollectionNoPatternKey() 
@@ -94,12 +94,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         unset($spec['pattern']); 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends         creatingRouteCollection
+     * @depends         creatingActionRoute
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
@@ -110,12 +110,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         $spec['pattern'] = $badPattern; 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends creatingRouteCollection
+     * @depends creatingActionRoute
      * @return  null 
      */
     public function creatingCollectionNoController() 
@@ -125,12 +125,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         unset($spec['controller']); 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends         creatingRouteCollection
+     * @depends         creatingActionRoute
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
@@ -141,12 +141,12 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         $spec['controller'] = $badClassName; 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /** 
      * @test 
-     * @depends         creatingRouteCollection
+     * @depends         creatingActionRoute
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
@@ -157,31 +157,95 @@ class ActionRouteTest extends FrameworkTestCase
 
         $spec = $this->getDefaultSpec();
         $spec['route-params'] = array('name', $badParam, 'type'); 
-        $routes = $this->createRouteCollection($spec); 
+        $routes = $this->createActionRoute($spec); 
     }
 
     /**
      * @test
-     * @depends creatingRouteCollection
-     * @return  RouteCollection
+     * @depends creatingActionRoute
+     * @return  ActionRoute
      */
-    public function creatingRouteCollectionWithParams()
+    public function creatingActionRouteWithParams()
     {
         $spec = $this->getDefaultSpec();
         $spec['route-params'] = array('name', 'type', 'id');
-        $routes = $this->createRouteCollection($spec);
-        $interface = 'Appfuel\\Route\\ActionRouteInterface';
-        $this->assertInstanceOf($interface, $routes);
+        $routes = $this->createActionRoute($spec);
         $this->assertEquals($spec['route-key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());
         $this->assertEquals($spec['controller'], $routes->getController());
         $this->assertEquals($spec['route-params'], $routes->getParams());
 
-        
- 
         return $routes;
     }
 
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  ActionRoute
+     */
+    public function creatingActionRouteWithDefaultController()
+    {
+        $spec = $this->getDefaultSpec();
+        $spec['default-controller'] = 'My\\Default\\Controller';
+        $routes = $this->createActionRoute($spec);
+        $this->assertEquals($spec['route-key'], $routes->getKey());
+        $this->assertEquals($spec['pattern'], $routes->getPattern());
+        $this->assertEquals($spec['controller'], $routes->getController());
+        $this->assertEquals(array(), $routes->getParams());
+        $this->assertEquals(
+            $spec['default-controller'], 
+            $routes->getDefaultController()
+        );
+
+        return $routes;
+    }
+
+    /** 
+     * @test 
+     * @depends         creatingActionRoute
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @return          null 
+     */
+    public function creatingActionRouteInvalidDefaultController($badClassName) 
+    { 
+        $msg = 'default controller class must be a non empty string'; 
+        $this->setExpectedException('InvalidArgumentException', $msg); 
+
+        $spec = $this->getDefaultSpec();
+        $spec['default-controller'] = $badClassName; 
+        $routes = $this->createActionRoute($spec); 
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function addingDirectRoutes(ActionRoute $route)
+    {
+        $specA = array(
+            'route-key'     => 'sections.section-a',
+            'pattern'       => '/^somepatter/',
+            'controller'    => 'SectionAController',
+        );
+        $sectionA = $this->createActionRoute($specA);
+
+        $this->assertFalse($route->exists('sections.section-a'));
+        $this->assertSame($route, $route->add($sectionA));
+        $this->assertTrue($route->exists('sections.section-a'));
+
+        $specB = array(
+            'route-key'     => 'sections.section-b',
+            'pattern'       => '/^otherpattern/',
+            'controller'    => 'SectionBController',
+        );
+        $sectionB = $this->createActionRoute($specB);
+
+        $this->assertFalse($route->exists('sections.section-b'));
+        $this->assertSame($route, $route->add($sectionB));
+        $this->assertTrue($route->exists('sections.section-b'));
+
+    }
 
 
 }
