@@ -42,18 +42,10 @@ class WebApplication extends AppKernel implements WebInterface
             return $this->createHttpResponse('', 404);
         }
  
-        $controller = $matchedRoute->getController();
-        $action = new $controller();   
-
-        $captures = $matchedRoute->getCaptures();   
-        if (! empty($captures)) {
-            $args = array_values($captures);
-            $response = call_user_func_array(array($action, 'execute'), $args);
-        }
-        else {
-            $response = $action->execute();
-        }
-
+        $controller = $matchedRoute->createCallableController();
+        $captures = $matchedRoute->getCaptures();
+        
+        $response = call_user_func_array($controller, $captures);
         if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }

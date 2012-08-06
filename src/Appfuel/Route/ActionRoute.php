@@ -30,10 +30,9 @@ class ActionRoute implements ActionRouteInterface
     protected $controller = null;
 
     /**
-     * Action controller used when the all other matches fail. This is optional
      * @var string
      */
-    protected $defaultController = null;
+    protected $controllerMethod = 'execute';
 
     /**  
      * Used to aid in generating urls for this route as well as naming
@@ -72,12 +71,12 @@ class ActionRoute implements ActionRouteInterface
         } 
         $this->setController($spec['controller']);
 
-        if (isset($spec['params'])) {
-            $this->setParams($spec['params']);
+        if (isset($spec['controller-method'])) {
+            $this->setControllerMethod($spec['controller-method']);        
         }
 
-        if (isset($spec['default-controller'])) {
-            $this->setDefaultController($spec['default-controller']);
+        if (isset($spec['params'])) {
+            $this->setParams($spec['params']);
         }
     }
 
@@ -108,9 +107,9 @@ class ActionRoute implements ActionRouteInterface
     /**
      * @return  string
      */
-    public function getDefaultController()
+    public function getControllerMethod()
     {
-        return $this->defaultController;
+        return $this->controllerMethod;
     }
 
     /**
@@ -159,7 +158,8 @@ class ActionRoute implements ActionRouteInterface
 
         $key = $this->getKey();
         $controller = $this->getController();
-        return new MatchedRoute($key, $controller, $captures);
+        $method = $this->getControllerMethod();
+        return new MatchedRoute($key, $controller, $method, $captures);
     }
 
     /**
@@ -316,28 +316,28 @@ class ActionRoute implements ActionRouteInterface
      * @param  string  $key
      * @return  null
      */
-    protected function setController($className)
+    protected function setController($ctrl)
     {
-        if (! $this->isValidString($className)) {
-            $err = "controller class must be a non empty string";
+        if (! (is_string($ctrl) && ! empty($ctrl)) && ! is_callable($ctrl)) {
+            $err = "controller must be callable or a non empty string";
             throw new InvalidArgumentException($err);
         }
-    
-        $this->controller = $className;
+
+        $this->controller = $ctrl;
     }
 
     /**
      * @param  string  $key
      * @return  null
      */
-    protected function setDefaultController($className)
+    protected function setControllerMethod($name)
     {
-        if (! $this->isValidString($className)) {
-            $err = "default controller class must be a non empty string";
+        if (! is_string($name) || empty($name)) {
+            $err = "controller method name must be a non empty string";
             throw new InvalidArgumentException($err);
         }
-    
-        $this->defaultController = $className;
+
+        $this->controllerMethod = $name;
     }
 
     /**

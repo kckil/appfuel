@@ -30,10 +30,11 @@ class MatchedRoute implements MatchedRouteInterface
      * @param   array $spec
      * @return  RouteCollection
      */
-    public function __construct($key, $controller, array $captures = null)
+    public function __construct($key, $ctrl, $method, array $captures = null)
     {
         $this->setKey($key);
-        $this->setController($controller);
+        $this->setMethod($method);
+        $this->setController($ctrl);
 
         if (null !== $captures) {
             $this->setCaptures($captures);
@@ -54,6 +55,38 @@ class MatchedRoute implements MatchedRouteInterface
     public function getController()
     {
         return $this->controller;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+    
+    /**
+     * @return  array | object | Closure
+     */
+    public function createCallableController()
+    {
+        $ctrl = $this->getController();
+        if (is_callable($ctrl)) {
+            return $ctrl;
+        }
+
+        $action = new $ctrl();
+        $method = $this->getMethod();
+        if (null === $method) {
+            $method = 'execute';
+        }
+        $call = array($action, $method);
+        if (! is_callable($call)) {
+            $err = "could not create callable action -($ctrl, $method)";
+            throw new LogicException($err);
+        }
+            
+        return $call;
     }
 
     /**
@@ -82,15 +115,25 @@ class MatchedRoute implements MatchedRouteInterface
      * @param  string  $key
      * @return  null
      */
-    protected function setController($className)
+    protected function setController($ctrl)
     {
-        if (! $this->isValidString($className)) {
-            $err = "controller class must be a non empty string";
+        $this->controller = $ctrl;
+    }
+
+    /**
+     * @param  string  $key
+     * @return  null
+     */
+    protected function setMethod($name)
+    {
+        if (! $this->isValidString($name)) {
+            $err = "controller method must be a non empty string";
             throw new InvalidArgumentException($err);
         }
     
-        $this->controller = $className;
+        $this->method = $name;
     }
+
 
     /**
      * @param   array   $params

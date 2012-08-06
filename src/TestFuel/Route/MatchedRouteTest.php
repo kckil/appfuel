@@ -16,9 +16,9 @@ class MatchedRouteTest extends FrameworkTestCase
      * @param   array $spec
      * @return  RouteMatcher
      */
-    public function createMatchedRoute($key, $ctrl, array $captures = null)
+    public function createMatchedRoute($key, $ctrl, $method, array $args=null)
     {
-        return new MatchedRoute($key, $ctrl, $captures);
+        return new MatchedRoute($key, $ctrl, $method, $args);
     }
 
     /**
@@ -29,10 +29,12 @@ class MatchedRouteTest extends FrameworkTestCase
     {
         $key = 'my-key';
         $controller = 'MyController';
-        $matched = $this->createMatchedRoute($key, $controller);
+        $method = 'execute';
+        $matched = $this->createMatchedRoute($key, $controller, $method);
         $interface = 'Appfuel\\Route\\MatchedRouteInterface';
         $this->assertInstanceOf($interface, $matched);
         $this->assertEquals($key, $matched->getKey());
+        $this->assertEquals($method, $matched->getMethod());
         $this->assertEquals($controller, $matched->getController());
     }
 
@@ -48,8 +50,7 @@ class MatchedRouteTest extends FrameworkTestCase
         $msg = 'route key must be a non empty string'; 
         $this->setExpectedException('InvalidArgumentException', $msg); 
 
-        $controller = 'MyController';
-        $matched = $this->createMatchedRoute($badKey, $controller);
+        $matched = $this->createMatchedRoute($badKey, 'crtl', 'method');
     }
 
     /** 
@@ -58,12 +59,12 @@ class MatchedRouteTest extends FrameworkTestCase
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
-    public function creatingCollectionInvalidController($badClassName) 
+    public function creatingCollectionInvalidMethods($badName) 
     { 
-        $msg = 'controller class must be a non empty string'; 
+        $msg = 'controller method must be a non empty string'; 
         $this->setExpectedException('InvalidArgumentException', $msg); 
 
-        $matched = $this->createMatchedRoute('my-key', $badClassName);
+        $matched = $this->createMatchedRoute('my-key', 'ctrl', $badName);
     }
 
    /**
@@ -74,9 +75,10 @@ class MatchedRouteTest extends FrameworkTestCase
     public function creatingMatchedRouteWithCaptures()
     {
         $key = 'my-key';
-        $controller = 'MyController';
+        $ctrl = 'MyController';
+        $method = 'execute';
         $captures = array('name' => 'robert');
-        $matched = $this->createMatchedRoute($key, $controller, $captures);
+        $matched = $this->createMatchedRoute($key, $ctrl, $method, $captures);
         $this->assertEquals($captures, $matched->getCaptures());
     }
 }

@@ -327,4 +327,34 @@ class AppKernel implements AppKernelInterface
         $paths = $this->getPathCollection();
         
     }
+
+    /**
+     * @param   MatchedRouteInterface
+     * @return  array | Closure
+     */
+    public function createCallableController(MatchedRouteInterface $route)
+    {
+        $ctrl = $route->getController();
+        if (is_callable($ctrl)) {
+            return $ctrl;
+        }
+
+        if (is_string($ctrl)) {
+            $action = new $ctrl();
+            $method = $route->getControllerMethod();
+            if (null === $method) {
+                $method = 'execute';
+            }
+
+            if (method_exists($action, '__invoke')) {
+                return $action;
+            }
+
+            if (! method_exists($action, $method)) {
+                $err = "could not find controller method -($ctrl, $method)";
+                throw new LogicException($err);
+            }
+            return array($action, $method);
+        }
+    }
 }
