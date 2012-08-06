@@ -221,30 +221,136 @@ class ActionRouteTest extends FrameworkTestCase
      * @depends creatingActionRoute
      * @return  null
      */
+    public function AddingARouteToItself()
+    {
+
+        $spec = $this->getDefaultSpec();
+        $route = $this->createActionRoute($spec);
+
+        $msg = 'you can not use this route -(sections) recursively';
+        $this->setExpectedException('LogicException', $msg);
+        
+        $route->add($route);
+    }
+
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function AddingARouteWhereKeyIsNotAChild()
+    {
+
+        $spec = $this->getDefaultSpec();
+        $route = $this->createActionRoute($spec);
+
+        $specA = array(
+            'route-key' => 'not-sections.a',
+            'pattern'   => '/blah/',
+            'controller' => 'someController'
+        );
+        $routeA = $this->createActionRoute($specA);
+
+
+        $msg = 'route -(key=not-sections.a) must be a child of -(key=sections)';
+        $this->setExpectedException('LogicException', $msg);
+        $route->add($routeA);
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  RouteAction
+     */
     public function addingDirectRoutes(ActionRoute $route)
     {
+        $aKey = 'sections.section-a';
         $specA = array(
-            'route-key'     => 'sections.section-a',
+            'route-key'     => $aKey,
             'pattern'       => '/^somepatter/',
             'controller'    => 'SectionAController',
         );
         $sectionA = $this->createActionRoute($specA);
 
-        $this->assertFalse($route->exists('sections.section-a'));
+        $this->assertFalse($route->get($aKey));
         $this->assertSame($route, $route->add($sectionA));
-        $this->assertTrue($route->exists('sections.section-a'));
+        $this->assertSame($sectionA, $route->get($aKey));
+        $this->assertSame($sectionA, $route->getDirect('section-a'));
 
+        $bKey = 'sections.section-b';
         $specB = array(
-            'route-key'     => 'sections.section-b',
+            'route-key'     => $bKey,
             'pattern'       => '/^otherpattern/',
             'controller'    => 'SectionBController',
         );
         $sectionB = $this->createActionRoute($specB);
 
-        $this->assertFalse($route->exists('sections.section-b'));
+        $this->assertFalse($route->get($bKey));
         $this->assertSame($route, $route->add($sectionB));
-        $this->assertTrue($route->exists('sections.section-b'));
+        $this->assertSame($sectionB, $route->get($bKey));
+        $this->assertSame($sectionB, $route->getDirect('section-b'));
 
+
+        $this->assertFalse($route->getDirect('section-not-there'));
+
+        /* getDirect does not validate the relative position of the key
+         * it will simply return false
+         */
+        $this->assertFalse($route->getDirect('sections'));
+        return $route;
+    }
+
+    /**
+     * @test
+     * @depends addingDirectRoutes
+     * @return  null
+     */
+    public function addingAChainOfRoutes(ActionRoute $route)
+    {
+        $axKey = 'sections.section-a.x';
+        $specAX = array(
+            'route-key'     => $axKey,
+            'pattern'       => '/^xpattern/',
+            'controller'    => 'XController',
+        );
+        $routeAX = $this->createActionRoute($specAX);
+        $this->assertFalse($route->get($axKey));
+        $this->assertSame($route, $route->add($routeAX));
+        $this->assertSame($routeAX, $route->get($axKey));
+
+        $sectionA = $route->get('sections.section-a');
+        $this->assertSame($sectionA, $sectionA->add($routeAX));
+        $this->assertSame($routeAX, $sectionA->get($axKey));
+        $this->assertSame($routeAX, $sectionA->getDirect('x'));
+
+        $specAXY = array(
+            'route-key'     => 'sections.section-a.x.y',
+            'pattern'       => '/^xypattern/',
+            'controller'    => 'XYController',
+        );
+        $routeAXY = $this->createActionRoute($specAXY);
+        $this->assertSame($route, $route->add($routeAXY));
+
+        $sectionAX = $route->get('sections.section-a.x');
+        $this->assertSame($routeAXY, $route->get('sections.section-a.x.y'));
+
+        $this->assertSame($sectionAX, $sectionAX->add($routeAXY));
+        $this->assertSame($routeAXY, $sectionAX->get('sections.section-a.x.y'));
+        $this->assertSame($routeAXY, $sectionAX->getDirect('y'));
+    }
+
+    /**
+     * @test
+     * @depends addingDirectRoutes
+     * @return  null
+     */
+    public function tryingToGetARouteFromTheRoute(ActionRoute $route)
+    {
+        $msg = 'you can not use this route -(sections) recursively';
+        $this->setExpectedException('LogicException', $msg);
+
+        $route->get('sections');
     }
 
 
