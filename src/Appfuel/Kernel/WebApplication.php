@@ -32,14 +32,10 @@ class WebApplication extends AppKernel implements WebInterface
         $routes = $this->getRouteCollection();
         
         $matchedRoute = null;
-        $matches = array();
-        $matched = null;
         foreach ($routes as $route) {
-            if (preg_match($route->getPattern(), $pathInfo, $matches)) {
-                $matchedRoute = $route;
+            if (false !== $matchedRoute = $route->match($pathInfo)) {
                 break;
             }
-            $matches = array();
         }
 
         if (! $matchedRoute) {
@@ -49,22 +45,8 @@ class WebApplication extends AppKernel implements WebInterface
         $controller = $matchedRoute->getController();
         $action = new $controller();   
 
-        $captures = array();    
-        if (! empty($matches)) {
-            $params = $matchedRoute->getParams();
-            $matched = array_shift($matches);
-
-            foreach ($matches as $key => $capture) {
-                if (is_string($key)) {
-                    $captures[$key] = $captures;
-                    continue;
-                }
-                
-                if (isset($params[$key])) {
-                    $captureKey = $params[$key];
-                    $captures[$captureKey] = $capture;
-                }
-            }
+        $captures = $matchedRoute->getCaptures();   
+        if (! empty($captures)) {
             $args = array_values($captures);
             $response = call_user_func_array(array($action, 'execute'), $args);
         }

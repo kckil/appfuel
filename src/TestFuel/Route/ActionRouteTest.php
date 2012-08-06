@@ -385,5 +385,26 @@ class ActionRouteTest extends FrameworkTestCase
         $this->assertFalse($route->match('/'));
     }
 
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function Matching()
+    {
+        $spec = $this->getDefaultSpec();
+        $spec['pattern'] = '/^my-route$/';
+        $route = $this->createActionRoute($spec);
+        
+        $matched = $route->match('my-route');
+        $class = 'Appfuel\\Route\\MatchedRoute';
+        $this->assertInstanceOf($class, $matched);
+        $this->assertEquals($route->getKey(), $matched->getKey());
+        $this->assertEquals($route->getController(), $matched->getController());
+        $this->assertEquals(array(), $matched->getCaptures());
+   
+    }
+
+
 
 }
