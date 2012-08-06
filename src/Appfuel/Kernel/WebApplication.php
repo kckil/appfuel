@@ -9,7 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
-    Appfuel\Route\RouteSpec,
+    Appfuel\Route\ActionRoute,
     Appfuel\Http\HttpInput,
     Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpRequest,
@@ -50,7 +50,6 @@ class WebApplication extends AppKernel implements WebInterface
         $action = new $controller();   
 
         $captures = array();    
-        $call = array($action, 'execute');
         if (! empty($matches)) {
             $params = $matchedRoute->getParams();
             $matched = array_shift($matches);
@@ -66,7 +65,11 @@ class WebApplication extends AppKernel implements WebInterface
                     $captures[$captureKey] = $capture;
                 }
             }
-            $captures = array_values($captures));
+            $args = array_values($captures);
+            $response = call_user_func_array(array($action, 'execute'), $args);
+        }
+        else {
+            $response = $action->execute();
         }
 
         $response = call_user_func(array($action, 'execute'), $captures);
@@ -79,13 +82,13 @@ class WebApplication extends AppKernel implements WebInterface
 
     public function getRouteCollection()
     {
-        $welcome = new RouteSpec(array(
+        $welcome = new ActionRoute(array(
             'key' => 'welcome',
             'pattern' => '#^/#',
             'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
         ));
 
-        $demo = new RouteSpec(array(
+        $demo = new ActionRoute(array(
             'key' => 'hello-world',
             'pattern' => '#^/demo/hello/(\w+)#',
             'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',

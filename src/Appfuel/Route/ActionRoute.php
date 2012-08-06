@@ -53,11 +53,11 @@ class ActionRoute implements ActionRouteInterface
      */
     public function __construct(array $spec)
     {
-        if (! isset($spec['route-key'])) { 
-            $err = '-(route-key) is expected but not given'; 
+        if (! isset($spec['key'])) { 
+            $err = '-(key) is expected but not given'; 
             throw new OutOfBoundsException($err); 
         } 
-        $this->setKey($spec['route-key']);
+        $this->setKey($spec['key']);
 
         if (! isset($spec['pattern'])) { 
             $err = '-(pattern) regex pattern is expected but not given'; 
@@ -71,8 +71,8 @@ class ActionRoute implements ActionRouteInterface
         } 
         $this->setController($spec['controller']);
 
-        if (isset($spec['route-params'])) {
-            $this->setParams($spec['route-params']);
+        if (isset($spec['params'])) {
+            $this->setParams($spec['params']);
         }
 
         if (isset($spec['default-controller'])) {

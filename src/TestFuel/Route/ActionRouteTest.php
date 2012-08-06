@@ -27,7 +27,7 @@ class ActionRouteTest extends FrameworkTestCase
     public function getDefaultSpec()
     {
         return array(
-            'route-key' => 'sections',
+            'key' => 'sections',
             'pattern'   => '#^sections',
             'controller' => 'My\\Controller\\ControllerClass',
         );
@@ -43,7 +43,7 @@ class ActionRouteTest extends FrameworkTestCase
         $routes = $this->createActionRoute($spec);
         $interface = 'Appfuel\\Route\\ActionRouteInterface';
         $this->assertInstanceOf($interface, $routes);
-        $this->assertEquals($spec['route-key'], $routes->getKey());
+        $this->assertEquals($spec['key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());
         $this->assertEquals($spec['controller'], $routes->getController());
         
@@ -58,11 +58,11 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function creatingCollectionNoRouteKey() 
     { 
-        $msg = '-(route-key) is expected but not given'; 
+        $msg = '-(key) is expected but not given'; 
         $this->setExpectedException('OutOfBoundsException', $msg); 
 
         $spec = $this->getDefaultSpec();
-        unset($spec['route-key']); 
+        unset($spec['key']); 
         $routes = $this->createActionRoute($spec); 
     }
 
@@ -78,7 +78,7 @@ class ActionRouteTest extends FrameworkTestCase
         $this->setExpectedException('InvalidArgumentException', $msg); 
 
         $spec = $this->getDefaultSpec();
-        $spec['route-key'] = $badKey; 
+        $spec['key'] = $badKey; 
         $routes = $this->createActionRoute($spec); 
     }
 
@@ -156,7 +156,7 @@ class ActionRouteTest extends FrameworkTestCase
         $this->setExpectedException('OutOfBoundsException', $msg); 
 
         $spec = $this->getDefaultSpec();
-        $spec['route-params'] = array('name', $badParam, 'type'); 
+        $spec['params'] = array('name', $badParam, 'type'); 
         $routes = $this->createActionRoute($spec); 
     }
 
@@ -168,12 +168,12 @@ class ActionRouteTest extends FrameworkTestCase
     public function creatingActionRouteWithParams()
     {
         $spec = $this->getDefaultSpec();
-        $spec['route-params'] = array('name', 'type', 'id');
+        $spec['params'] = array('name', 'type', 'id');
         $routes = $this->createActionRoute($spec);
-        $this->assertEquals($spec['route-key'], $routes->getKey());
+        $this->assertEquals($spec['key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());
         $this->assertEquals($spec['controller'], $routes->getController());
-        $this->assertEquals($spec['route-params'], $routes->getParams());
+        $this->assertEquals($spec['params'], $routes->getParams());
 
         return $routes;
     }
@@ -188,7 +188,7 @@ class ActionRouteTest extends FrameworkTestCase
         $spec = $this->getDefaultSpec();
         $spec['default-controller'] = 'My\\Default\\Controller';
         $routes = $this->createActionRoute($spec);
-        $this->assertEquals($spec['route-key'], $routes->getKey());
+        $this->assertEquals($spec['key'], $routes->getKey());
         $this->assertEquals($spec['pattern'], $routes->getPattern());
         $this->assertEquals($spec['controller'], $routes->getController());
         $this->assertEquals(array(), $routes->getParams());
@@ -246,7 +246,7 @@ class ActionRouteTest extends FrameworkTestCase
         $route = $this->createActionRoute($spec);
 
         $specA = array(
-            'route-key' => 'not-sections.a',
+            'key' => 'not-sections.a',
             'pattern'   => '/blah/',
             'controller' => 'someController'
         );
@@ -267,7 +267,7 @@ class ActionRouteTest extends FrameworkTestCase
     {
         $aKey = 'sections.section-a';
         $specA = array(
-            'route-key'     => $aKey,
+            'key'     => $aKey,
             'pattern'       => '/^somepatter/',
             'controller'    => 'SectionAController',
         );
@@ -280,9 +280,9 @@ class ActionRouteTest extends FrameworkTestCase
 
         $bKey = 'sections.section-b';
         $specB = array(
-            'route-key'     => $bKey,
-            'pattern'       => '/^otherpattern/',
-            'controller'    => 'SectionBController',
+            'key'       => $bKey,
+            'pattern'   => '/^otherpattern/',
+            'controller'=> 'SectionBController',
         );
         $sectionB = $this->createActionRoute($specB);
 
@@ -310,9 +310,9 @@ class ActionRouteTest extends FrameworkTestCase
     {
         $axKey = 'sections.section-a.x';
         $specAX = array(
-            'route-key'     => $axKey,
-            'pattern'       => '/^xpattern/',
-            'controller'    => 'XController',
+            'key'       => $axKey,
+            'pattern'   => '/^xpattern/',
+            'controller'=> 'XController',
         );
         $routeAX = $this->createActionRoute($specAX);
         $this->assertFalse($route->get($axKey));
@@ -325,9 +325,9 @@ class ActionRouteTest extends FrameworkTestCase
         $this->assertSame($routeAX, $sectionA->getDirect('x'));
 
         $specAXY = array(
-            'route-key'     => 'sections.section-a.x.y',
-            'pattern'       => '/^xypattern/',
-            'controller'    => 'XYController',
+            'key'       => 'sections.section-a.x.y',
+            'pattern'   => '/^xypattern/',
+            'controller'=> 'XYController',
         );
         $routeAXY = $this->createActionRoute($specAXY);
         $this->assertSame($route, $route->add($routeAXY));
@@ -352,6 +352,4 @@ class ActionRouteTest extends FrameworkTestCase
 
         $route->get('sections');
     }
-
-
 }
