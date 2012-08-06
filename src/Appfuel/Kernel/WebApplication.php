@@ -28,15 +28,48 @@ class WebApplication extends AppKernel implements WebInterface
     public function handle(HttpRequestInterface $request)
     {
         $pathInfo = $request->getPathInfo();
-        $routes  = $this->getRouteCollection();
-        $matcher = $this->createRouteMatcher(); 
-        $route = $matcher->match($pathInfo, $routes);
+        
+        $routes = $this->getRouteCollection();
+        
+        $matchedRoute = null;
+        $matches = array();
+        $matched = null;
+        foreach ($routes as $route) {
+            if (preg_match($route->getPattern(), $pathInfo, $matches)) {
+                $matchedRoute = $route;
+                break;
+            }
+            $matches = array();
+        }
 
-        $controller = $route->createController();
-        // set container here
+        if (! $matchedRoute) {
+            return $this->createHttpResponse('', 404);
+        }
+ 
+        $controller = $matchedRoute->getController();
+        $action = new $controller();   
 
-        $values = $route->getCaptureValues();
-        $response = call_user_func($controller, $values);
+        $captures = array();    
+        $call = array($action, 'execute');
+        if (! empty($matches)) {
+            $params = $matchedRoute->getParams();
+            $matched = array_shift($matches);
+
+            foreach ($matches as $key => $capture) {
+                if (is_string($key)) {
+                    $captures[$key] = $captures;
+                    continue;
+                }
+                
+                if (isset($params[$key])) {
+                    $captureKey = $params[$key];
+                    $captures[$captureKey] = $capture;
+                }
+            }
+            $captures = array_values($captures));
+        }
+
+        $response = call_user_func(array($action, 'execute'), $captures);
         if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }
@@ -46,18 +79,19 @@ class WebApplication extends AppKernel implements WebInterface
 
     public function getRouteCollection()
     {
-        $welcome = new ActionRoute(array(
-            'route-key' => 'appfuel.welcome',
+        $welcome = new RouteSpec(array(
+            'key' => 'welcome',
             'pattern' => '#^/#',
             'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
         ));
 
-        $demo = new ActionRoute(array(
+        $demo = new RouteSpec(array(
             'key' => 'hello-world',
             'pattern' => '#^/demo/hello/(\w+)#',
             'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',
             'params' => array('name')
         ));
+
 
         return array($welcome, $demo);
     }
