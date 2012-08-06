@@ -352,4 +352,38 @@ class ActionRouteTest extends FrameworkTestCase
 
         $route->get('sections');
     }
+
+    /**
+     * @test
+     * @depends         creatingActionRoute
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @return          null
+     */
+    public function matchInvalidPathFailure($badPath)
+    {
+        $spec = $this->getDefaultSpec();
+        $route = $this->createActionRoute($spec);
+
+        $msg = 'uri path must be a non empty string';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $result = $route->match($badPath);
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function failedMatch()
+    {
+        $spec = $this->getDefaultSpec();
+        $spec['pattern'] = '/^my-route$/';
+        $route = $this->createActionRoute($spec);
+
+        $this->assertFalse($route->match('myroute'));
+        $this->assertFalse($route->match('/'));
+    }
+
+
 }

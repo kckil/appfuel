@@ -8,7 +8,8 @@ namespace Appfuel\Route;
 
 use LogicException,
     OutOfBoundsException,
-    InvalidArgumentException;
+    InvalidArgumentException,
+    Appfuel\DataStructure\ArrayData;
 
 class ActionRoute implements ActionRouteInterface
 {
@@ -118,6 +119,47 @@ class ActionRoute implements ActionRouteInterface
     public function getParams()
     {
         return $this->params;
+    }
+
+    /**
+     * @param   string  $path
+     * @param   ArrayDataInterface  $captures
+     * @return  array
+     */
+    public function match($path, array $captures = null)
+    {
+        if (! is_string($path) || empty($path)) {
+            $err = "uri path must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (null === $captures) {
+            $captures = array();
+        }
+
+        $matches = array();
+        if (! preg_match($this->getPattern(), $path, $matches)) {
+            return false;
+        }
+
+        $matchedUri = array_shift($matches);
+        foreach ($matches as $key => $capture) {
+            // means the regex named this capture so use it 
+            if (is_string($key)) {
+                $captures[$key] = $capture;
+                continue;
+            }
+
+            // this was an indexed capture that was named using the params
+            // with the same index
+            if (isset($this->params[$key])) {
+                $captures[$this->params[$key]] = $capture;
+            }
+        }
+
+        $key = $this->getKey();
+        $controller = $this->getController();
+        return new MatchedRoute($key, $controller, $captures);
     }
 
     /**
