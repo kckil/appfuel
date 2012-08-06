@@ -72,7 +72,6 @@ class WebApplication extends AppKernel implements WebInterface
             $response = $action->execute();
         }
 
-        $response = call_user_func(array($action, 'execute'), $captures);
         if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }
@@ -84,7 +83,7 @@ class WebApplication extends AppKernel implements WebInterface
     {
         $welcome = new ActionRoute(array(
             'key' => 'welcome',
-            'pattern' => '#^/#',
+            'pattern' => '#^$/#',
             'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
         ));
 
