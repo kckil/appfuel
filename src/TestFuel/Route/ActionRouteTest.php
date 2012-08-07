@@ -6,11 +6,22 @@
  */
 namespace Testfuel\Kernel;
 
-use Appfuel\Route\ActionRoute,
+use Appfuel\Route\RouteSpec,
+    Appfuel\Route\ActionRoute,
     Testfuel\FrameworkTestCase;
 
 class ActionRouteTest extends FrameworkTestCase 
 {
+
+    /**
+     * @param   array   $data
+     * @return  RouteSpec
+     */
+    public function createRouteSpec(array $data)
+    {
+        return new RouteSpec($data);
+    }
+
     /**
      * @return  string
      */
@@ -306,4 +317,48 @@ class ActionRouteTest extends FrameworkTestCase
 
         $this->assertSame($spec, $matched->getSpec());
     }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function matchingWithCapturesHierarchy()
+    {
+        $userData = array('key' => 'users', 'pattern' => '#^/users#');
+        $userSpec = $this->createRouteSpec($userData);
+        $users = $this->createActionRoute($userSpec);
+
+        $groupData = array(
+            'key' => 'users.group', 
+            'pattern' => '#/group/([-_a-z]+)/(staff|admin|guest)#i',
+            'params'  => array('group-category', 'group-type')
+        );
+        $groupSpec = $this->createRouteSpec($groupData);
+        $userGroup = $this->createActionRoute($groupSpec);
+        $users->add($userGroup);
+
+        $rsbData = array(
+            'key' => 'users.group.rsb',
+            'pattern' => '#/rsb/(\d+)$#',
+            'params'  => array('rsb-id'),
+            'controller' => 'RsbController'
+        );
+        $rsbSpec = $this->createRouteSpec($rsbData);
+        $rsb = $this->createActionRoute($rsbSpec);
+
+        $users->add($rsb);
+        $uri = '/users/group/cat-a/staff/rsb/12345';
+        $matched = $users->match($uri);
+        $this->assertInstanceOf('Appfuel\\Route\\MatchedRoute', $matched);
+        $this->assertEquals($rsbSpec, $matched->getSpec());
+        $expected = array(
+            'group-category' => 'cat-a',
+            'group-type'     => 'staff',
+            'rsb-id'         => 12345,
+        );
+        $this->assertEquals($expected, $matched->getCaptures());
+    }
+
+
 }

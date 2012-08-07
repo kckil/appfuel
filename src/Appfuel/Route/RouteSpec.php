@@ -58,11 +58,9 @@ class RouteSpec implements RouteSpecInterface
         } 
         $this->setPattern($spec['pattern']);
 
-        if (! isset($spec['controller'])) { 
-            $err = '-(controller) controller class is expected but not given'; 
-            throw new OutOfBoundsException($err); 
-        } 
-        $this->setController($spec['controller']);
+        if (isset($spec['controller'])) { 
+            $this->setController($spec['controller']);
+        }
 
         if (isset($spec['controller-method'])) {
             $this->setControllerMethod($spec['controller-method']);        

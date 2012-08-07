@@ -332,29 +332,18 @@ class AppKernel implements AppKernelInterface
      * @param   MatchedRouteInterface
      * @return  array | Closure
      */
-    public function createCallableController(MatchedRouteInterface $route)
+    public function getRouter()
     {
-        $ctrl = $route->getController();
-        if (is_callable($ctrl)) {
-            return $ctrl;
-        }
+        $this->router;
+    }
 
-        if (is_string($ctrl)) {
-            $action = new $ctrl();
-            $method = $route->getControllerMethod();
-            if (null === $method) {
-                $method = 'execute';
-            }
-
-            if (method_exists($action, '__invoke')) {
-                return $action;
-            }
-
-            if (! method_exists($action, $method)) {
-                $err = "could not find controller method -($ctrl, $method)";
-                throw new LogicException($err);
-            }
-            return array($action, $method);
-        }
+    /**
+     * @param   RouterInterface $router
+     * @return  AppKernel
+     */
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $route;
+        return $this;
     }
 }

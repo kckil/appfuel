@@ -154,7 +154,7 @@ class RouteSpecTest extends FrameworkTestCase
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
-    public function creatingCollectionInvalidPattern($badPattern) 
+    public function creatingSpecInvalidPattern($badPattern) 
     { 
         $msg = 'pattern must be a non empty string'; 
         $this->setExpectedException('InvalidArgumentException', $msg); 
@@ -165,26 +165,11 @@ class RouteSpecTest extends FrameworkTestCase
     }
 
     /** 
-     * @test
-     * @depends creatingRouteSpec
-     * @return  null 
-     */
-    public function creatingCollectionNoController() 
-    { 
-        $msg = '-(controller) controller class is expected but not given'; 
-        $this->setExpectedException('OutOfBoundsException', $msg); 
-
-        $data = $this->getDefaultData();
-        unset($data['controller']); 
-        $spec = $this->createRouteSpec($data); 
-    }
-
-    /** 
      * @depends         creatingRouteSpec
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
-    public function creatingCollectionInvalidController($badClassName) 
+    public function creatingSpecInvalidController($badClassName) 
     { 
         $msg = 'controller must be callable or a non empty string'; 
         $this->setExpectedException('InvalidArgumentException', $msg); 

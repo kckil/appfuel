@@ -30,21 +30,14 @@ class WebApplication extends AppKernel implements WebInterface
     {
         $pathInfo = $request->getPathInfo();
         
-        $routes = $this->getRouteCollection();
-        
-        $matchedRoute = null;
-        foreach ($routes as $route) {
-            if (false !== $matchedRoute = $route->match($pathInfo)) {
-                break;
-            }
-        }
-
-        if (! $matchedRoute) {
+        $router = $this->getRouter();
+        $matched = $router->match($pathInfo); 
+        if (! $matched instanceof MatchedRouteInterface) {
             return $this->createHttpResponse('', 404);
         }
  
-        $controller = $matchedRoute->createCallableController();
-        $captures = $matchedRoute->getCaptures();
+        $controller = $matched->createCallableController();
+        $captures = $matched->getCaptures();
         
         $response = call_user_func_array($controller, $captures);
         if (! $response instanceof HttpResponseInterface) {

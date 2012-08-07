@@ -87,8 +87,26 @@ class ActionRoute implements ActionRouteInterface
                 $captures[$params[$key]] = $capture;
             }
         }
+        
+        if (empty($this->routes)) {
+            return new MatchedRoute($spec, $captures);
+        }
 
-        $matched = new MatchedRoute($spec, $captures);
+        $found = false;
+        $pos = strpos($path, $matchedUri) + strlen($matchedUri);
+        $uri = substr($path, $pos);
+        foreach ($this->routes as $route) {
+            $matched = $route->match($uri, $captures);
+            if ($matched instanceof MatchedRouteInterface) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (false === $found) {
+            $matched = new MatchedRoute($spec, $captures);
+        }
+
         return $matched;
     }
 
