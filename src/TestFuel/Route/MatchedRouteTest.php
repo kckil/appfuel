@@ -13,12 +13,22 @@ class MatchedRouteTest extends FrameworkTestCase
 {
 
     /**
-     * @param   array $spec
-     * @return  RouteMatcher
+     * @return  RouteSpecInterface
      */
-    public function createMatchedRoute($key, $ctrl, $method, array $args=null)
+    public function createMockRouteSpec()
     {
-        return new MatchedRoute($key, $ctrl, $method, $args);
+        $interface = 'Appfuel\\Route\\RouteSpecInterface';
+        $mock = $this->getMock($interface);
+        return $mock;
+    }
+
+    /**
+     * @param   RouteSpecInterface $spec
+     * @return  MatchedRoute
+     */
+    public function createMatchedRoute($spec, array $args=null)
+    {
+        return new MatchedRoute($spec, $args);
     }
 
     /**
@@ -27,44 +37,12 @@ class MatchedRouteTest extends FrameworkTestCase
      */
     public function creatingMatchedRoute()
     {
-        $key = 'my-key';
-        $controller = 'MyController';
-        $method = 'execute';
-        $matched = $this->createMatchedRoute($key, $controller, $method);
+        $spec = $this->createMockRouteSpec();
+        $matched = $this->createMatchedRoute($spec);
         $interface = 'Appfuel\\Route\\MatchedRouteInterface';
         $this->assertInstanceOf($interface, $matched);
-        $this->assertEquals($key, $matched->getKey());
-        $this->assertEquals($method, $matched->getMethod());
-        $this->assertEquals($controller, $matched->getController());
-    }
-
-    /** 
-     * @test
-     * @depends         creatingMatchedRoute
-     * @dataProvider    provideInvalidStringsIncludeEmpty
-     * @return          null 
-     */
-    public function creatingCollectionInvalidRouteKey($badKey) 
-    { 
-      
-        $msg = 'route key must be a non empty string'; 
-        $this->setExpectedException('InvalidArgumentException', $msg); 
-
-        $matched = $this->createMatchedRoute($badKey, 'crtl', 'method');
-    }
-
-    /** 
-     * @test
-     * @depends         creatingMatchedRoute
-     * @dataProvider    provideInvalidStringsIncludeEmpty
-     * @return          null 
-     */
-    public function creatingCollectionInvalidMethods($badName) 
-    { 
-        $msg = 'controller method must be a non empty string'; 
-        $this->setExpectedException('InvalidArgumentException', $msg); 
-
-        $matched = $this->createMatchedRoute('my-key', 'ctrl', $badName);
+        $this->assertSame($spec, $matched->getSpec());
+        $this->assertEquals(array(), $matched->getCaptures());
     }
 
    /**
@@ -74,11 +52,9 @@ class MatchedRouteTest extends FrameworkTestCase
      */
     public function creatingMatchedRouteWithCaptures()
     {
-        $key = 'my-key';
-        $ctrl = 'MyController';
-        $method = 'execute';
+        $spec = $this->createMockRouteSpec();
         $captures = array('name' => 'robert');
-        $matched = $this->createMatchedRoute($key, $ctrl, $method, $captures);
+        $matched = $this->createMatchedRoute($spec, $captures);
         $this->assertEquals($captures, $matched->getCaptures());
     }
 }

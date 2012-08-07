@@ -11,26 +11,38 @@ use Appfuel\Route\ActionRoute,
 
 class ActionRouteTest extends FrameworkTestCase 
 {
+    /**
+     * @return  string
+     */
+    public function getRouteSpecInterface()
+    {
+        return 'Appfuel\\Route\\RouteSpecInterface';
+    }
+
+    /**
+     * @return  RouteSpecInterface
+     */
+    public function createMockRouteSpec($key = null)
+    {
+        if (null === $key) {
+            return $this->getMock($this->getRouteSpecInterface());
+        }
+
+        $spec = $this->getMock($this->getRouteSpecInterface());
+        $spec->expects($this->any())
+             ->method('getKey')
+             ->will($this->returnValue($key));
+
+        return $spec;
+    }
 
     /**
      * @param   array $spec
      * @return  RouteMatcher
      */
-    public function createActionRoute(array $spec)
+    public function createActionRoute($spec)
     {
         return new ActionRoute($spec);
-    }
-
-    /**
-     * @return  array
-     */
-    public function getDefaultSpec()
-    {
-        return array(
-            'key' => 'sections',
-            'pattern'   => '#^sections',
-            'controller' => 'My\\Controller\\ControllerClass',
-        );
     }
 
     /**
@@ -39,16 +51,13 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function creatingActionRoute()
     {
-        $spec = $this->getDefaultSpec();
-        $routes = $this->createActionRoute($spec);
+        $spec = $this->createMockRouteSpec('sections');
+        $route = $this->createActionRoute($spec);
         $interface = 'Appfuel\\Route\\ActionRouteInterface';
-        $this->assertInstanceOf($interface, $routes);
-        $this->assertEquals($spec['key'], $routes->getKey());
-        $this->assertEquals($spec['pattern'], $routes->getPattern());
-        $this->assertEquals($spec['controller'], $routes->getController());
-        $this->assertEquals('execute', $routes->getControllerMethod());
-        
-        return $routes;
+        $this->assertInstanceOf($interface, $route);
+        $this->assertSame($spec, $route->getSpec());
+    
+        return $route;
     }
 
     /**
@@ -56,10 +65,13 @@ class ActionRouteTest extends FrameworkTestCase
      * @depends creatingActionRoute
      * @return  null
      */
-    public function AddingARouteToItself()
+    public function addingARouteToItself()
     {
+        $spec = $this->createMockRouteSpec();
+        $spec->expects($this->any())
+             ->method('getKey')
+             ->will($this->returnValue('sections'));
 
-        $spec = $this->getDefaultSpec();
         $route = $this->createActionRoute($spec);
 
         $msg = 'you can not use this route -(sections) recursively';
@@ -68,27 +80,49 @@ class ActionRouteTest extends FrameworkTestCase
         $route->add($route);
     }
 
+    /**
+     * @test
+     * @depends         creatingActionRoute
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @return  null
+     */
+    public function addingARouteInvalidRouteKey($badKey)
+    {
+        $spec = $this->createMockRouteSpec();
+        $route = $this->createActionRoute($spec);
+        
+        $spec1 = $this->createMockRouteSpec();
+        $spec1->expects($this->any())
+              ->method('getKey')
+              ->will($this->returnValue($badKey));
+
+        $route1 = $this->createActionRoute($spec1);
+
+
+        $msg = 'route key must be a non empty string';
+        $this->setExpectedException('LogicException', $msg);
+        
+        $route->add($route1);
+    }
+
+
 
     /**
      * @test
      * @depends creatingActionRoute
      * @return  null
      */
-    public function AddingARouteWhereKeyIsNotAChild()
+    public function addingARouteWhereKeyIsNotAChild()
     {
 
-        $spec = $this->getDefaultSpec();
+        $spec = $this->createMockRouteSpec('route-a');
         $route = $this->createActionRoute($spec);
 
-        $specA = array(
-            'key' => 'not-sections.a',
-            'pattern'   => '/blah/',
-            'controller' => 'someController'
-        );
+        $specA = $this->createMockRouteSpec('route-b.a');
         $routeA = $this->createActionRoute($specA);
 
 
-        $msg = 'route -(key=not-sections.a) must be a child of -(key=sections)';
+        $msg = 'route -(key=route-b.a) must be a child of -(key=route-a)';
         $this->setExpectedException('LogicException', $msg);
         $route->add($routeA);
     }
@@ -98,14 +132,13 @@ class ActionRouteTest extends FrameworkTestCase
      * @depends creatingActionRoute
      * @return  RouteAction
      */
-    public function addingDirectRoutes(ActionRoute $route)
+    public function addingDirectRoutes()
     {
+        $spec = $this->createMockRouteSpec('sections');
+        $route = $this->createActionRoute($spec);
+        
         $aKey = 'sections.section-a';
-        $specA = array(
-            'key'     => $aKey,
-            'pattern'       => '/^somepatter/',
-            'controller'    => 'SectionAController',
-        );
+        $specA = $this->createMockRouteSpec($aKey);
         $sectionA = $this->createActionRoute($specA);
 
         $this->assertFalse($route->get($aKey));
@@ -114,11 +147,7 @@ class ActionRouteTest extends FrameworkTestCase
         $this->assertSame($sectionA, $route->getDirect('section-a'));
 
         $bKey = 'sections.section-b';
-        $specB = array(
-            'key'       => $bKey,
-            'pattern'   => '/^otherpattern/',
-            'controller'=> 'SectionBController',
-        );
+        $specB = $this->createMockRouteSpec($bKey);
         $sectionB = $this->createActionRoute($specB);
 
         $this->assertFalse($route->get($bKey));
@@ -143,35 +172,40 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function addingAChainOfRoutes(ActionRoute $route)
     {
+        $spec = $route->getSpec();
+        $spec->expects($this->any())
+             ->method('getKey')
+             ->will($this->returnValue('sections'));
+
+        $sectionA = $route->get('sections.section-a');
+        $specA = $sectionA->getSpec();
+        $specA->expects($this->any())
+              ->method('getKey')
+              ->will($this->returnValue('sections.section-a'));
+
+
         $axKey = 'sections.section-a.x';
-        $specAX = array(
-            'key'       => $axKey,
-            'pattern'   => '/^xpattern/',
-            'controller'=> 'XController',
-        );
+        $specAX = $this->createMockRouteSpec($axKey);
         $routeAX = $this->createActionRoute($specAX);
         $this->assertFalse($route->get($axKey));
         $this->assertSame($route, $route->add($routeAX));
         $this->assertSame($routeAX, $route->get($axKey));
 
-        $sectionA = $route->get('sections.section-a');
         $this->assertSame($sectionA, $sectionA->add($routeAX));
         $this->assertSame($routeAX, $sectionA->get($axKey));
         $this->assertSame($routeAX, $sectionA->getDirect('x'));
 
-        $specAXY = array(
-            'key'       => 'sections.section-a.x.y',
-            'pattern'   => '/^xypattern/',
-            'controller'=> 'XYController',
-        );
+        $axyKey = 'sections.section-a.x.y';
+        $specAXY = $this->createMockRouteSpec($axyKey);
+
         $routeAXY = $this->createActionRoute($specAXY);
         $this->assertSame($route, $route->add($routeAXY));
 
         $sectionAX = $route->get('sections.section-a.x');
-        $this->assertSame($routeAXY, $route->get('sections.section-a.x.y'));
+        $this->assertSame($routeAXY, $route->get($axyKey));
 
         $this->assertSame($sectionAX, $sectionAX->add($routeAXY));
-        $this->assertSame($routeAXY, $sectionAX->get('sections.section-a.x.y'));
+        $this->assertSame($routeAXY, $sectionAX->get($axyKey));
         $this->assertSame($routeAXY, $sectionAX->getDirect('y'));
     }
 
@@ -182,6 +216,12 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function tryingToGetARouteFromTheRoute(ActionRoute $route)
     {
+        $spec = $route->getSpec();
+        $spec->expects($this->any())
+             ->method('getKey')
+             ->will($this->returnValue('sections'));
+
+
         $msg = 'you can not use this route -(sections) recursively';
         $this->setExpectedException('LogicException', $msg);
 
@@ -196,7 +236,7 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function matchInvalidPathFailure($badPath)
     {
-        $spec = $this->getDefaultSpec();
+        $spec = $this->createMockRouteSpec();
         $route = $this->createActionRoute($spec);
 
         $msg = 'uri path must be a non empty string';
@@ -212,8 +252,11 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function failedMatch()
     {
-        $spec = $this->getDefaultSpec();
-        $spec['pattern'] = '/^my-route$/';
+        $spec = $this->createMockRouteSpec();
+        $spec->expects($this->any())
+             ->method('getPattern')
+             ->will($this->returnValue('/^my-route$/'));
+
         $route = $this->createActionRoute($spec);
 
         $this->assertFalse($route->match('myroute'));
@@ -227,16 +270,16 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function matching()
     {
-        $spec = $this->getDefaultSpec();
-        $spec['pattern'] = '/^my-route$/';
+        $spec = $this->createMockRouteSpec();
+        $spec->expects($this->any())
+             ->method('getPattern')
+             ->will($this->returnValue('/^my-route$/'));
+
         $route = $this->createActionRoute($spec);
         
         $matched = $route->match('my-route');
         $class = 'Appfuel\\Route\\MatchedRoute';
         $this->assertInstanceOf($class, $matched);
-        $this->assertEquals($route->getKey(), $matched->getKey());
-        $this->assertEquals($route->getController(), $matched->getController());
-        $this->assertEquals(array(), $matched->getCaptures());
     }
 
     /**
@@ -246,9 +289,14 @@ class ActionRouteTest extends FrameworkTestCase
      */
     public function matchingWithCaptures()
     {
-        $spec = $this->getDefaultSpec();
-        $spec['pattern'] = '#^my-route/(\w+)/(\d+)#';
-        $spec['params'] = array('name', 'id');
+        $spec = $this->createMockRouteSpec();
+        $spec->expects($this->any())
+             ->method('getPattern')
+             ->will($this->returnValue('#^my-route/(\w+)/(\d+)#'));
+
+        $spec->expects($this->any())
+             ->method('getParams')
+             ->will($this->returnValue(array('name', 'id')));
 
         $route = $this->createActionRoute($spec);
         
@@ -256,20 +304,6 @@ class ActionRouteTest extends FrameworkTestCase
         $class = 'Appfuel\\Route\\MatchedRoute';
         $this->assertInstanceOf($class, $matched);
 
-        $this->assertEquals($route->getKey(), $matched->getKey());
-        $this->assertEquals($route->getController(), $matched->getController());
-        
-        $expected = array(
-            'name' => 'robert',
-            'id' => '12345'
-        );
-        $this->assertEquals($expected, $matched->getCaptures());
-
-        $func = function () {
-            return 'blah';
-        };
+        $this->assertSame($spec, $matched->getSpec());
     }
-
-
-
 }

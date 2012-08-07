@@ -55,18 +55,18 @@ class WebApplication extends AppKernel implements WebInterface
 
     public function getRouteCollection()
     {
-        $welcome = new ActionRoute(array(
+        $welcome = new ActionRoute(new RouteSpec(array(
             'key' => 'welcome',
             'pattern' => '#^$/#',
             'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
-        ));
+        )));
 
-        $demo = new ActionRoute(array(
+        $demo = new ActionRoute(new RouteSpec(array(
             'key' => 'hello-world',
             'pattern' => '#^/demo/hello/(\w+)#',
             'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',
             'params' => array('name')
-        ));
+        )));
 
 
         return array($welcome, $demo);

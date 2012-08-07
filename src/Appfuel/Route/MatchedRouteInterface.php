@@ -12,12 +12,12 @@ interface MatchedRouteInterface
     /**
      * @return  string
      */
-    public function getKey();
+    public function getSpec();
 
     /**
      * @return  string
      */
-    public function getController();
+    public function createCallableController();
 
     /**
      * @return  array

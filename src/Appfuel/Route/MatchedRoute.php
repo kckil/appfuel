@@ -11,15 +11,9 @@ use InvalidArgumentException;
 class MatchedRoute implements MatchedRouteInterface
 {
     /**
-     * @var string  $key
+     * @var RouteSpecInterface
      */
-    protected $key = null;
-
-    /**
-     * Action controller used by the framework once a match is satified
-     * @var string
-     */
-    protected $controller = null;
+    protected $spec = null;
 
     /**  
      * @var array
@@ -30,12 +24,9 @@ class MatchedRoute implements MatchedRouteInterface
      * @param   array $spec
      * @return  RouteCollection
      */
-    public function __construct($key, $ctrl, $method, array $captures = null)
+    public function __construct(RouteSpecInterface $spec, array $captures=null)
     {
-        $this->setKey($key);
-        $this->setMethod($method);
-        $this->setController($ctrl);
-
+        $this->spec = $spec;
         if (null !== $captures) {
             $this->setCaptures($captures);
         }
@@ -44,39 +35,24 @@ class MatchedRoute implements MatchedRouteInterface
     /**
      * @return  string
      */
-    public function getKey()
+    public function getSpec()
     {
-        return $this->key;
+        return $this->spec;
     }
 
-    /**
-     * @return  string
-     */
-    public function getController()
-    {
-        return $this->controller;
-    }
-
-    /**
-     * @return  string
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
-    
     /**
      * @return  array | object | Closure
      */
     public function createCallableController()
     {
-        $ctrl = $this->getController();
+        $spec = $this->getSpec();
+        $ctrl = $spec->getController();
         if (is_callable($ctrl)) {
             return $ctrl;
         }
 
         $action = new $ctrl();
-        $method = $this->getMethod();
+        $method = $spec->getMethod();
         if (null === $method) {
             $method = 'execute';
         }
@@ -98,62 +74,11 @@ class MatchedRoute implements MatchedRouteInterface
     }
 
     /**
-     * @param  string  $key
-     * @return  null
-     */
-    protected function setKey($key)
-    {
-        if (! $this->isValidString($key)) {
-            $err = "route key must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
-    
-        $this->key = $key;
-    }
-
-    /**
-     * @param  string  $key
-     * @return  null
-     */
-    protected function setController($ctrl)
-    {
-        $this->controller = $ctrl;
-    }
-
-    /**
-     * @param  string  $key
-     * @return  null
-     */
-    protected function setMethod($name)
-    {
-        if (! $this->isValidString($name)) {
-            $err = "controller method must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
-    
-        $this->method = $name;
-    }
-
-
-    /**
      * @param   array   $params
      * @return  null
      */
     protected function setCaptures(array $list)
     {
         $this->captures = $list;
-    }
-
-    /**
-     * @param   string  $key
-     * @return  bool
-     */
-    protected function isValidString($key)
-    {
-         if (! is_string($key) || empty($key)) {
-            return false;
-        }
-    
-        return true;
     }
 }
