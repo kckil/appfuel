@@ -32,4 +32,16 @@ interface RouteSpecInterface
      * @return  array
      */
     public function getParams();
+
+    /**
+     * @return  string | null
+     */    
+    public function getHttpMethod();
+
+    /**
+     * Return true when http method is not null false otherwise
+     *
+     * @return  bool
+     */
+    public function isHttpMethodCheck();
 }

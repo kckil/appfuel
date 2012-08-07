@@ -359,6 +359,4 @@ class ActionRouteTest extends FrameworkTestCase
         );
         $this->assertEquals($expected, $matched->getCaptures());
     }
-
-
 }

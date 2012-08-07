@@ -55,19 +55,19 @@ class ActionRoute implements ActionRouteInterface
      * @param   ArrayDataInterface  $captures
      * @return  array
      */
-    public function match($path, array $captures = null)
+    public function match($path, $method = null, array $captures = array())
     {
         if (! is_string($path) || empty($path)) {
             $err = "uri path must be a non empty string";
             throw new InvalidArgumentException($err);
         }
 
-        if (null === $captures) {
-            $captures = array();
-        }
-
         $spec = $this->getSpec();
         $matches = array();
+        if ($spec->isHttpMethodCheck() && $method !== $spec->getHttpMethod()) {
+            return false;
+        }
+
         if (! preg_match($spec->getPattern(), $path, $matches)) {
             return false;
         }
@@ -87,7 +87,7 @@ class ActionRoute implements ActionRouteInterface
                 $captures[$params[$key]] = $capture;
             }
         }
-        
+
         if (empty($this->routes)) {
             return new MatchedRoute($spec, $captures);
         }
@@ -96,7 +96,7 @@ class ActionRoute implements ActionRouteInterface
         $pos = strpos($path, $matchedUri) + strlen($matchedUri);
         $uri = substr($path, $pos);
         foreach ($this->routes as $route) {
-            $matched = $route->match($uri, $captures);
+            $matched = $route->match($uri, $method, $captures);
             if ($matched instanceof MatchedRouteInterface) {
                 $found = true;
                 break;

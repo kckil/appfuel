@@ -58,6 +58,38 @@ class RouteSpecTest extends FrameworkTestCase
      * @depends creatingRouteSpec
      * @return  RouteSpec
      */
+    public function creatingRouteSpecWithHttpMethod()
+    {
+        $data = $this->getDefaultData();
+        $spec = $this->createRouteSpec($data);
+        $this->assertNull($spec->getHttpMethod());
+      
+        $data = $this->getDefaultData();
+        $data['http-method'] = 'GET';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('GET', $spec->getHttpMethod());
+
+        /* gets converted to uppercase */ 
+        $data = $this->getDefaultData();
+        $data['http-method'] = 'get';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('GET', $spec->getHttpMethod());
+
+        /* only checks its a valid string */
+        $data = $this->getDefaultData();
+        $data['http-method'] = 'x-method';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('X-METHOD', $spec->getHttpMethod());
+
+        return $spec;
+    }
+
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
     public function creatingRouteSpecClosureController()
     {
         $data = $this->getDefaultData();
@@ -185,13 +217,29 @@ class RouteSpecTest extends FrameworkTestCase
      * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
-    public function creatingCollectionInvalidRouteParams($badParam) 
+    public function creatingSpecInvalidRouteParams($badParam) 
     { 
         $msg = 'route parameter must be a non empty string'; 
         $this->setExpectedException('OutOfBoundsException', $msg); 
 
         $data = $this->getDefaultData();
         $data['params'] = array('name', $badParam, 'type'); 
+        $spec = $this->createRouteSpec($data); 
+    }
+
+    /** 
+     * @test
+     * @depends         creatingRouteSpec
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @return          null 
+     */
+    public function creatingSpecInvalidHttpMethod($badMethod) 
+    { 
+        $msg = 'http method name must be a non empty string'; 
+        $this->setExpectedException('InvalidArgumentException', $msg); 
+
+        $data = $this->getDefaultData();
+        $data['http-method'] = $badMethod; 
         $spec = $this->createRouteSpec($data); 
     }
 

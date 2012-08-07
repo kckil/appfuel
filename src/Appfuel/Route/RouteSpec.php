@@ -41,6 +41,24 @@ class RouteSpec implements RouteSpecInterface
     protected $params = array();
 
     /**
+     * List of parameter defaults which will be used when a parameter is not
+     * present
+     * @var array
+     */
+    protected $defaults = array();
+
+    /**
+     * Used to enforce an http scheme
+     * @var string
+     */
+    protected $scheme = 'http';
+
+    /**
+     * @var string
+     */
+    protected $httpMethod = null;
+
+    /**
      * @param   array $spec
      * @return  RouteCollection
      */
@@ -68,6 +86,10 @@ class RouteSpec implements RouteSpecInterface
 
         if (isset($spec['params'])) {
             $this->setParams($spec['params']);
+        }
+
+        if (isset($spec['http-method'])) {
+            $this->setHttpMethod($spec['http-method']);
         }
     }
 
@@ -109,6 +131,25 @@ class RouteSpec implements RouteSpecInterface
     public function getParams()
     {
         return $this->params;
+    }
+
+    /**
+     * Used to determine if when matching the uri path the http method 
+     * should be compared. 
+     * 
+     * @return  bool
+     */
+    public function isHttpMethodCheck()
+    {
+        return null !== $this->httpMethod;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getHttpMethod()
+    {
+        return $this->httpMethod;
     }
 
     /**
@@ -159,7 +200,7 @@ class RouteSpec implements RouteSpecInterface
      */
     protected function setControllerMethod($name)
     {
-        if (! is_string($name) || empty($name)) {
+        if (! $this->isValidString($name)) {
             $err = "controller method name must be a non empty string";
             throw new InvalidArgumentException($err);
         }
@@ -182,6 +223,21 @@ class RouteSpec implements RouteSpecInterface
 
         $this->params = $params;
     }
+
+    /**
+     * @param  string  $name
+     * @return  null
+     */
+    protected function setHttpMethod($name)
+    {
+        if (! $this->isValidString($name)) {
+            $err = "http method name must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->httpMethod = strtoupper($name);
+    }
+
 
     /**
      * @param   string  $key
