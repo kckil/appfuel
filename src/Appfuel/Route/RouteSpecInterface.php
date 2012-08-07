@@ -39,9 +39,8 @@ interface RouteSpecInterface
     public function getHttpMethod();
 
     /**
-     * Return true when http method is not null false otherwise
-     *
-     * @return  bool
-     */
-    public function isHttpMethodCheck();
+     * @return  string | null
+     */    
+    public function getUriScheme();
+
 }

@@ -6,7 +6,8 @@
  */
 namespace Testfuel\Kernel;
 
-use Appfuel\Route\RouteSpec,
+use Appfuel\Route\UriMatcher,
+    Appfuel\Route\RouteSpec,
     Appfuel\Route\ActionRoute,
     Testfuel\FrameworkTestCase;
 
@@ -20,6 +21,15 @@ class ActionRouteTest extends FrameworkTestCase
     public function createRouteSpec(array $data)
     {
         return new RouteSpec($data);
+    }
+
+    /**
+     * @param   array   $data
+     * @return  UriMatcher
+     */
+    public function createUriMatcher(array $data)
+    {
+        return new UriMatcher($data);
     }
 
     /**
@@ -241,41 +251,27 @@ class ActionRouteTest extends FrameworkTestCase
 
     /**
      * @test
-     * @depends         creatingActionRoute
-     * @dataProvider    provideInvalidStringsIncludeEmpty
-     * @return          null
-     */
-    public function matchInvalidPathFailure($badPath)
-    {
-        $spec = $this->createMockRouteSpec();
-        $route = $this->createActionRoute($spec);
-
-        $msg = 'uri path must be a non empty string';
-        $this->setExpectedException('InvalidArgumentException', $msg);
-
-        $result = $route->match($badPath);
-    }
-
-    /**
-     * @test
      * @depends creatingActionRoute
      * @return  null
      */
     public function failedMatch()
     {
-        $spec = $this->createMockRouteSpec();
-        $spec->expects($this->any())
-             ->method('getPattern')
-             ->will($this->returnValue('/^my-route$/'));
-
+        $spec = $this->createRouteSpec(array(
+            'key' => 'example',
+            'pattern' => '#^/my-route$#',
+        ));
         $route = $this->createActionRoute($spec);
 
-        $this->assertFalse($route->match('myroute'));
-        $this->assertFalse($route->match('/'));
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/myroute',
+            'uri-scheme' => 'http',
+            'http-method' => 'get'
+        ));
+
+        $this->assertFalse($route->match($matcher));
     }
 
     /**
-     * @test
      * @depends creatingActionRoute
      * @return  null
      */
@@ -294,7 +290,6 @@ class ActionRouteTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingActionRoute
      * @return  null
      */
@@ -319,7 +314,6 @@ class ActionRouteTest extends FrameworkTestCase
     }
 
     /**
-     * @test
      * @depends creatingActionRoute
      * @return  null
      */

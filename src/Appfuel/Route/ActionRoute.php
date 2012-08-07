@@ -55,56 +55,36 @@ class ActionRoute implements ActionRouteInterface
      * @param   ArrayDataInterface  $captures
      * @return  array
      */
-    public function match($path, $method = null, array $captures = array())
+    public function match(UriMatcherInterface $matcher)
     {
-        if (! is_string($path) || empty($path)) {
-            $err = "uri path must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
-
         $spec = $this->getSpec();
+        if (! $spec->isUriSchemeAllowed($matcher->getUriScheme())) {
+            return false;
+        }
+
+        if (! $spec->isHttpMethodAllowed($matcher->getHttpMethod())) {
+            return false;
+        }
+
         $matches = array();
-        if ($spec->isHttpMethodCheck() && $method !== $spec->getHttpMethod()) {
+        if (! $matcher->match($spec->getPattern(), $spec->getParams())) {
             return false;
-        }
-
-        if (! preg_match($spec->getPattern(), $path, $matches)) {
-            return false;
-        }
-
-        $matchedUri = array_shift($matches);
-        $params = $spec->getParams();
-        foreach ($matches as $key => $capture) {
-            // means the regex named this capture so use it 
-            if (is_string($key)) {
-                $captures[$key] = $capture;
-                continue;
-            }
-
-            // this was an indexed capture that was named using the params
-            // with the same index
-            if (isset($params[$key])) {
-                $captures[$params[$key]] = $capture;
-            }
         }
 
         if (empty($this->routes)) {
-            return new MatchedRoute($spec, $captures);
+            return new MatchedRoute($spec, $matcher->getCaptures());
         }
 
         $found = false;
-        $pos = strpos($path, $matchedUri) + strlen($matchedUri);
-        $uri = substr($path, $pos);
         foreach ($this->routes as $route) {
-            $matched = $route->match($uri, $method, $captures);
-            if ($matched instanceof MatchedRouteInterface) {
+            if (false !== $matched = $route->match($matcher)) {
                 $found = true;
                 break;
             }
         }
 
         if (false === $found) {
-            $matched = new MatchedRoute($spec, $captures);
+            $matched = new MatchedRoute($spec, $matcher->getCaptures());
         }
 
         return $matched;

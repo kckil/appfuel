@@ -6,7 +6,8 @@
  */
 namespace Testfuel\Kernel;
 
-use Appfuel\Route\RouteSpec,
+use StdClass,
+    Appfuel\Route\RouteSpec,
     Testfuel\FrameworkTestCase;
 
 class RouteSpecTest extends FrameworkTestCase 
@@ -62,28 +63,184 @@ class RouteSpecTest extends FrameworkTestCase
     {
         $data = $this->getDefaultData();
         $spec = $this->createRouteSpec($data);
-        $this->assertNull($spec->getHttpMethod());
+        $this->assertEquals(array(), $spec->getHttpMethod());
       
         $data = $this->getDefaultData();
         $data['http-method'] = 'GET';
         $spec = $this->createRouteSpec($data);
-        $this->assertEquals('GET', $spec->getHttpMethod());
+        $this->assertEquals(array('GET'), $spec->getHttpMethod());
 
         /* gets converted to uppercase */ 
         $data = $this->getDefaultData();
         $data['http-method'] = 'get';
         $spec = $this->createRouteSpec($data);
-        $this->assertEquals('GET', $spec->getHttpMethod());
+        $this->assertEquals(array('get'), $spec->getHttpMethod());
 
         /* only checks its a valid string */
         $data = $this->getDefaultData();
         $data['http-method'] = 'x-method';
         $spec = $this->createRouteSpec($data);
-        $this->assertEquals('X-METHOD', $spec->getHttpMethod());
+        $this->assertEquals(array('x-method'), $spec->getHttpMethod());
+    }
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function creatingRouteSpecWithManyHttpMethodsString()
+    {
+        $data = $this->getDefaultData();
+        $data['http-method'] = 'GET|POST|PUT|DELETE';
+        $spec = $this->createRouteSpec($data);
+
+        $expected = array('GET', 'POST', 'PUT', 'DELETE');
+        $this->assertEquals($expected, $spec->getHttpMethod());
+        foreach($expected as $method) {
+            $this->assertTrue($spec->isHttpMethodAllowed($method));
+        }
+    }
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function creatingRouteSpecWithManyHttpMethodsArray()
+    {
+        $data = $this->getDefaultData();
+        $data['http-method'] = array('get', 'post', 'put', 'delete');
+        $spec = $this->createRouteSpec($data);
+
+        $expected = array('get', 'post', 'put', 'delete');
+        $this->assertEquals($expected, $spec->getHttpMethod());
+        foreach($expected as $method) {
+            $this->assertTrue($spec->isHttpMethodAllowed($method));
+        }
+    }
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function isHttpMethodAllowedNoMethodDeclared()
+    {
+        $data = $this->getDefaultData();
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals(array(), $spec->getHttpMethod());
+        
+        $this->assertTrue($spec->isHttpMethodAllowed()); 
+        $this->assertTrue($spec->isHttpMethodAllowed('get'));
+        $this->assertTrue($spec->isHttpMethodAllowed('put'));
+        $this->assertTrue($spec->isHttpMethodAllowed('post'));
+        $this->assertTrue($spec->isHttpMethodAllowed('delete'));
+        $this->assertTrue($spec->isHttpMethodAllowed('anything'));
+    }
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function isHttpMethodAllowedOneMethodDeclared()
+    {
+        $data = $this->getDefaultData();
+        $data['http-method'] = 'get';
+        $spec = $this->createRouteSpec($data);
+        
+        $this->assertTrue($spec->isHttpMethodAllowed('get'));
+        $this->assertTrue($spec->isHttpMethodAllowed('GET'));
+        $this->assertFalse($spec->isHttpMethodAllowed()); 
+        $this->assertFalse($spec->isHttpMethodAllowed('put'));
+        $this->assertFalse($spec->isHttpMethodAllowed('post'));
+        $this->assertFalse($spec->isHttpMethodAllowed('delete'));
+        $this->assertFalse($spec->isHttpMethodAllowed('anything'));
+    }
+
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function creatingRouteSpecWithUriScheme()
+    {
+        $data = $this->getDefaultData();
+        $spec = $this->createRouteSpec($data);
+        $this->assertNull($spec->getUriScheme());
+      
+        $data = $this->getDefaultData();
+        $data['uri-scheme'] = 'http';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('http', $spec->getUriScheme());
+
+        /* gets converted to uppercase */ 
+        $data = $this->getDefaultData();
+        $data['uri-scheme'] = 'HTTPS';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('https', $spec->getUriScheme());
+
+        /* only checks its a valid string */
+        $data = $this->getDefaultData();
+        $data['uri-scheme'] = 'ftp';
+        $spec = $this->createRouteSpec($data);
+        $this->assertEquals('ftp', $spec->getUriScheme());
 
         return $spec;
     }
 
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function isUrlSchemeAllowedNoSchemeDeclared()
+    {
+        $data = $this->getDefaultData();
+        $spec = $this->createRouteSpec($data);
+        $this->assertNull($spec->getUriScheme());
+        
+        $this->assertTrue($spec->isUriSchemeAllowed()); 
+        $this->assertTrue($spec->isUriSchemeAllowed('http'));
+        $this->assertTrue($spec->isUriSchemeAllowed('https'));
+        $this->assertTrue($spec->isUriSchemeAllowed('ftp'));
+        $this->assertTrue($spec->isUriSchemeAllowed('git'));
+    }
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function isUrlSchemeAllowedSchemeDeclared()
+    {
+        $data = $this->getDefaultData();
+        $data['uri-scheme'] = 'https';
+        $spec = $this->createRouteSpec($data);
+        
+        $this->assertFalse($spec->isUriSchemeAllowed()); 
+        $this->assertFalse($spec->isUriSchemeAllowed('http'));
+        $this->assertTrue($spec->isUriSchemeAllowed('https'));
+        $this->assertFalse($spec->isUriSchemeAllowed('ftp'));
+        $this->assertFalse($spec->isUriSchemeAllowed('git'));
+    }
+
+
+    /**
+     * @test
+     * @depends creatingRouteSpec
+     * @return  RouteSpec
+     */
+    public function isUrlSchemeAllowedBadArgFailure()
+    {
+        $data = $this->getDefaultData();
+        $spec = $this->createRouteSpec($data);
+       
+        $msg = 'uri scheme must be null or a non empty string';
+        $this->setExpectedException('InvalidArgumentException', $msg); 
+        $spec->isUriSchemeAllowed(new StdClass);
+    }
 
     /**
      * @test
@@ -230,16 +387,15 @@ class RouteSpecTest extends FrameworkTestCase
     /** 
      * @test
      * @depends         creatingRouteSpec
-     * @dataProvider    provideInvalidStringsIncludeEmpty
      * @return          null 
      */
-    public function creatingSpecInvalidHttpMethod($badMethod) 
+    public function creatingSpecInvalidHttpMethod() 
     { 
-        $msg = 'http method name must be a non empty string'; 
+        $msg = 'http method must be null, array or a non empty string'; 
         $this->setExpectedException('InvalidArgumentException', $msg); 
 
         $data = $this->getDefaultData();
-        $data['http-method'] = $badMethod; 
+        $data['http-method'] = new StdClass(); 
         $spec = $this->createRouteSpec($data); 
     }
 

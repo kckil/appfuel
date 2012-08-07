@@ -51,12 +51,12 @@ class RouteSpec implements RouteSpecInterface
      * Used to enforce an http scheme
      * @var string
      */
-    protected $scheme = 'http';
+    protected $uriScheme = null;
 
     /**
      * @var string
      */
-    protected $httpMethod = null;
+    protected $httpMethod = array();
 
     /**
      * @param   array $spec
@@ -90,6 +90,10 @@ class RouteSpec implements RouteSpecInterface
 
         if (isset($spec['http-method'])) {
             $this->setHttpMethod($spec['http-method']);
+        }
+
+        if (isset($spec['uri-scheme'])) {
+            $this->setUriScheme($spec['uri-scheme']);
         }
     }
 
@@ -134,22 +138,61 @@ class RouteSpec implements RouteSpecInterface
     }
 
     /**
-     * Used to determine if when matching the uri path the http method 
-     * should be compared. 
-     * 
+     * @param   string  $method
      * @return  bool
      */
-    public function isHttpMethodCheck()
+    public function isHttpMethodAllowed($method = null)
     {
-        return null !== $this->httpMethod;
+        if (null !== $method && ! (is_string($method) && !empty($method))) {
+            $err = "http method must be null or a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        if (empty($this->httpMethod)) {
+            return true;
+        }
+
+        foreach ($this->httpMethod as $specMethod) {
+            if (strtoupper($specMethod) === strtoupper($method)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * @return  string
+     * @return  string | null
      */
     public function getHttpMethod()
     {
         return $this->httpMethod;
+    }
+
+    /**
+     * @param   string  $scheme
+     * @return  bool
+     */
+    public function isUriSchemeAllowed($scheme = null)
+    {
+        if (null !== $scheme && ! (is_string($scheme) && ! empty($scheme))) {
+            $err = "uri scheme must be null or a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+        
+        if (empty($this->uriScheme)) {
+            return true;
+        }
+
+        return strtolower($this->uriScheme) === strtolower($scheme);
+    }
+
+    /**
+     * @return  string | null
+     */
+    public function getUriScheme()
+    {
+        return $this->uriScheme;
     }
 
     /**
@@ -230,14 +273,35 @@ class RouteSpec implements RouteSpecInterface
      */
     protected function setHttpMethod($name)
     {
+        if (is_string($name) && ! empty($name)) {
+            $methods = explode('|', $name);
+            
+        } 
+        else if (is_array($name)) {
+            $methods = $name;
+        }
+        else {
+            $err = "http method must be null, array or a non empty string";
+            throw new InvalidArgumentException($err);
+
+        }
+
+        $this->httpMethod = $methods;
+    }
+
+    /**
+     * @param  string  $name
+     * @return  null
+     */
+    protected function setUriScheme($name)
+    {
         if (! $this->isValidString($name)) {
-            $err = "http method name must be a non empty string";
+            $err = "http scheme name must be a non empty string";
             throw new InvalidArgumentException($err);
         }
 
-        $this->httpMethod = strtoupper($name);
+        $this->uriScheme = strtolower($name);
     }
-
 
     /**
      * @param   string  $key
