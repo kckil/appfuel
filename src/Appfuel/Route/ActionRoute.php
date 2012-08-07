@@ -159,7 +159,8 @@ class ActionRoute implements ActionRouteInterface
         $key = $this->getKey();
         $controller = $this->getController();
         $method = $this->getControllerMethod();
-        return new MatchedRoute($key, $controller, $method, $captures);
+        $matched = new MatchedRoute($key, $controller, $method, $captures);
+        return $matched;
     }
 
     /**
