@@ -272,54 +272,74 @@ class ActionRouteTest extends FrameworkTestCase
     }
 
     /**
+     * @test
      * @depends creatingActionRoute
      * @return  null
      */
     public function matching()
     {
-        $spec = $this->createMockRouteSpec();
-        $spec->expects($this->any())
-             ->method('getPattern')
-             ->will($this->returnValue('/^my-route$/'));
-
+        $spec = $this->createRouteSpec(array(
+            'key' => 'example',
+            'pattern' => '#^/my-route$#',
+        ));
         $route = $this->createActionRoute($spec);
-        
-        $matched = $route->match('my-route');
+
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/my-route',
+            'uri-scheme' => 'http',
+            'http-method' => 'get'
+        ));
+
+        $matched = $route->match($matcher);
         $class = 'Appfuel\\Route\\MatchedRoute';
         $this->assertInstanceOf($class, $matched);
     }
 
     /**
+     * @test
      * @depends creatingActionRoute
      * @return  null
      */
     public function matchingWithCaptures()
     {
-        $spec = $this->createMockRouteSpec();
-        $spec->expects($this->any())
-             ->method('getPattern')
-             ->will($this->returnValue('#^my-route/(\w+)/(\d+)#'));
-
-        $spec->expects($this->any())
-             ->method('getParams')
-             ->will($this->returnValue(array('name', 'id')));
+        $spec = $this->createRouteSpec(array(
+            'key' => 'example',
+            'pattern' => '#^/my-route/(\w+)/(\d+)#',
+            'params' => array('name', 'id')
+        ));
 
         $route = $this->createActionRoute($spec);
-        
-        $matched = $route->match('my-route/robert/12345');
+         $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/my-route/robert/12345',
+            'uri-scheme' => 'http',
+            'http-method' => 'get'
+        ));
+
+       
+        $matched = $route->match($matcher);
         $class = 'Appfuel\\Route\\MatchedRoute';
         $this->assertInstanceOf($class, $matched);
 
         $this->assertSame($spec, $matched->getSpec());
+        $expected = array(
+            'name' => 'robert',
+            'id'   => 12345
+        );
+        $this->assertEquals($expected, $matched->getCaptures());
     }
 
     /**
+     * @test
      * @depends creatingActionRoute
      * @return  null
      */
     public function matchingWithCapturesHierarchy()
     {
-        $userData = array('key' => 'users', 'pattern' => '#^/users#');
+        $userData = array(
+            'key' => 'users',
+            'pattern' => '#^/users#',
+        );
+
         $userSpec = $this->createRouteSpec($userData);
         $users = $this->createActionRoute($userSpec);
 
@@ -342,8 +362,16 @@ class ActionRouteTest extends FrameworkTestCase
         $rsb = $this->createActionRoute($rsbSpec);
 
         $users->add($rsb);
-        $uri = '/users/group/cat-a/staff/rsb/12345';
-        $matched = $users->match($uri);
+         
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/users/group/cat-a/staff/rsb/12345',
+            'uri-scheme' => 'http',
+            'http-method' => 'get'
+        ));
+
+
+
+        $matched = $users->match($matcher);
         $this->assertInstanceOf('Appfuel\\Route\\MatchedRoute', $matched);
         $this->assertEquals($rsbSpec, $matched->getSpec());
         $expected = array(
