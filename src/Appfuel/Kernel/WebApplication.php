@@ -9,6 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Route\RouteSpec,
     Appfuel\Route\ActionRoute,
     Appfuel\Http\HttpInput,
     Appfuel\Http\HttpOutput,
