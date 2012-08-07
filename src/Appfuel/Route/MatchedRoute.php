@@ -52,7 +52,7 @@ class MatchedRoute implements MatchedRouteInterface
         }
 
         $action = new $ctrl();
-        $method = $spec->getMethod();
+        $method = $spec->getControllerMethod();
         if (null === $method) {
             $method = 'execute';
         }
