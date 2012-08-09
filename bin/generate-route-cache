@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * See LICENSE file at project root for details.
+ */
+use Appfuel\Filesystem\FileHandler,
+    Appfuel\Route\RouteCollectionBuilder;
+
+$console = require __DIR__ . '/cli-header.php';
+$fileHandler = $console->getFileHandler();
+
+$root = $fileHandler->getRootPath();
+$fileHandler->clearRootPath();
+
+$paths = $console->getPathCollection();
+$pkgs = $fileHandler->importScript($paths->get('app-packages'));
+if (! is_array($pkgs)) {
+    $path = $paths->get('app-packages');
+    $console->outputError("the pacakges file must return an array -($path)\n");
+    exit(1);
+}
+
+$builder = new RouteCollectionBuilder();
+foreach ($pkgs as $pkgName => $path) {
+    $routeFile = "$root/$path/Resources/config/routes.php";
+    $routeData = $fileHandler->importScript($routeFile);
+    if (! is_array($routeData)) {
+        $err = "route file must return an array -($routeFile)";
+        $console->outputError("$err\n");
+        exit(1);
+    }
+    foreach ($routeData as $key => $data) {
+        $data['key'] = $key;
+        $builder->loadRoute($data);
+    }
+}
+
+$routes = $builder->createRouteCollection();
+$result = $fileHandler->writeSerialized($paths->get('routes-cache'), $routes);
+if (false === $result) {
+    $file = $paths->get('routes-cache');
+    $err = "could not write routes to -($file)";
+    $console->outputError("$err\n");
+    exit(1);
+}
+exit(0);

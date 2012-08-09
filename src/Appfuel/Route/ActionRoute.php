@@ -72,7 +72,7 @@ class ActionRoute implements ActionRouteInterface
         }
 
         if (empty($this->routes)) {
-            return new MatchedRoute($spec, $matcher->getCaptures());
+            return $this->createMatchedRoute($spec, $matcher->getCaptures());
         }
 
         $found = false;
@@ -84,7 +84,7 @@ class ActionRoute implements ActionRouteInterface
         }
 
         if (false === $found) {
-            $matched = new MatchedRoute($spec, $matcher->getCaptures());
+            $matched = $this->createMatchedRoute($spec,$matcher->getCaptures());
         }
 
         return $matched;
@@ -210,6 +210,17 @@ class ActionRoute implements ActionRouteInterface
         }
 
         return $keys;
+    }
+
+    /**
+     * @param   RouteSpecInterface  $spec
+     * @param   array   $captures
+     * @return  MatchedRoute
+     */
+    protected function createMatchedRoute(RouteSpecInterface $spec, 
+                                          array $captures = array())
+    {
+        return new MatchedRoute($spec, $captures);
     }
 
     /**

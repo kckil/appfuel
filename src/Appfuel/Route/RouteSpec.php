@@ -138,6 +138,14 @@ class RouteSpec implements RouteSpecInterface
     }
 
     /**
+     * @return  bool
+     */
+    public function isParams()
+    {
+        return ! empty($this->params);
+    }
+
+    /**
      * @param   string  $method
      * @return  bool
      */

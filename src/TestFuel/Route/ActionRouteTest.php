@@ -276,6 +276,104 @@ class ActionRouteTest extends FrameworkTestCase
      * @depends creatingActionRoute
      * @return  null
      */
+    public function failedMatchUriSchemeNotAllowed()
+    {
+        $spec = $this->createRouteSpec(array(
+            'key'        => 'example',
+            'pattern'    => '#^/myroute$#',
+            'uri-scheme' => 'https'
+        ));
+        $route = $this->createActionRoute($spec);
+
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/myroute',
+            'uri-scheme' => 'http',
+            'http-method' => 'get'
+        ));
+
+        $this->assertFalse($route->match($matcher));
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function matchHttpUriSchemeIsAllowed()
+    {
+        $spec = $this->createRouteSpec(array(
+            'key'        => 'example',
+            'pattern'    => '#^/myroute$#',
+            'uri-scheme' => 'https'
+        ));
+        $route = $this->createActionRoute($spec);
+
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/myroute',
+            'uri-scheme' => 'https',
+            'http-method' => 'get'
+        ));
+
+        $matched = $route->match($matcher);
+        $class = 'Appfuel\\Route\\MatchedRoute';
+        $this->assertInstanceOf($class, $matched);
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function failedMatchHttpMethodNotAllowed()
+    {
+        $spec = $this->createRouteSpec(array(
+            'key'         => 'example',
+            'pattern'     => '#^/myroute$#',
+            'uri-scheme'  => 'https',
+            'http-methpd' => 'get|post'
+        ));
+        $route = $this->createActionRoute($spec);
+
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/myroute',
+            'uri-scheme' => 'http',
+            'http-method' => 'put'
+        ));
+
+        $this->assertFalse($route->match($matcher));
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
+    public function matchHttpMethodIsAllowed()
+    {
+        $spec = $this->createRouteSpec(array(
+            'key'         => 'example',
+            'pattern'     => '#^/myroute$#',
+            'uri-scheme'  => 'https',
+            'http-method' => 'get|post', 
+        ));
+        $route = $this->createActionRoute($spec);
+
+        $matcher = $this->createUriMatcher(array(
+            'uri-path' => '/myroute',
+            'uri-scheme' => 'https',
+            'http-method' => 'post'
+        ));
+
+        $matched = $route->match($matcher);
+        $class = 'Appfuel\\Route\\MatchedRoute';
+        $this->assertInstanceOf($class, $matched);
+    }
+
+    /**
+     * @test
+     * @depends creatingActionRoute
+     * @return  null
+     */
     public function matching()
     {
         $spec = $this->createRouteSpec(array(
