@@ -26,7 +26,7 @@ class RouteCollection implements RouteCollectionInterface
         foreach ($this->routes as $root) {
             $matched = $root->match($matcher);
             if ($matched instanceof MatchedRouteInterface) {
-                $break;
+                break;
             }
         }
 

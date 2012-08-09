@@ -42,22 +42,20 @@ class RouteDispatcher implements RouteDispatcherInterface
     public function dispatchHttpRequest(HttpRequestInterface $request)
     {
         $collection = $this->getRouteCollection();
-        $path = $request->getPathInfo();
-       
-        $uriMatcher = $collection->createUriMatcher(array(
+        $matcher = $collection->createUriMatcher(array(
             'uri-path'    => $request->getPathInfo(),
             'uri-scheme'  => $request->getScheme(),
             'http-method' => $request->getMethod()
         ));
 
-        $matched = $collection->matchUri($uriMatcher);
+        $matched = $collection->matchUri($matcher);
         if (! $matched instanceof MatchedRouteInterface) {
             return false;
         }
 
         $controller = $matched->createCallableController();
-        $captures   = $matched->getCaptures();
-        $response = call_user_func($controller, array_values($captures));
+        $args = $matched->getCaptureValues();
+        $response = call_user_func_array($controller, $args);
 
         if (is_string($response)) {
             $response = $this->createHttpResponse($response);

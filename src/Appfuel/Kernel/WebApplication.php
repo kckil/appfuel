@@ -34,7 +34,11 @@ class WebApplication extends AppKernel implements WebInterface
 
         $dispatcher = $this->getRouteDispatcher();
         
-        $response = $dipatcher->dispatch($request);
+        $response = $dispatcher->dispatchHttpRequest($request);
+        if (false === $response) {
+            return $this->createHttpResponse('', 404);
+        }
+
         if (is_string($response)) {
             $response = $this->createHttpResponse($response);
         }

@@ -23,4 +23,9 @@ interface MatchedRouteInterface
      * @return  array
      */
     public function getCaptures();
+    
+    /**
+     * @return  array
+     */
+    public function getCapturedValues();
 }

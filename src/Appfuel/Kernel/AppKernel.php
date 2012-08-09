@@ -9,6 +9,8 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Route\RouteDispatcher,
+    Appfuel\Route\RouteDispatcherInterface,
     Appfuel\Route\RouteCollectionInterface,
     Appfuel\Kernel\Cache\CodeCacheManager,
     Appfuel\Console\ConsoleInputInterface,

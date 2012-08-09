@@ -84,6 +84,14 @@ class MatchedRoute implements MatchedRouteInterface
     }
 
     /**
+     * @return  array
+     */
+    public function getCapturedValues()
+    {
+        return array_values($this->captures);
+    }
+
+    /**
      * @param   array   $params
      * @return  null
      */
