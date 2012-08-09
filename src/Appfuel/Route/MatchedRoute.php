@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Route;
 
-use InvalidArgumentException;
+use Exception,
+    InvalidArgumentException;
 
 class MatchedRoute implements MatchedRouteInterface
 {
@@ -59,7 +60,7 @@ class MatchedRoute implements MatchedRouteInterface
         if (is_callable($ctrl)) {
             return $ctrl;
         }
-
+       
         $action = new $ctrl();
         $method = $spec->getControllerMethod();
         if (null === $method) {

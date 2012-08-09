@@ -4,23 +4,13 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
 use StdClass,
-    Appfuel\Route\RouteSpec,
-    Testfuel\FrameworkTestCase;
+    Appfuel\Route\RouteSpec;
 
-class RouteSpecTest extends FrameworkTestCase 
+class RouteSpecTest extends TestRouteCase
 {
-
-    /**
-     * @param   array $spec
-     * @return  RouteMatcher
-     */
-    public function createRouteSpec(array $spec)
-    {
-        return new RouteSpec($spec);
-    }
 
     /**
      * @return  array
@@ -43,8 +33,8 @@ class RouteSpecTest extends FrameworkTestCase
         $data = $this->getDefaultData();
         $spec = $this->createRouteSpec($data);
 
-        $interface = 'Appfuel\\Route\\RouteSpecInterface';
-        $this->assertInstanceOf($interface, $spec);
+        $interface = $this->getRouteSpecInterface();
+        $this->assertInstanceOf($this->getRouteSpecInterface(), $spec);
 
         $this->assertEquals($data['key'], $spec->getKey());
         $this->assertEquals($data['pattern'], $spec->getPattern());

@@ -4,15 +4,11 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Route;
 
-use DomainException,
-    InvalidArgumentException,
-    Appfuel\Http\HttpResponse,
+use Appfuel\Http\HttpResponse,
     Appfuel\Http\HttpRequestInterface,
-    Appfuel\Http\HttpResponseInterface,
-    Appfuel\Route\MatchedRouteInterface,
-    Appfuel\Route\RouteCollectionInterface;
+    Appfuel\Http\HttpResponseInterface;
 
 class RouteDispatcher implements RouteDispatcherInterface
 {
@@ -55,12 +51,12 @@ class RouteDispatcher implements RouteDispatcherInterface
         ));
 
         $matched = $collection->matchUri($uriMatcher);
-        if (! $route instanceof MatchedRouteInterface) {
+        if (! $matched instanceof MatchedRouteInterface) {
             return false;
         }
 
         $controller = $matched->createCallableController();
-        $captures   = $match->getCaptures();
+        $captures   = $matched->getCaptures();
         $response = call_user_func($controller, array_values($captures));
 
         if (is_string($response)) {
@@ -71,5 +67,18 @@ class RouteDispatcher implements RouteDispatcherInterface
         }
 
         return $response;
+    }
+
+    /**
+     * @param   string  $data
+     * @param   int $status
+     * @param   array   $headers
+     * @return  HttpResponse
+     */
+    protected function createHttpResponse($data = null, 
+                                          $status = null,
+                                          $headers = null)
+    {
+        return new HttpResponse($data, $status, $headers);
     }
 }

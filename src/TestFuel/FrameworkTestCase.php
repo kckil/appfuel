@@ -8,6 +8,7 @@ namespace Testfuel;
 
 use StdClass,
     SplFileInfo,
+    Appfuel\Http\HttpRequest,
     PHPUnit_Framework_TestCase;
 
 class FrameworkTestCase extends PHPUnit_Framework_TestCase
@@ -18,7 +19,7 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
      *
      * @return  string
      */
-    protected function getFixturePath()
+    public function getFixturePath()
     {
         /* absolute path to TestFuel directory */
         $testPath = dirname(__DIR__);
@@ -28,6 +29,15 @@ class FrameworkTestCase extends PHPUnit_Framework_TestCase
         $relativePath = dirname($path);
 
         return "$testPath/$relativePath/Fixtures"; 
+    }
+
+    /**
+     * @param   array
+     * @return  HttpRequest
+     */
+    public function createHttpRequest(array $data)
+    {
+        return new HttpRequest($data);
     }
 
     /**

@@ -4,34 +4,13 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
 use StdClass,
-    Testfuel\FrameworkTestCase,
-    Appfuel\Route\RouteSpec,
-    Appfuel\Route\ActionRoute,
     Appfuel\Route\RouteCollection;
 
-class RouteCollectionTest extends FrameworkTestCase 
+class RouteCollectionTest extends TestRouteCase
 {
-
-    /**
-     * @param   array   $data
-     * @return  RouteSpec
-     */
-    public function createActionRoute(array $data)
-    {
-        return new ActionRoute(new RouteSpec($data));
-    }
-
-    /**
-     * @param   array   $data
-     * @return  RouteSpec
-     */
-    public function createRouteCollection()
-    {
-        return new RouteCollection(); 
-    }
 
     public function getUriMatcherData($path = null)
     {
@@ -82,7 +61,7 @@ class RouteCollectionTest extends FrameworkTestCase
      */
     public function addingParentRoute(RouteCollection $collection)
     {
-        $route1 = $this->createActionRoute(array(
+        $route1 = $this->createActionRouteWithSpecArray(array(
             'key' => 'users', 
             'pattern' => '#^/users#', 
             'controller' => 'MyUserController'
@@ -100,7 +79,7 @@ class RouteCollectionTest extends FrameworkTestCase
      */
     public function addingChildOfNonExistantParent(RouteCollection $collection)
     {
-        $route1 = $this->createActionRoute(array(
+        $route1 = $this->createActionRouteWithSpecArray(array(
             'key' => 'projects.system', 
             'pattern' => '#^/system/(\d+)#', 
             'controller' => 'ProjectSystemController'
@@ -120,7 +99,7 @@ class RouteCollectionTest extends FrameworkTestCase
      */
     public function addingChildOfExistingParent(RouteCollection $collection)
     {
-        $route1 = $this->createActionRoute(array(
+        $route1 = $this->createActionRouteWithSpecArray(array(
             'key' => 'users.user-a', 
             'pattern' => '#^/user-a/(\d+)#', 
             'controller' => 'UserAController'
@@ -128,7 +107,7 @@ class RouteCollectionTest extends FrameworkTestCase
         $this->assertSame($collection, $collection->add($route1));
         $this->assertSame($route1, $collection->get('users.user-a'));
  
-        $route2 = $this->createActionRoute(array(
+        $route2 = $this->createActionRouteWithSpecArray(array(
             'key' => 'users.user-a.type', 
             'pattern' => '#^/type/(\w+)#', 
             'controller' => 'TypeController',
@@ -175,6 +154,4 @@ class RouteCollectionTest extends FrameworkTestCase
 
         return $collection;
     }
-
-
 }

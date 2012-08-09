@@ -4,68 +4,12 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
-use Appfuel\Route\UriMatcher,
-    Appfuel\Route\RouteSpec,
-    Appfuel\Route\ActionRoute,
-    Testfuel\FrameworkTestCase;
+use Appfuel\Route\ActionRoute;
 
-class ActionRouteTest extends FrameworkTestCase 
+class ActionRouteTest extends TestRouteCase
 {
-
-    /**
-     * @param   array   $data
-     * @return  RouteSpec
-     */
-    public function createRouteSpec(array $data)
-    {
-        return new RouteSpec($data);
-    }
-
-    /**
-     * @param   array   $data
-     * @return  UriMatcher
-     */
-    public function createUriMatcher(array $data)
-    {
-        return new UriMatcher($data);
-    }
-
-    /**
-     * @return  string
-     */
-    public function getRouteSpecInterface()
-    {
-        return 'Appfuel\\Route\\RouteSpecInterface';
-    }
-
-    /**
-     * @return  RouteSpecInterface
-     */
-    public function createMockRouteSpec($key = null)
-    {
-        if (null === $key) {
-            return $this->getMock($this->getRouteSpecInterface());
-        }
-
-        $spec = $this->getMock($this->getRouteSpecInterface());
-        $spec->expects($this->any())
-             ->method('getKey')
-             ->will($this->returnValue($key));
-
-        return $spec;
-    }
-
-    /**
-     * @param   array $spec
-     * @return  RouteMatcher
-     */
-    public function createActionRoute($spec)
-    {
-        return new ActionRoute($spec);
-    }
-
     /**
      * @test
      * @return  ActionRoute
@@ -74,7 +18,8 @@ class ActionRouteTest extends FrameworkTestCase
     {
         $spec = $this->createMockRouteSpec('sections');
         $route = $this->createActionRoute($spec);
-        $interface = 'Appfuel\\Route\\ActionRouteInterface';
+      
+        $interface = $this->getActionRouteInterface();
         $this->assertInstanceOf($interface, $route);
         $this->assertSame($spec, $route->getSpec());
     

@@ -39,7 +39,7 @@ class WebApplication extends AppKernel implements WebInterface
             $response = $this->createHttpResponse($response);
         }
         else if (! $response instanceof HttpResponseInterface) {
-            $response = $this->getHttpResponse();
+            $response = $this->createHttpResponse();
         }
 
         return $response;

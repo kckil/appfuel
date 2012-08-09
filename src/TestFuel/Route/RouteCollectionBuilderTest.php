@@ -4,25 +4,13 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
 use StdClass,
-    Testfuel\FrameworkTestCase,
-    Appfuel\Route\RouteSpec,
-    Appfuel\Route\ActionRoute,
     Appfuel\Route\RouteCollectionBuilder;
 
-class RouteCollectionBuilderTest extends FrameworkTestCase 
+class RouteCollectionBuilderTest extends TestRouteCase 
 {
-
-    /**
-     * @param   array   $data
-     * @return  RouteSpec
-     */
-    public function createRouteCollectionBuilder()
-    {
-        return new RouteCollectionBuilder(); 
-    }
 
     /**
      * @return  array
@@ -64,7 +52,7 @@ class RouteCollectionBuilderTest extends FrameworkTestCase
     public function creatingRouteCollectionBuilder()
     {
         $builder = $this->createRouteCollectionBuilder();
-        $interface = 'Appfuel\\Route\\RouteCollectionBuilderInterface';
+        $interface = $this->getRouteCollectionBuilderInterface();
         $this->assertInstanceOf($interface, $builder);
 
         return $builder;
@@ -154,7 +142,7 @@ class RouteCollectionBuilderTest extends FrameworkTestCase
      * @depends creatingRouteCollectionBuilder
      * @return  
      */
-    public function createRouteCollection(RouteCollectionBuilder $builder)
+    public function creatingARouteCollection(RouteCollectionBuilder $builder)
     {
         $spec1 = array('key' => 'users', 'pattern' => '/');
         $spec2 = array('key' => 'users.groups', 'pattern' => '/');

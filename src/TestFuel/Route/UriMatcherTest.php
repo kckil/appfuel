@@ -4,22 +4,12 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
-use Appfuel\Route\UriMatcher,
-    Testfuel\FrameworkTestCase;
+use Appfuel\Route\UriMatcher;
 
-class UriMatcherTest extends FrameworkTestCase 
+class UriMatcherTest extends TestRouteCase 
 {
-
-    /**
-     * @param   array $data
-     * @return  UriMatcher
-     */
-    public function createUriMatcher(array $data)
-    {
-        return new UriMatcher($data);
-    }
 
     /**
      * @return  array
@@ -42,7 +32,7 @@ class UriMatcherTest extends FrameworkTestCase
         $data = $this->getDefaultData();
         $matcher = $this->createUriMatcher($data);
 
-        $interface = 'Appfuel\\Route\\UriMatcherInterface';
+        $interface = $this->getUriMatcherInterface();
         $this->assertInstanceOf($interface, $matcher);
 
         $this->assertEquals($data['uri-path'], $matcher->getUriPath());

@@ -4,32 +4,12 @@
  * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * See LICENSE file at project root for details.
  */
-namespace Testfuel\Kernel;
+namespace Testfuel\Route;
 
-use Appfuel\Route\MatchedRoute,
-    Testfuel\FrameworkTestCase;
+use Appfuel\Route\MatchedRoute;
 
-class MatchedRouteTest extends FrameworkTestCase 
+class MatchedRouteTest extends TestRouteCase 
 {
-
-    /**
-     * @return  RouteSpecInterface
-     */
-    public function createMockRouteSpec()
-    {
-        $interface = 'Appfuel\\Route\\RouteSpecInterface';
-        $mock = $this->getMock($interface);
-        return $mock;
-    }
-
-    /**
-     * @param   RouteSpecInterface $spec
-     * @return  MatchedRoute
-     */
-    public function createMatchedRoute($spec, array $args=null)
-    {
-        return new MatchedRoute($spec, $args);
-    }
 
     /**
      * @test
@@ -39,7 +19,8 @@ class MatchedRouteTest extends FrameworkTestCase
     {
         $spec = $this->createMockRouteSpec();
         $matched = $this->createMatchedRoute($spec);
-        $interface = 'Appfuel\\Route\\MatchedRouteInterface';
+        
+        $interface = $this->getMatchedRouteInterface();
         $this->assertInstanceOf($interface, $matched);
         $this->assertSame($spec, $matched->getSpec());
         $this->assertEquals(array(), $matched->getCaptures());
