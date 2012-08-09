@@ -35,7 +35,7 @@ class RouteCollectionTest extends FrameworkTestCase
 
     public function getUriMatcherData($path = null)
     {
-        $default = 'users/user-a/12345/type/admin';
+        $default = '/users/user-a/12345/type/admin';
         if (null === $path) {
             $path = $default;
         }
@@ -118,7 +118,7 @@ class RouteCollectionTest extends FrameworkTestCase
      * @depends addingParentRoute
      * @return  RouteCollection
      */
-    public function addingChildOfExistantParent(RouteCollection $collection)
+    public function addingChildOfExistingParent(RouteCollection $collection)
     {
         $route1 = $this->createActionRoute(array(
             'key' => 'users.user-a', 
@@ -131,11 +131,50 @@ class RouteCollectionTest extends FrameworkTestCase
         $route2 = $this->createActionRoute(array(
             'key' => 'users.user-a.type', 
             'pattern' => '#^/type/(\w+)#', 
-            'controller' => 'TypeController'
+            'controller' => 'TypeController',
+            'params' => array('name')
         ));
         $this->assertSame($collection, $collection->add($route2));
         $this->assertSame($route2, $collection->get('users.user-a.type'));
         
         return $collection;
     }
+
+    /**
+     * @test
+     * @dataProvider    provideInvalidStringsIncludeEmpty
+     * @depends         creatingRouteCollection
+     */
+    public function gettingARouteWithAnInvalidKey($bad)
+    {
+        $msg = 'route key must be a non empty string';
+        $this->setExpectedException('InvalidArgumentException', $msg);
+
+        $collection = $this->createRouteCollection();
+        $collection->get($bad);
+    }
+
+    /**
+     * @test
+     * @depends addingChildOfExistingParent
+     * @return  RouteCollection
+     */
+    public function matchingUri(RouteCollection $collection)
+    {
+        $data = $this->getUriMatcherData();
+        $matcher = $collection->createUriMatcher($data);
+
+        $matched = $collection->matchUri($matcher);
+        $class = 'Appfuel\\Route\\MatchedRoute';
+        $this->assertInstanceOf($class, $matched);
+        $this->assertEquals('users.user-a.type', $matched->getKey());
+
+        $data = $this->getUriMatcherData('/projects/12345');
+        $matcher = $collection->createUriMatcher($data);
+        $this->assertFalse($collection->matchUri($matcher));
+
+        return $collection;
+    }
+
+
 }

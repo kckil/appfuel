@@ -48,8 +48,13 @@ class RouteDispatcher implements RouteDispatcherInterface
         $collection = $this->getRouteCollection();
         $path = $request->getPathInfo();
        
-        $uriMatcher = $this->createUriMatcher($request);
-        $matched = $collection->match($uriMatcher);
+        $uriMatcher = $collection->createUriMatcher(array(
+            'uri-path'    => $request->getPathInfo(),
+            'uri-scheme'  => $request->getScheme(),
+            'http-method' => $request->getMethod()
+        ));
+
+        $matched = $collection->matchUri($uriMatcher);
         if (! $route instanceof MatchedRouteInterface) {
             return false;
         }

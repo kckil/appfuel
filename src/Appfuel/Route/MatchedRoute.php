@@ -31,6 +31,15 @@ class MatchedRoute implements MatchedRouteInterface
             $this->setCaptures($captures);
         }
     }
+    
+    /**
+     * @return  string
+     */
+    public function getKey()
+    {
+        return $this->getSpec()
+                    ->getKey();
+    }
 
     /**
      * @return  string

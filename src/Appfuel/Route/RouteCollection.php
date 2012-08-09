@@ -6,7 +6,8 @@
  */
 namespace Appfuel\Route;
 
-use OutOfBoundsException;
+use OutOfBoundsException,
+    InvalidArgumentException;
 
 class RouteCollection implements RouteCollectionInterface
 {
@@ -15,6 +16,22 @@ class RouteCollection implements RouteCollectionInterface
      * @var array
      */
     private $routes = array();
+
+    /**
+     * @param   UriMatcherInterface $matcher
+     * @return  false | MatchedRouteInterface
+     */
+    public function matchUri(UriMatcherInterface $matcher)
+    {
+        foreach ($this->routes as $root) {
+            $matched = $root->match($matcher);
+            if ($matched instanceof MatchedRouteInterface) {
+                $break;
+            }
+        }
+
+        return $matched;
+    }
 
     /**
      * @param   string  $key

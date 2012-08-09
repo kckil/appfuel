@@ -26,7 +26,7 @@ class UriMatcher implements UriMatcherInterface
     /**
      * @var string
      */
-    protected $scheme = null;
+    protected $uriScheme = null;
 
     /**
      * @var string
