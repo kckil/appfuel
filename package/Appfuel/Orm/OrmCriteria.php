@@ -23,7 +23,7 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
     /**
      * @var of the target domain
      */
-    protected $tagetDomain = null;
+    protected $targetDomain = null;
 
     /**
      * List of named expressions. A named expression is an expression list 
