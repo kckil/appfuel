@@ -8,6 +8,10 @@ namespace Appfuel\Kernel;
 
 use DomainException,
     InvalidArgumentException,
+    Appfuel\Http\HttpResponse,
+    Appfuel\Http\HttpRequestInterface,
+    Appfuel\Http\HttpResponseInterface,
+    Appfuel\Route\MatchedRouteInterface,
     Appfuel\Route\RouteCollectionInterface;
 
 class RouteDispatcher implements RouteDispatcherInterface
@@ -33,5 +37,34 @@ class RouteDispatcher implements RouteDispatcherInterface
     public function getRouteCollection()
     {
         return $this->collection;
+    }
+
+    /**
+     * @param   HttpRequestInterface
+     * @return  mixed
+     */
+    public function dispatchHttpRequest(HttpRequestInterface $request)
+    {
+        $collection = $this->getRouteCollection();
+        $path = $request->getPathInfo();
+       
+        $uriMatcher = $this->createUriMatcher($request);
+        $matched = $collection->match($uriMatcher);
+        if (! $route instanceof MatchedRouteInterface) {
+            return false;
+        }
+
+        $controller = $matched->createCallableController();
+        $captures   = $match->getCaptures();
+        $response = call_user_func($controller, array_values($captures));
+
+        if (is_string($response)) {
+            $response = $this->createHttpResponse($response);
+        }
+        else if (! $response instanceof HttpResponseInterface) {
+            $response = $this->createHttpResponse();
+        }
+
+        return $response;
     }
 }

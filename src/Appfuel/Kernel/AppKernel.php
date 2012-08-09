@@ -380,7 +380,7 @@ class AppKernel implements AppKernelInterface
      */
     public function getRouteDispatcher()
     {
-        $this->routeDispatcher;
+        return $this->routeDispatcher;
     }
 
     /**

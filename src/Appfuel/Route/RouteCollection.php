@@ -67,6 +67,15 @@ class RouteCollection implements RouteCollectionInterface
     }
 
     /**
+     * @param   array   $data
+     * @return  UriMatcher
+     */
+    public function createUriMatcher(array $data)
+    {
+        return new UriMatcher($data);
+    }
+
+    /**
      * @param   string  $key
      * @return  string
      */

@@ -32,7 +32,7 @@ class WebApplication extends AppKernel implements WebInterface
             $this->startUp();
         }
 
-        $dispatcher = $this->getDispatcher();
+        $dispatcher = $this->getRouteDispatcher();
         
         $response = $dipatcher->dispatch($request);
         if (is_string($response)) {
