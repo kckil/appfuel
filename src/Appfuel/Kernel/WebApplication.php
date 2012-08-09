@@ -28,42 +28,21 @@ class WebApplication extends AppKernel implements WebInterface
      */
     public function handle(HttpRequestInterface $request)
     {
-        $pathInfo = $request->getPathInfo();
-        
-        $router = $this->getRouter();
-        $matched = $router->match($pathInfo); 
-        if (! $matched instanceof MatchedRouteInterface) {
-            return $this->createHttpResponse('', 404);
+        if ($this->isStarted()) {
+            $this->startUp();
         }
- 
-        $controller = $matched->createCallableController();
-        $captures = $matched->getCaptures();
+
+        $dispatcher = $this->getDispatcher();
         
-        $response = call_user_func_array($controller, $captures);
-        if (! $response instanceof HttpResponseInterface) {
+        $response = $dipatcher->dispatch($request);
+        if (is_string($response)) {
+            $response = $this->createHttpResponse($response);
+        }
+        else if (! $response instanceof HttpResponseInterface) {
             $response = $this->getHttpResponse();
         }
 
         return $response;
-    }
-
-    public function getRouteCollection()
-    {
-        $welcome = new ActionRoute(new RouteSpec(array(
-            'key' => 'welcome',
-            'pattern' => '#^$/#',
-            'controller' => '\\AfSkelton\\Controller\\Welcome\\WelcomeController',
-        )));
-
-        $demo = new ActionRoute(new RouteSpec(array(
-            'key' => 'hello-world',
-            'pattern' => '#^/demo/hello/(\w+)#',
-            'controller' => '\\Demo\\Controller\\HelloWorld\\HelloController',
-            'params' => array('name')
-        )));
-
-
-        return array($welcome, $demo);
     }
 
     /**

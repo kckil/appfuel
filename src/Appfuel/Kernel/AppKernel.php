@@ -9,6 +9,7 @@ namespace Appfuel\Kernel;
 use LogicException,
     DomainException,
     InvalidArgumentException,
+    Appfuel\Route\RouteCollectionInterface,
     Appfuel\Kernel\Cache\CodeCacheManager,
     Appfuel\Console\ConsoleInputInterface,
     Appfuel\Filesystem\PathCollection,
@@ -40,6 +41,12 @@ class AppKernel implements AppKernelInterface
      * @var FileHandlerInterface
      */
     protected $fileHandler = null;
+
+    /**
+     * Used dipatch requests to action controller
+     * @var RouteDispatcherInterface
+     */
+    protected $routeDispatcher = null;
 
     /**
      * Used to determine if the startup tasks have been run
@@ -101,6 +108,24 @@ class AppKernel implements AppKernelInterface
     public function isStarted()
     {
         return $this->isStarted;
+    }
+
+    /**
+     * @return  AppKernel
+     */
+    public function markAsStarted()
+    {
+        $this-isStarted = true;
+        return $this;
+    }
+
+    /**
+     * @return  AppKernel
+     */
+    public function markAsNotStarted()
+    {
+        $this-isStarted = false;
+        return $this;
     }
 
     /**
@@ -327,14 +352,33 @@ class AppKernel implements AppKernelInterface
     public function loadClassCache($name)
     {
         $paths = $this->getPathCollection();
-        
+    }
+
+    /**
+     * @return  AppKernel
+     */
+    public function startUp()
+    {
+        $paths = $this->getPathCollection();
+        $handler = $this->getFileHandler();
+        $handler->throwExceptionOnFailure();
+
+        $routes = $handler->readSerialized($paths->get('routes-cache'));
+        if (! $routes instanceof RouteCollectionInterface) {
+            $err  = "the route cache must consist of a serailzed object that ";
+            $err .= "implments Appfuel\\Route\\RouteCollectionInterface";
+            throw new LogicException($err);
+        }
+        $this->setRouteDispatcher($this->createRouteDispatcher($routes));
+
+        return $this;
     }
 
     /**
      * @param   MatchedRouteInterface
      * @return  array | Closure
      */
-    public function getRouter()
+    public function getRouteDispatcher()
     {
         $this->router;
     }
@@ -343,9 +387,18 @@ class AppKernel implements AppKernelInterface
      * @param   RouterInterface $router
      * @return  AppKernel
      */
-    public function setRouter(RouterInterface $router)
+    public function setDispatcherRouter(RouterInterface $router)
     {
         $this->router = $route;
         return $this;
+    }
+
+    /**
+     * @param   RouteCollectionInterface $collection
+     * @return  RouteDispatcher
+     */
+    public function createRouteDispatcher(RouteCollectionInterface $collection)
+    {
+        return new RouteDispatcher($collection);
     }
 }
