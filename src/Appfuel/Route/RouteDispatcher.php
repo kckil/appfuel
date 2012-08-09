@@ -54,7 +54,7 @@ class RouteDispatcher implements RouteDispatcherInterface
         }
 
         $controller = $matched->createCallableController();
-        $args = $matched->getCaptureValues();
+        $args = $matched->getCapturedValues();
         $response = call_user_func_array($controller, $args);
 
         if (is_string($response)) {
