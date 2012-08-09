@@ -115,7 +115,7 @@ class AppKernel implements AppKernelInterface
      */
     public function markAsStarted()
     {
-        $this-isStarted = true;
+        $this->isStarted = true;
         return $this;
     }
 
@@ -124,7 +124,7 @@ class AppKernel implements AppKernelInterface
      */
     public function markAsNotStarted()
     {
-        $this-isStarted = false;
+        $this->isStarted = false;
         return $this;
     }
 
@@ -380,16 +380,16 @@ class AppKernel implements AppKernelInterface
      */
     public function getRouteDispatcher()
     {
-        $this->router;
+        $this->routeDispatcher;
     }
 
     /**
      * @param   RouterInterface $router
      * @return  AppKernel
      */
-    public function setDispatcherRouter(RouterInterface $router)
+    public function setRouterDispatcher(RouteDispatcherInterface $dispatcher)
     {
-        $this->router = $route;
+        $this->routeDispatcher = $dispatcher;
         return $this;
     }
 
