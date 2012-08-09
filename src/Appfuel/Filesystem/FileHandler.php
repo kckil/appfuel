@@ -141,8 +141,9 @@ class FileHandler implements FileHandlerInterface
     public function read($path)
     { 
         $finder = $this->getFileFinder(); 
-        if (false === ($full = $finder->getExistingPath($path))) { 
-            return $this->handleError('read', 'file_get_contents'); 
+        if (false === ($full = $finder->getExistingPath($path))) {
+            $full = $finder->getPath($path);
+            return $this->handleError('read', "file_get_contents -($full)"); 
         } 
 
         return file_get_contents($full); 

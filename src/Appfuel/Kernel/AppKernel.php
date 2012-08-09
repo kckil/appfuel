@@ -363,7 +363,7 @@ class AppKernel implements AppKernelInterface
         $handler = $this->getFileHandler();
         $handler->throwExceptionOnFailure();
 
-        $routes = $handler->readSerialized($paths->get('routes-cache'));
+        $routes = $handler->readSerialized($paths->getRelative('routes-cache'));
         if (! $routes instanceof RouteCollectionInterface) {
             $err  = "the route cache must consist of a serailzed object that ";
             $err .= "implments Appfuel\\Route\\RouteCollectionInterface";
@@ -387,7 +387,7 @@ class AppKernel implements AppKernelInterface
      * @param   RouterInterface $router
      * @return  AppKernel
      */
-    public function setRouterDispatcher(RouteDispatcherInterface $dispatcher)
+    public function setRouteDispatcher(RouteDispatcherInterface $dispatcher)
     {
         $this->routeDispatcher = $dispatcher;
         return $this;

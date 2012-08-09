@@ -10,7 +10,7 @@ use DomainException,
     InvalidArgumentException,
     Appfuel\Route\RouteCollectionInterface;
 
-class RouteDispatcher 
+class RouteDispatcher implements RouteDispatcherInterface
 {
     /**
      * Holds a list of routes
